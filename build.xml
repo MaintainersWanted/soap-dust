@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<project name="soap-dust" default="jar" basedir=".">
+  <property file="${basedir}/VERSION.properties"/>
+  <property name="build.dir" value="${basedir}/target"/>
+  <property name="classes.main.dir" value="${build.dir}/classes"/>
+  <property name="src.main.dir" value="${basedir}/src"/>
+  <property name="jar.file" value="${build.dir}/soap-dust${version}.jar"/>
+
+  <target name="clean" description="clean project (remove target directory).">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="jar" depends="compile"
+          description="Build library jar file">
+    <jar destfile="${jar.file}"
+         basedir="${classes.main.dir}"/>
+  </target>
+
+  <target name="compile" depends="prepare">
+    <javac srcdir="${src.main.dir}"
+           destdir="${classes.main.dir}"
+           fork="true"
+           source="1.5"
+           target="1.5"/>
+  </target>
+
+  <target name="prepare">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${classes.main.dir}"/>
+    <copy file="${basedir}/VERSION.properties" todir="${classes.main.dir}"/>
+  </target>
+
+</project>
+

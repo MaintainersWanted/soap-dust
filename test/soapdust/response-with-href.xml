@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance">
+<soapenv:Body>
+  <ns1:getIssuesFromFilterResponse soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns1="http://jira.codehaus.org/rpc/soap/jirasoapservice-v2">
+    <getIssuesFromFilterReturn soapenc:arrayType="ns2:RemoteIssue[51]" xsi:type="soapenc:Array" xmlns:ns2="http://beans.soap.rpc.jira.atlassian.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+      <getIssuesFromFilterReturn href="#id0"/>
+      <getIssuesFromFilterReturn href="#id1"/>
+    </getIssuesFromFilterReturn>
+  </ns1:getIssuesFromFilterResponse>
+<multiRef id="id0" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="ns3:RemoteIssue" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns3="http://beans.soap.rpc.jira.atlassian.com">
+  <affectsVersions href="#id51"/>
+  <assignee xsi:type="ns4:string" xsi:null="true" xmlns:ns4="http://www.w3.org/2001/XMLSchema"/>
+  <summary xsi:type="ns17:string" xmlns:ns17="http://www.w3.org/2001/XMLSchema">This is test 1</summary>
+</multiRef>
+<multiRef id="id1" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="ns3:RemoteIssue" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns3="http://beans.soap.rpc.jira.atlassian.com">
+  <affectsVersions href="#id51"/>
+  <assignee xsi:type="ns4:string" xsi:null="true" xmlns:ns4="http://www.w3.org/2001/XMLSchema"/>
+  <summary xsi:type="ns17:string" xmlns:ns17="http://www.w3.org/2001/XMLSchema">This is test 2</summary>
+</multiRef>
+<multiRef id="id51" soapenc:root="0" soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xsi:type="ns1920:RemoteVersion" xmlns:ns1920="http://beans.soap.rpc.jira.atlassian.com" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+  <name xsi:type="ns1923:string" xmlns:ns1923="http://www.w3.org/2001/XMLSchema">TOTO</name>
+</multiRef>
+</soapenv:Body>
+</soapenv:Envelope>
