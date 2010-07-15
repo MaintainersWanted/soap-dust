@@ -5,17 +5,33 @@
   <property name="build.dir" value="${basedir}/target"/>
   <property name="classes.main.dir" value="${build.dir}/classes"/>
   <property name="src.main.dir" value="${basedir}/src"/>
-  <property name="jar.file" value="${build.dir}/soap-dust${version}.jar"/>
+  <property name="jar.file" value="${build.dir}/soap-dust.jar"/>
+
+  <target name="release"
+          description="Build a versioned library jar file. Check that you do not have unchecked local modifications before proceeding.">
+    <exec executable="${ant-release-support}"
+          outputproperty="deliverable"
+          resultproperty="exec.result"/>
+    <fail message="${deliverable}">
+      <condition>
+        <not><equals arg1="${exec.result}" arg2="0"/></not>
+      </condition>
+    </fail>
+    <property name="jar.file" value="${build.dir}/${deliverable}.jar"/>
+    <antcall target="jar"/>
+  </target>
+
+  <target name="jar" depends="compile"
+          description="Build unversioned library jar file. You may prefer release for a versioned jar.">
+    <jar destfile="${jar.file}"
+         basedir="${classes.main.dir}"/>
+  </target>
 
   <target name="clean" description="clean project (remove target directory).">
     <delete dir="${build.dir}"/>
   </target>
 
-  <target name="jar" depends="compile"
-          description="Build library jar file">
-    <jar destfile="${jar.file}"
-         basedir="${classes.main.dir}"/>
-  </target>
+  <!-- -->
 
   <target name="compile" depends="prepare">
     <javac srcdir="${src.main.dir}"
@@ -30,18 +46,6 @@
     <mkdir dir="${classes.main.dir}"/>
     <copy file="${basedir}/VERSION.properties" todir="${classes.main.dir}"/>
   </target>
-
-  <target name="release">
-    <exec executable="${ant-release-support}"
-          outputproperty="deliverable"
-          resultproperty="exec.result"/>
-    <fail message="${deliverable}">
-      <condition>
-        <not><equals arg1="${exec.result}" arg2="0"/></not>
-      </condition>
-    </fail>
-    <echo message="${deliverable}"/>
- </target>
 
 </project>
 
