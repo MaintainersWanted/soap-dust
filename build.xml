@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 
 <project name="soap-dust" default="jar" basedir=".">
+  <property name="ant-release-support" value="${basedir}/tools/ant-release-support.sh"/>
   <property name="build.dir" value="${basedir}/target"/>
   <property name="classes.main.dir" value="${build.dir}/classes"/>
   <property name="src.main.dir" value="${basedir}/src"/>
@@ -31,25 +32,16 @@
   </target>
 
   <target name="release">
-    <exec executable="svn"
-          failonerror="true">
-      <arg value="up"/>
-    </exec>
-    <exec executable="svn"
-          failonerror="true"
-          outputproperty="svn.status">
-      <arg value="st"/>
-    </exec>
-    <echo message="status: ${svn.status}"/>
-    <fail message="You have local modifications you need to check in svn before proceeding.">
+    <exec executable="${ant-release-support}"
+          outputproperty="deliverable"
+          resultproperty="exec.result"/>
+    <fail message="${deliverable}">
       <condition>
-        <not>
-          <equals arg1="" arg2="${svn.status}"/>
-       </not>
+        <not><equals arg1="${exec.result}" arg2="0"/></not>
       </condition>
     </fail>
-    <echo message="OK"/>
-  </target>
+    <echo message="${deliverable}"/>
+ </target>
 
 </project>
 
