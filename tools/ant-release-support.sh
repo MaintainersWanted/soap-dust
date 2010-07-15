@@ -1,6 +1,6 @@
 #!/bin/bash
 
-svn up || exit $?
+svn up >/dev/null || exit $?
 
 if [ ! -z "$(svn st)" ]
 then
