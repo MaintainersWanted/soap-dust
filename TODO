@@ -1,4 +1,2 @@
 ADD received data in MalformedResponseException when possible
 ADD return HTTP status in MalformedResponseException
-CHANGE svn organization to reduce release overhead
-
