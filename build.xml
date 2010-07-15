@@ -17,8 +17,9 @@
         <not><equals arg1="${exec.result}" arg2="0"/></not>
       </condition>
     </fail>
-    <property name="jar.file" value="${build.dir}/${deliverable}.jar"/>
-    <antcall target="jar"/>
+    <antcall target="jar">
+      <param name="jar.file" value="${build.dir}/${deliverable}.jar"/>
+    </antcall>
   </target>
 
   <target name="jar" depends="compile"
