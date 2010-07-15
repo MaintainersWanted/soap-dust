@@ -40,8 +40,14 @@
           outputproperty="svn.status">
       <arg value="st"/>
     </exec>
-    <fail message="You have local modifications you need to check in svn before proceeding."
-          if="svn.status"/>
+    <echo message="status: ${svn.status}"/>
+    <fail message="You have local modifications you need to check in svn before proceeding.">
+      <condition>
+        <not>
+          <equals arg1="" arg2="${svn.status}"/>
+       </not>
+      </condition>
+    </fail>
     <echo message="OK"/>
   </target>
 
