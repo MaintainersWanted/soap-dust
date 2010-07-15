@@ -44,7 +44,6 @@
   <target name="prepare">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${classes.main.dir}"/>
-    <copy file="${basedir}/VERSION.properties" todir="${classes.main.dir}"/>
   </target>
 
 </project>
