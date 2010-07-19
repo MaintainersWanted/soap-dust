@@ -1,2 +1,3 @@
+ADD automatically set SoapAction
 ADD received data in MalformedResponseException when possible
 ADD return HTTP status in MalformedResponseException
