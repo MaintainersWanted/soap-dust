@@ -60,14 +60,13 @@ public class Client {
 
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
 		Document message;
-		HttpURLConnection connection;
 		try {
 			message = createMessage(operation, parameters);
 		} catch (ParserConfigurationException e) {
 			String msg = "Unexpected exception while preparing soap request: " + e;
 			throw new RuntimeException(msg, e);
 		}
-		connection = initHttpConnection();
+		HttpURLConnection connection = initHttpConnection();
 		try {
 			try {
 				sendRequest(message, connection);
@@ -77,18 +76,16 @@ public class Client {
 			try {
 				return readResponse(connection);
 			} catch (SAXException e) {
-				malformedResponse(e);
-				throw new RuntimeException("unreachable code");
+				throw malformedResponseException(e);
 			} catch (ParserConfigurationException e) {
-				malformedResponse(e);
-				throw new RuntimeException("unreachable code");
+				throw malformedResponseException(e);
 			} 
-		}finally {
+		} finally {
 			connection.disconnect();
 		}
 	}
 
-	private void malformedResponse(Exception e) throws MalformedResponseException {
+	private MalformedResponseException malformedResponseException(Exception e) throws MalformedResponseException {
 		String msg = "Server returned a malformed response: " + e;
 		if (debug) {
 			msg += "received headers: " + lastReceivedHeaders;
@@ -103,7 +100,7 @@ public class Client {
 				throw new RuntimeException("IOException while reading data from a byte array ????", unexpectedException);
 			}
 		}
-		throw new MalformedResponseException(msg, e);
+		return new MalformedResponseException(msg, e);
 	}
 
 	private Document createMessage(String operation, ComposedValue parameters) throws ParserConfigurationException {
