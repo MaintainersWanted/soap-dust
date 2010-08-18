@@ -153,7 +153,7 @@ public class ClientTest extends TestCase {
 		authentication.put("password", "password"); //put your password here
 
 		try {
-			ComposedValue login = client.call("login", authentication);
+			client.call("login", authentication);
 		} catch (MalformedResponseException e) {
 			//ignore
 		}
