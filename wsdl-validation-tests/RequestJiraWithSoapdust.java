@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import junit.framework.TestCase;
 import soapdust.Client;
@@ -12,13 +11,7 @@ import soapdust.MalformedWsdlException;
 public class RequestJiraWithSoapdust extends TestCase {
 
 	public void testJira() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
-		Client client = new Client() {
-			@Override
-			protected void customizeHttpConnectionBeforeCall(
-					HttpURLConnection connection) {
-				connection.addRequestProperty("SOAPAction", "");
-			}
-		};
+		Client client = new Client();
 		client.setWsdlUrl("http://jira.codehaus.org/rpc/soap/jirasoapservice-v2?wsdl");
 		client.setEndPoint("http://jira.codehaus.org/rpc/soap/jirasoapservice-v2");
 

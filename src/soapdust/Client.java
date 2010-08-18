@@ -41,7 +41,7 @@ import sun.misc.BASE64Encoder;
 
 public class Client {
 
-	private Map<String, WsdlElement> serviceDescription;
+	private ServiceDescription serviceDescription;
 	private URL endPointUrl;
 	private String password;
 	private String userName;
@@ -67,6 +67,7 @@ public class Client {
 			throw new RuntimeException(msg, e);
 		}
 		HttpURLConnection connection = initHttpConnection();
+		addSoapAction(connection, operation);
 		try {
 			try {
 				sendRequest(message, connection);
@@ -82,6 +83,13 @@ public class Client {
 			} 
 		} finally {
 			connection.disconnect();
+		}
+	}
+
+	private void addSoapAction(HttpURLConnection connection, String operation) {
+		WsdlOperation wsdlOperation = serviceDescription.operations.get(operation);
+		if (wsdlOperation != null && wsdlOperation.soapAction != null) {
+			connection.addRequestProperty("SOAPAction", wsdlOperation.soapAction);
 		}
 	}
 
@@ -110,8 +118,8 @@ public class Client {
 		Document document = documentBuilder.newDocument();
 
 		Element operationElement = createOperationElement(operation, document);
-		WsdlElement operationWsdlElement = serviceDescription.get(operation);
-		operationWsdlElement = operationWsdlElement == null ? serviceDescription.get("*") : operationWsdlElement;
+		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
+		operationWsdlElement = operationWsdlElement == null ? serviceDescription.messages.get("*") : operationWsdlElement;
 		addParameters(document, operationElement, parameters, operationWsdlElement.children, operationWsdlElement.namespace);
 		return document;
 	}
@@ -170,8 +178,8 @@ public class Client {
 		Element header = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Header");
 		Element body = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
-		WsdlElement operationWsdlElement = serviceDescription.get(operation);
-		operationWsdlElement = operationWsdlElement == null ? serviceDescription.get("*") : operationWsdlElement; 
+		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
+		operationWsdlElement = operationWsdlElement == null ? serviceDescription.messages.get("*") : operationWsdlElement; 
 		
 		Element operationElement = document.createElementNS(operationWsdlElement.namespace, operation);
 

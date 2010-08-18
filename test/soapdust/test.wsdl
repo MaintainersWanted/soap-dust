@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
   xmlns:ns1="schema1NS" 
   xmlns:tns="element1NS"
@@ -47,11 +48,12 @@
    <fault message="tns:InvalidInputException" name="InvalidInputException"/>
    <fault message="tns:LimandeException" name="LimandeException"/>
   </operation>
+  <operation name="testOperation2"/>
  </portType>
  <binding name="TestBinding" type="tns:TestPort">
   <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
   <operation name="testOperation1">
-   <soap:operation soapAction=""/>
+   <soap:operation soapAction="soapActionForTestOperation1"/>
    <input>
     <soap:body use="literal"/>
    </input>
@@ -66,19 +68,6 @@
    </fault>
   </operation>
   <operation name="testOperation2">
-   <soap:operation soapAction=""/>
-   <input>
-    <soap:body use="literal"/>
-   </input>
-   <output>
-    <soap:body use="literal"/>
-   </output>
-   <fault name="InvalidInputException">
-    <soap:fault name="InvalidInputException" use="literal"/>
-   </fault>
-   <fault name="LimandeException">
-    <soap:fault name="LimandeException" use="literal"/>
-   </fault>
   </operation>
  </binding>
  <service name="TestService">

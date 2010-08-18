@@ -1,5 +1,6 @@
 package soapdust;
 
+import static soapdust.SoapDustNameSpaceContext.SOAP;
 import static soapdust.SoapDustNameSpaceContext.WSDL;
 import static soapdust.SoapDustNameSpaceContext.XSD;
 
@@ -25,7 +26,7 @@ import org.xml.sax.SAXException;
 
 public class WsdlParser {
 
-	public static Map<String, WsdlElement> parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+	public static ServiceDescription parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		DocumentBuilder parser = newXmlParser();
 
 		Document document = parser.parse(inputStream);
@@ -36,23 +37,43 @@ public class WsdlParser {
 		addXmlNs(nameSpaceContext, definitions);
 		NodeList operations = (NodeList) xpath.compile(WSDL + ":portType/" + WSDL + ":operation").evaluate(definitions, XPathConstants.NODESET);
 
-		HashMap<String, WsdlElement> result = new HashMap<String, WsdlElement>();
+		ServiceDescription serviceDescription = new ServiceDescription();
+		
 		String definitionsTargetNamespace = attribute(definitions, "targetNamespace");
-		result.put("*", new WsdlElement(definitionsTargetNamespace)); //default namespace
+		
+		serviceDescription.messages.put("*", new WsdlElement(definitionsTargetNamespace)); //default namespace
 		for (int i = 0; i < operations.getLength(); i++) {
 			Node operationNode = operations.item(i);
-			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, result);
+			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode));
+			serviceDescription.operations.put(attribute(operationNode, "name"), operation);
+			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, serviceDescription.messages);
 		}
-		return result;
+		return serviceDescription;
 	}
 	
+	private static String soapActionFor(XPath xpath, Node definitions, Node operationNode) throws XPathExpressionException {
+		String operationName = attribute(operationNode, "name");
+		String expression = WSDL + ":binding/" + WSDL + ":operation[@name='" + operationName  + "']/" + SOAP + ":operation";
+		Node soapAction = (Node) xpath.compile(expression).evaluate(definitions, XPathConstants.NODE);
+		if (soapAction == null) {
+			//no soap action specified in wsdl
+			return null;
+		} else {
+			return attribute(soapAction, "soapAction");
+		}
+	}
+
+
 	private static void addParameters(XPath xpath, SoapDustNameSpaceContext nameSpaceContext, Node definitions,
 			Node operationNode, String namespace, Map<String, WsdlElement> parent) throws XPathExpressionException {
 
 		Node input = (Node) xpath.compile(WSDL + ":input").evaluate(operationNode, XPathConstants.NODE);
+		if (input == null) {
+			//this soap operation has no input, ignoring...
+			return;
+		}
 		String messageName = attribute(input, "message").replaceAll(".*:", "");
-		String expression = WSDL + ":message[@name='" + messageName + "']";
-		Node message = (Node) xpath.compile(expression).evaluate(definitions, XPathConstants.NODE);
+		Node message = (Node) xpath.compile(WSDL + ":message[@name='" + messageName + "']").evaluate(definitions, XPathConstants.NODE);
 		NodeList params = (NodeList) xpath.compile(WSDL + ":part").evaluate(message, XPathConstants.NODESET);
 
 		addParameters(parent, namespace, params, xpath, definitions, nameSpaceContext, nameSpaceContext);
@@ -139,6 +160,7 @@ public class WsdlParser {
 
 class SoapDustNameSpaceContext implements NamespaceContext {
 
+	public static final String SOAP = "_soap_";
 	public static final String SOAPENV = "_soapenv_";
 	public static final String XSD = "_xsd_";
 	public static final String WSDL = "_wsdl_";
@@ -147,6 +169,7 @@ class SoapDustNameSpaceContext implements NamespaceContext {
 
 	public SoapDustNameSpaceContext() {
 		nameSpaceURIS = new HashMap<String, String>();
+		nameSpaceURIS.put(SOAP, "http://schemas.xmlsoap.org/wsdl/soap/");
 		nameSpaceURIS.put(WSDL, "http://schemas.xmlsoap.org/wsdl/");
 		nameSpaceURIS.put(XSD, "http://www.w3.org/2001/XMLSchema");
 		nameSpaceURIS.put(SOAPENV, "http://schemas.xmlsoap.org/soap/envelope/");
