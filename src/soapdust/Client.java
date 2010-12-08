@@ -186,10 +186,11 @@ public class Client {
 		document.appendChild(envelope);
 		envelope.appendChild(header);
 		envelope.appendChild(body);
-		body.appendChild(operationElement);
-
-		return operationElement;
-	}
+		//body.appendChild(operationElement);
+//
+	//	return operationElement;
+		return body;
+	}			
 
 
 	ComposedValue readResponse(HttpURLConnection connection) 
