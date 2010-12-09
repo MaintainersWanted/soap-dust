@@ -48,7 +48,7 @@
    <fault message="tns:InvalidInputException" name="InvalidInputException"/>
    <fault message="tns:LimandeException" name="LimandeException"/>
   </operation>
-  <operation name="testOperation2"/>
+  <operation name="testOperation2" style="rpc"/>
  </portType>
  <binding name="TestBinding" type="tns:TestPort">
   <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>

@@ -158,6 +158,7 @@ public class ClientTest extends TestCase {
 			//ignore
 		}
 
+		//rpc style -> wrapping node named by the operation name
 		String expected =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
 			"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
@@ -224,12 +225,12 @@ public class ClientTest extends TestCase {
 			//ignore
 		}
 
+		//document style -> no wrapping node
 		String expected =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
 			"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
 			"<Header/>" +
 			"<Body>" +
-			"<testOperation1 xmlns=\"definitionNS\">" +
 			"<sender xmlns=\"element1NS\">sender</sender>" +
 			"<MSISDN xmlns=\"element1NS\">30123456789</MSISDN>" +
 			"<IDOffre xmlns=\"element1NS\">12043</IDOffre>" +
@@ -241,7 +242,6 @@ public class ClientTest extends TestCase {
 			"<message xmlns=\"element1NS\">coucou</message>" +
 			"</subParameter4>" +
 			"</doscli>" +
-			"</testOperation1>" +
 			"</Body>" +
 			"</Envelope>";
 

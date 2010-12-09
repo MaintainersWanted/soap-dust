@@ -33,6 +33,27 @@ public class WsdlParserTest extends TestCase {
 		assertEquals("soapActionForTestOperation1", operation.soapAction);
 	}
 	
+	public void testParseWsdlAssociateSoapActionWithOperationStyleDocument() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
+		ServiceDescription result = WsdlParser.parse(inputStream);
+		WsdlOperation operation = result.operations.get("testOperation1");
+		assertEquals(WsdlOperation.DOCUMENT, operation.getStyle());
+	}
+
+	public void testParseWsdlAssociateSoapActionWithOperationStyleRpc() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+		FileInputStream inputStream = new FileInputStream("test/soapdust/jira.wsdl");
+		ServiceDescription result = WsdlParser.parse(inputStream);
+		WsdlOperation operation = result.operations.get("login");
+		assertEquals(WsdlOperation.RPC, operation.getStyle());
+	}
+
+	public void testParseWsdlAssociateSoapActionWithOperationStyleOverridingSoapBinding() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
+		ServiceDescription result = WsdlParser.parse(inputStream);
+		WsdlOperation operation = result.operations.get("testOperation2");
+		assertEquals(WsdlOperation.RPC, operation.getStyle());
+	}
+
 	public void testParseWsdlAssociateNullSoapActionWithOperationsWithoutSoapActionInWsdl() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
@@ -73,6 +94,15 @@ public class WsdlParserTest extends TestCase {
 		ServiceDescription result = WsdlParser.parse(inputStream);
 		
 		assertEquals("definitionNS", result.messages.get("*").namespace);
+	}
+
+	public void testParseWsdlAddAStarOperationWithDefaultValues() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
+		ServiceDescription result = WsdlParser.parse(inputStream);
+		
+		WsdlOperation defaultOperation = result.operations.get("*");
+		assertEquals("", defaultOperation.soapAction);
+		assertEquals(WsdlOperation.RPC, defaultOperation.getStyle());
 	}
 
 }

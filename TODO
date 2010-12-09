@@ -1,5 +1,5 @@
+ADD client.explain(<operation>) could display list of available operations and associated parameters structur
 CHECK mail from Luc in tocheck.mail
 ADD received data in MalformedResponseException when possible
 ADD return HTTP status in MalformedResponseException
 ADD handle remote file import in wsdl with wsdl:import tag
-ADD handle rpc/document styles more standard like

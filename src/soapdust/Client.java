@@ -119,7 +119,6 @@ public class Client {
 
 		Element operationElement = createOperationElement(operation, document);
 		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
-		operationWsdlElement = operationWsdlElement == null ? serviceDescription.messages.get("*") : operationWsdlElement;
 		addParameters(document, operationElement, parameters, operationWsdlElement.children, operationWsdlElement.namespace);
 		return document;
 	}
@@ -179,17 +178,21 @@ public class Client {
 		Element body = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
 		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
-		operationWsdlElement = operationWsdlElement == null ? serviceDescription.messages.get("*") : operationWsdlElement; 
-		
-		Element operationElement = document.createElementNS(operationWsdlElement.namespace, operation);
 
 		document.appendChild(envelope);
 		envelope.appendChild(header);
 		envelope.appendChild(body);
-		//body.appendChild(operationElement);
-//
-	//	return operationElement;
-		return body;
+
+		switch (serviceDescription.operations.get(operation).getStyle()) {
+		case WsdlOperation.RPC:
+			Element operationElement = document.createElementNS(operationWsdlElement.namespace, operation);
+			body.appendChild(operationElement);
+			return operationElement;
+			
+		case WsdlOperation.DOCUMENT:
+			default:
+			return body;
+		}
 	}			
 
 
@@ -226,7 +229,7 @@ public class Client {
 			return;
 		case 302:
 			errorMessage = "unsupported HTTP response code " + responseCode 
-					+ " Location: " + connection.getHeaderField("Location");
+			+ " Location: " + connection.getHeaderField("Location");
 		default:
 			byte[] data = inputToBytes(inputStream(connection));
 			throw new MalformedResponseException(errorMessage, responseCode, data);
@@ -239,7 +242,7 @@ public class Client {
 	}
 
 	private byte[] inputToBytes(InputStream inputStream)
-			throws IOException {
+	throws IOException {
 		ByteArrayOutputStream save = new ByteArrayOutputStream();
 		byte[] b = new byte[1024];
 		int nbRead = inputStream.read(b);
@@ -282,7 +285,7 @@ public class Client {
 		OutputStream out = connection.getOutputStream();
 		return out;
 	}
-	
+
 	/**
 	 * Package visibility for unit tests only.
 	 */
@@ -349,7 +352,7 @@ public class Client {
 
 			WsdlElement paramWsdlElement = parent.get(childKey);
 			String namespace = paramWsdlElement != null ? paramWsdlElement.namespace : defaultNamespace;
-			
+
 			Element param = document.createElementNS(namespace, childKey);
 			operationElement.appendChild(param);
 

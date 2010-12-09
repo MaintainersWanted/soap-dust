@@ -42,9 +42,11 @@ public class WsdlParser {
 		String definitionsTargetNamespace = attribute(definitions, "targetNamespace");
 		
 		serviceDescription.messages.put("*", new WsdlElement(definitionsTargetNamespace)); //default namespace
+		serviceDescription.operations.put("*", new WsdlOperation("")); //default operation
 		for (int i = 0; i < operations.getLength(); i++) {
 			Node operationNode = operations.item(i);
 			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode));
+			operation.setStyle(soapOperationStyleFor(xpath, definitions, operationNode));
 			serviceDescription.operations.put(attribute(operationNode, "name"), operation);
 			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, serviceDescription.messages);
 		}
@@ -61,6 +63,16 @@ public class WsdlParser {
 		} else {
 			return attribute(soapAction, "soapAction");
 		}
+	}
+
+	private static String soapOperationStyleFor(XPath xpath, Node definitions, Node operationNode) throws XPathExpressionException {
+		String style = attribute(operationNode, "style");
+		if (style == null || style.equals("")) {
+			String expression = WSDL + ":binding/" + SOAP + ":binding";
+			Node binding = (Node) xpath.compile(expression).evaluate(definitions, XPathConstants.NODE);
+			style = attribute(binding, "style");
+		}
+		return style;
 	}
 
 
