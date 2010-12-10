@@ -26,6 +26,8 @@ import org.xml.sax.SAXException;
 
 public class WsdlParser {
 
+	//TODO optimize this if we can. all the time is spent in this class... :(
+	
 	public static ServiceDescription parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		DocumentBuilder parser = newXmlParser();
 
