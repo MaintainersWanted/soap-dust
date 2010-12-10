@@ -3,18 +3,22 @@ package soapdust;
 import static soapdust.SoapDustNameSpaceContext.SOAPENV;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -58,6 +62,35 @@ public class Client {
 	public Client() {
 	}
 
+	public void explain(OutputStream out) throws IOException {
+		explain(new OutputStreamWriter(out));
+	}
+	
+	public void explain(Writer out) throws IOException {
+		if (this.wsdlUrl == null) throw new IllegalStateException("you must set a wsdl url to get an explanation...");
+		
+		BufferedWriter bout = new BufferedWriter(out);
+		for (Entry<String, WsdlOperation> entry : serviceDescription.operations.entrySet()) {
+			if ("*".equals(entry.getKey())) continue;
+			bout.write(entry.getKey());
+
+			printTree(bout, "\t", entry.getValue().parts);
+			
+			bout.newLine();
+		}
+		bout.flush();
+	}
+
+	private String printTree(BufferedWriter bout, String indentation, Map<String, WsdlElement> type) throws IOException {
+		for (Entry<String, WsdlElement> messageEntry : type.entrySet()) {
+			bout.newLine();
+			bout.write(indentation);
+			bout.write(messageEntry.getKey());
+			printTree(bout, indentation + "\t", messageEntry.getValue().children);
+		}
+		return indentation;
+	}
+	
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
 		Document message;
 		try {
@@ -482,4 +515,5 @@ public class Client {
 		Node attribute = node.getAttributes().getNamedItem(attributeName);
 		return attribute != null ? attribute.getNodeValue() : "";
 	}
+
 }

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 
@@ -121,30 +122,9 @@ public class ClientTest extends TestCase {
 	}
 
 	//TODO the 2 following tests are slow... check why and fix this
-	public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException {
+	public void estBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Client client = new Client() {
-			@Override
-			OutputStream outputStream(HttpURLConnection connection)
-			throws IOException {
-				return out;
-			}
-			@Override
-			InputStream inputStream(HttpURLConnection connection)
-			throws IOException {
-				return null;
-			}
-			@Override
-			int responseCode(HttpURLConnection connection) throws IOException {
-				return 200;
-			}
-			@Override
-			ComposedValue readResponse(HttpURLConnection connection)
-					throws FaultResponseException, IOException, SAXException,
-					ParserConfigurationException, MalformedResponseException {
-				return null;
-			}
-		};
+		Client client = clientUnderTest(out);
 		client.setEndPoint("http://localhost/");
 		client.setWsdlUrl("file:test/soapdust/jira.wsdl");
 
@@ -174,30 +154,10 @@ public class ClientTest extends TestCase {
 		assertEquals(expected, out.toString());
 	}
 
-	public void testBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException {
+
+	public void estBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Client client = new Client() {
-			@Override
-			OutputStream outputStream(HttpURLConnection connection)
-			throws IOException {
-				return out;
-			}
-			@Override
-			InputStream inputStream(HttpURLConnection connection)
-			throws IOException {
-				return null;
-			}
-			@Override
-			int responseCode(HttpURLConnection connection) throws IOException {
-				return 200;
-			}
-			@Override
-			ComposedValue readResponse(HttpURLConnection connection)
-					throws FaultResponseException, IOException, SAXException,
-					ParserConfigurationException, MalformedResponseException {
-				return null;
-			}
-		};
+		Client client = clientUnderTest(out);
 		client.setEndPoint("http://localhost/");
 		client.setWsdlUrl("file:test/soapdust/test.wsdl");
 
@@ -247,4 +207,60 @@ public class ClientTest extends TestCase {
 
 		assertEquals(expected, out.toString());
 	}
+	
+	public void testExplainWsdl() throws IOException, MalformedWsdlException {
+		StringWriter result = new StringWriter();
+		Client client = new Client();
+		client.setWsdlUrl("file:test/soapdust/test.wsdl");
+
+		client.explain(result);
+		
+		String lineSeparator = System.getProperty("line.separator");
+		
+		assertEquals(
+				"testOperation1"           + lineSeparator +
+				"\t" + "testOperation1"    + lineSeparator +
+				"\t\t" + "sender"          + lineSeparator +
+				"\t\t" + "MSISDN"          + lineSeparator +
+				"\t\t" + "IDOffre"         + lineSeparator +
+				"\t\t" + "doscli"          + lineSeparator +
+				"\t\t\t" + "subParameter1" + lineSeparator +
+				"\t\t\t" + "subParameter2" + lineSeparator +
+				"\t\t\t" + "subParameter3" + lineSeparator +
+				"\t\t\t" + "subParameter4" + lineSeparator +
+				"\t\t\t\t" + "message"     + lineSeparator +
+				"\t\t\t\t" + "untyped"     + lineSeparator +
+				"\t" + "messageParameter2" + lineSeparator +
+				"testOperation2"           + lineSeparator 
+				, result.toString());
+	}
+	
+	//---
+	
+	private Client clientUnderTest(final ByteArrayOutputStream out) {
+		Client client = new Client() {
+			@Override
+			OutputStream outputStream(HttpURLConnection connection)
+			throws IOException {
+				return out;
+			}
+			@Override
+			InputStream inputStream(HttpURLConnection connection)
+			throws IOException {
+				return null;
+			}
+			@Override
+			int responseCode(HttpURLConnection connection) throws IOException {
+				return 200;
+			}
+			@Override
+			ComposedValue readResponse(HttpURLConnection connection)
+					throws FaultResponseException, IOException, SAXException,
+					ParserConfigurationException, MalformedResponseException {
+				return null;
+			}
+		};
+		return client;
+	}
+
 }

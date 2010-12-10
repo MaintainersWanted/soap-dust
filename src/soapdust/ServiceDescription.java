@@ -1,6 +1,6 @@
 package soapdust;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ServiceDescription {
@@ -10,7 +10,7 @@ public class ServiceDescription {
 
 }
 
-class DefaultToStarMap<V> extends HashMap<String, V> {
+class DefaultToStarMap<V> extends LinkedHashMap<String, V> {
 	@Override
 	public V get(Object key) {
 		V value = super.get(key);

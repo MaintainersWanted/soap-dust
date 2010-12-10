@@ -50,7 +50,8 @@ public class WsdlParser {
 			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode));
 			operation.setStyle(soapOperationStyleFor(xpath, definitions, operationNode));
 			serviceDescription.operations.put(attribute(operationNode, "name"), operation);
-			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, serviceDescription.messages);
+			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, operation.parts);
+			serviceDescription.messages.putAll(operation.parts);
 		}
 		return serviceDescription;
 	}

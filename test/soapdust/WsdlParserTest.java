@@ -1,6 +1,7 @@
 package soapdust;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,6 +61,19 @@ public class WsdlParserTest extends TestCase {
 		WsdlOperation operation = result.operations.get("testOperation2");
 		assertNull(operation.soapAction);
 	}
+	
+	public void testParseWsdlAssociateMessagePartsWithOperation() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
+		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
+		
+		ServiceDescription result = WsdlParser.parse(inputStream);
+		
+		WsdlOperation operation1 = result.operations.get("testOperation1");
+		assertNotNull(operation1.parts.get("testOperation1"));
+		assertNotNull(operation1.parts.get("messageParameter2"));
+		WsdlOperation operation2 = result.operations.get("testOperation2");
+		assertTrue(operation2.parts.isEmpty());
+	}
+	                                                               
 
 	public void testParseWsdlAssociateMessagePartsWithNameSpace() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
