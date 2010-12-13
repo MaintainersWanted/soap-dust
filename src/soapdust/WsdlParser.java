@@ -91,17 +91,24 @@ public class WsdlParser {
 		Node message = (Node) xpath.compile(WSDL + ":message[@name='" + messageName + "']").evaluate(definitions, XPathConstants.NODE);
 		NodeList params = (NodeList) xpath.compile(WSDL + ":part").evaluate(message, XPathConstants.NODESET);
 
-		addParameters(parent, namespace, params, xpath, definitions, nameSpaceContext, nameSpaceContext);
+		addParameters(parent, namespace, params, xpath, definitions, nameSpaceContext, nameSpaceContext, true);
 	}
 	
 	private static void addParameters(Map<String, WsdlElement> parent, String namespace, NodeList parameterNodes, XPath xpath, Node definitions, 
-			SoapDustNameSpaceContext localNameSpaceContext, SoapDustNameSpaceContext globalNameSpaceContext) throws XPathExpressionException {
+			SoapDustNameSpaceContext localNameSpaceContext, SoapDustNameSpaceContext globalNameSpaceContext, boolean messagePart) throws XPathExpressionException {
 		
 		for(int i = 0; i < parameterNodes.getLength(); i++) {
 			Node parameterNode = parameterNodes.item(i);
 			String parameterName = attribute(parameterNode, "name");
 			WsdlElement parameter = new WsdlElement(namespace);
-			parent.put(parameterName, parameter);
+			if (messagePart) {
+				String parameterType = attribute(parameterNode, "type");
+				if (parameterType == null || parameterType.equals("")) parameterType = attribute(parameterNode, "element");
+				parameterType = parameterType.substring(parameterType.indexOf(":") + 1);
+				parent.put(parameterType, parameter);
+			} else {
+				parent.put(parameterName, parameter);
+			}
 
 			String parameterType = typeOrElementAttribute(parameterNode);
 			String parameterTypeNamespace = namespace;
@@ -120,7 +127,7 @@ public class WsdlParser {
 			if (type == null) {continue;}
 			
 			NodeList subParameters = (NodeList) xpath.compile(".//" + XSD + ":element").evaluate(type, XPathConstants.NODESET);
-			addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext);
+			addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
 		}
 	}
 

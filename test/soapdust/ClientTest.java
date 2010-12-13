@@ -218,20 +218,20 @@ public class ClientTest extends TestCase {
 		String lineSeparator = System.getProperty("line.separator");
 		
 		assertEquals(
-				"testOperation1"           + lineSeparator +
-				"\t" + "testOperation1"    + lineSeparator +
-				"\t\t" + "sender"          + lineSeparator +
-				"\t\t" + "MSISDN"          + lineSeparator +
-				"\t\t" + "IDOffre"         + lineSeparator +
-				"\t\t" + "doscli"          + lineSeparator +
-				"\t\t\t" + "subParameter1" + lineSeparator +
-				"\t\t\t" + "subParameter2" + lineSeparator +
-				"\t\t\t" + "subParameter3" + lineSeparator +
-				"\t\t\t" + "subParameter4" + lineSeparator +
-				"\t\t\t\t" + "message"     + lineSeparator +
-				"\t\t\t\t" + "untyped"     + lineSeparator +
-				"\t" + "messageParameter2" + lineSeparator +
-				"testOperation2"           + lineSeparator 
+				"testOperation1"                  + lineSeparator +
+				"\t" + "messageParameter1Element" + lineSeparator +
+				"\t\t" + "sender"                 + lineSeparator +
+				"\t\t" + "MSISDN"                 + lineSeparator +
+				"\t\t" + "IDOffre"                + lineSeparator +
+				"\t\t" + "doscli"                 + lineSeparator +
+				"\t\t\t" + "subParameter1"        + lineSeparator +
+				"\t\t\t" + "subParameter2"        + lineSeparator +
+				"\t\t\t" + "subParameter3"        + lineSeparator +
+				"\t\t\t" + "subParameter4"        + lineSeparator +
+				"\t\t\t\t" + "message"            + lineSeparator +
+				"\t\t\t\t" + "untyped"            + lineSeparator +
+				"\t" + "string"                   + lineSeparator +
+				"testOperation2"                  + lineSeparator 
 				, result.toString());
 	}
 	

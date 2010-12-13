@@ -1,7 +1,6 @@
 package soapdust;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -68,8 +67,8 @@ public class WsdlParserTest extends TestCase {
 		ServiceDescription result = WsdlParser.parse(inputStream);
 		
 		WsdlOperation operation1 = result.operations.get("testOperation1");
-		assertNotNull(operation1.parts.get("testOperation1"));
-		assertNotNull(operation1.parts.get("messageParameter2"));
+		assertNotNull(operation1.parts.get("messageParameter1Element"));
+		assertNotNull(operation1.parts.get("string"));
 		WsdlOperation operation2 = result.operations.get("testOperation2");
 		assertTrue(operation2.parts.isEmpty());
 	}
@@ -88,7 +87,7 @@ public class WsdlParserTest extends TestCase {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
 		
-		WsdlElement parameter1 = result.messages.get("testOperation1");
+		WsdlElement parameter1 = result.messages.get("messageParameter1Element");
 		assertEquals("element1NS", parameter1.children.get("sender").namespace);
 		assertEquals("element1NS", parameter1.children.get("MSISDN").namespace);
 		assertEquals("element1NS", parameter1.children.get("IDOffre").namespace);
