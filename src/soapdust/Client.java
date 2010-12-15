@@ -152,7 +152,8 @@ public class Client {
 
 		Element operationElement = createOperationElement(operation, document);
 		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
-		addParameters(document, operationElement, parameters, operationWsdlElement.children, operationWsdlElement.namespace);
+		Map<String, WsdlElement> children = serviceDescription.operations.get(operation).parts;
+		addParameters(document, operationElement, parameters, children, operationWsdlElement.namespace);
 		return document;
 	}
 

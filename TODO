@@ -1,3 +1,4 @@
+CLEAN code to remove serviceDescription.messages and use only serviceDescription.operations
 CHECK mail from Luc in tocheck.mail
 ADD received data in MalformedResponseException when possible
 ADD return HTTP status in MalformedResponseException
