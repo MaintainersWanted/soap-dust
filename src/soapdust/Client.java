@@ -150,9 +150,8 @@ public class Client {
 		Document document = documentBuilder.newDocument();
 
 		Element operationElement = createOperationElement(operation, document);
-		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
-		Map<String, WsdlElement> children = serviceDescription.operations.get(operation).parts;
-		addParameters(document, operationElement, parameters, children, operationWsdlElement.namespace);
+		WsdlOperation wsdlOperation = serviceDescription.operations.get(operation);
+		addParameters(document, operationElement, parameters, wsdlOperation.parts, wsdlOperation.namespace);
 		return document;
 	}
 
@@ -210,18 +209,16 @@ public class Client {
 		Element header = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Header");
 		Element body = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
-		WsdlElement operationWsdlElement = serviceDescription.messages.get(operation);
-
 		document.appendChild(envelope);
 		envelope.appendChild(header);
 		envelope.appendChild(body);
 
-		switch (serviceDescription.operations.get(operation).getStyle()) {
+		WsdlOperation wsdlOperation = serviceDescription.operations.get(operation);
+		switch (wsdlOperation.getStyle()) {
 		case WsdlOperation.RPC:
-			Element operationElement = document.createElementNS(operationWsdlElement.namespace, operation);
+			Element operationElement = document.createElementNS(wsdlOperation.namespace, operation);
 			body.appendChild(operationElement);
 			return operationElement;
-			
 		case WsdlOperation.DOCUMENT:
 			default:
 			return body;
@@ -382,6 +379,7 @@ public class Client {
 	private void addParameters(Document document, Element operationElement, ComposedValue parameters, Map<String, WsdlElement> parent, String defaultNamespace) {
 
 		for (String childKey : parameters.getChildrenKeys()) {
+			//TODO throw exception if parameters do not match with wsdl ?
 
 			WsdlElement paramWsdlElement = parent.get(childKey);
 			String namespace = paramWsdlElement != null ? paramWsdlElement.namespace : defaultNamespace;

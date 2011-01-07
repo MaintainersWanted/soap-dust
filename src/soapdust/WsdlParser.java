@@ -43,15 +43,13 @@ public class WsdlParser {
 		
 		String definitionsTargetNamespace = attribute(definitions, "targetNamespace");
 		
-		serviceDescription.messages.put("*", new WsdlElement(definitionsTargetNamespace)); //default namespace
-		serviceDescription.operations.put("*", new WsdlOperation("")); //default operation
+		serviceDescription.operations.put("*", new WsdlOperation("", definitionsTargetNamespace)); //default operation
 		for (int i = 0; i < operations.getLength(); i++) {
 			Node operationNode = operations.item(i);
-			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode));
+			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode), definitionsTargetNamespace);
 			operation.setStyle(soapOperationStyleFor(xpath, definitions, operationNode));
 			serviceDescription.operations.put(attribute(operationNode, "name"), operation);
 			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, operation.parts);
-			serviceDescription.messages.putAll(operation.parts);
 		}
 		return serviceDescription;
 	}

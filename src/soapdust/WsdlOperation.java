@@ -6,13 +6,16 @@ import java.util.Map;
 public class WsdlOperation {
 	public static final int RPC = 0;
 	public static final int DOCUMENT = 1;
+	
 	public String soapAction;
 	public Map<String, WsdlElement> parts = new LinkedHashMap<String, WsdlElement>();
+	public String namespace;
 	
 	private int style;
 
-	public WsdlOperation(String soapAction) {
+	public WsdlOperation(String soapAction, String namespace) {
 		this.soapAction = soapAction;
+		this.namespace = namespace;
 	}
 
 	public void setStyle(String style) {
