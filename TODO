@@ -1,4 +1,5 @@
 CLEAN code to remove serviceDescription.messages and use only serviceDescription.operations
+ADD expose some cool methods for testing such as extractResponse, for instance by creating a new ClientTest class ?
 CHECK mail from Luc in tocheck.mail
 ADD received data in MalformedResponseException when possible
 ADD return HTTP status in MalformedResponseException

@@ -180,7 +180,7 @@ public class ClientTest extends TestCase {
 
 		try {
 			//TODO handle multi-part messages
-			ComposedValue result = client.call("testOperation1", messageParameter1);
+			client.call("testOperation1", messageParameter1);
 		} catch (MalformedResponseException e) {
 			//ignore
 		}

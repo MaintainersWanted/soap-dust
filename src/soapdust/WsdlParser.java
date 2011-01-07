@@ -209,6 +209,7 @@ class SoapDustNameSpaceContext implements NamespaceContext {
 		throw new UnsupportedOperationException();
 	}
 
+	@SuppressWarnings("unchecked")
 	public Iterator getPrefixes(String namespaceURI) {
 		throw new UnsupportedOperationException();
 	}
