@@ -235,6 +235,17 @@ public class ClientTest extends TestCase {
 				, result.toString());
 	}
 	
+	public void testSetWsdlUsesCache() throws IOException, MalformedWsdlException {
+		
+		new Client().setWsdlUrl("file:test/soapdust/jira.wsdl");
+		
+		long start = System.currentTimeMillis();
+		new Client().setWsdlUrl("file:test/soapdust/jira.wsdl");
+		long duration = System.currentTimeMillis() - start;
+		assertTrue(duration < 100);
+	}
+
+	
 	//---
 	
 	private Client clientUnderTest(final ByteArrayOutputStream out) {
