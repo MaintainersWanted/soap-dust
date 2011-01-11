@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -53,6 +54,8 @@ public class Client {
 	private byte[] lastInput;
 	private Map<String, List<String>> lastReceivedHeaders;
 
+	private static Map<URL, ServiceDescription> WSDL_CACHE = new WeakHashMap<URL, ServiceDescription>();
+
 	public Client(boolean debug) {
 		this();
 		this.debug = debug;
@@ -64,17 +67,17 @@ public class Client {
 	public void explain(OutputStream out) throws IOException {
 		explain(new OutputStreamWriter(out));
 	}
-	
+
 	public void explain(Writer out) throws IOException {
 		if (this.wsdlUrl == null) throw new IllegalStateException("you must set a wsdl url to get an explanation...");
-		
+
 		BufferedWriter bout = new BufferedWriter(out);
 		for (Entry<String, WsdlOperation> entry : serviceDescription.operations.entrySet()) {
 			if ("*".equals(entry.getKey())) continue;
 			bout.write(entry.getKey());
 
 			printTree(bout, "\t", entry.getValue().parts);
-			
+
 			bout.newLine();
 		}
 		bout.flush();
@@ -89,7 +92,7 @@ public class Client {
 		}
 		return indentation;
 	}
-	
+
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
 		Document message;
 		try {
@@ -169,9 +172,26 @@ public class Client {
 	}
 
 	public void setWsdlUrl(String wsdlUrl) throws IOException, MalformedWsdlException {
+		this.wsdlUrl = new URL(wsdlUrl);
+		serviceDescription = WSDL_CACHE.get(this.wsdlUrl);
+		if (serviceDescription == null)	parseWsdl(this.wsdlUrl);
+	}
+
+	/**
+	 * Avoid using this method. Prefer setWsdlUrl() instead.
+	 * @param wsdlUrl
+	 * @throws IOException
+	 * @throws MalformedWsdlException
+	 */
+	public void setWsdlUrlOverrideCache(String wsdlUrl) throws IOException, MalformedWsdlException {
+		this.wsdlUrl = new URL(wsdlUrl);
+		parseWsdl(this.wsdlUrl);
+	}
+
+	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
-			this.wsdlUrl = new URL(wsdlUrl);
-			serviceDescription = WsdlParser.parse(this.wsdlUrl.openStream());
+			serviceDescription = WsdlParser.parse(wsdlUrl.openStream());
+			WSDL_CACHE.put(wsdlUrl, serviceDescription);
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException("Unexpected exception while \"analysing\" wsdl: " + e, e);
 		} catch (XPathExpressionException e) {
@@ -220,7 +240,7 @@ public class Client {
 			body.appendChild(operationElement);
 			return operationElement;
 		case WsdlOperation.DOCUMENT:
-			default:
+		default:
 			return body;
 		}
 	}			
