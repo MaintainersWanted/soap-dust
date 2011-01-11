@@ -18,14 +18,14 @@ public class WsdlParserTest extends TestCase {
 		assertNotNull(result.operations.get("testOperation1"));
 		assertNotNull(result.operations.get("testOperation2"));
 	}
-	
+
 	public void testParseWsdlAssociateSoapActionWithOperations() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
 		WsdlOperation operation = result.operations.get("testOperation1");
 		assertEquals("soapActionForTestOperation1", operation.soapAction);
 	}
-	
+
 	public void testParseWsdlAssociateSoapActionWithOperationStyleDocument() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
@@ -53,15 +53,15 @@ public class WsdlParserTest extends TestCase {
 		WsdlOperation operation = result.operations.get("testOperation2");
 		assertNull(operation.soapAction);
 	}
-	
+
 	public void testParseWsdlAssociateMessagePartsWithOperation() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
-		
+
 		ServiceDescription result = WsdlParser.parse(inputStream);
-		
+
 		WsdlOperation operation1 = result.operations.get("testOperation1");
 		assertNotNull(operation1.parts.get("messageParameter1Element"));
-				
+
 		assertNotNull(operation1.parts.get("string"));
 		WsdlOperation operation2 = result.operations.get("testOperation2");
 		assertTrue(operation2.parts.isEmpty());
@@ -69,9 +69,9 @@ public class WsdlParserTest extends TestCase {
 
 	public void testParseWsdlAssociateNamespaceWithOperation() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
-		
+
 		ServiceDescription result = WsdlParser.parse(inputStream);
-		
+
 		WsdlOperation operation1 = result.operations.get("testOperation1");
 		WsdlOperation operation2 = result.operations.get("testOperation2");
 		assertEquals("definitionNS", operation1.namespace);
@@ -81,9 +81,9 @@ public class WsdlParserTest extends TestCase {
 	public void testParseWsdlAssociateOperationsParametersWithNameSpaceRecursively() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
-		
+
 		WsdlOperation operation1 = result.operations.get("testOperation1");
-		
+
 		WsdlElement parameter1 = operation1.parts.get("messageParameter1Element");
 		assertEquals("element1NS", parameter1.children.get("sender").namespace);
 		assertEquals("element1NS", parameter1.children.get("MSISDN").namespace);
@@ -98,14 +98,13 @@ public class WsdlParserTest extends TestCase {
 		assertEquals("element1NS", subParameter4.children.get("message").namespace);
 		assertEquals("element1NS", subParameter4.children.get("untyped").namespace);
 	}
-	
+
 	public void testParseWsdlAddAStarOperationWithDefaultValues() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		FileInputStream inputStream = new FileInputStream("test/soapdust/test.wsdl");
 		ServiceDescription result = WsdlParser.parse(inputStream);
-		
+
 		WsdlOperation defaultOperation = result.operations.get("*");
 		assertEquals("", defaultOperation.soapAction);
 		assertEquals(WsdlOperation.RPC, defaultOperation.getStyle());
 	}
-
 }
