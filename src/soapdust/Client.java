@@ -18,8 +18,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,7 +49,7 @@ public class Client {
 	private URL endPointUrl;
 	private String password;
 	private String userName;
-	private URL wsdlUrl;
+	private boolean wsdlSet; //used to check that wsdl has been set before allowing some operations
 	private boolean debug;
 	private byte[] lastInput;
 	private Map<String, List<String>> lastReceivedHeaders;
@@ -64,36 +64,100 @@ public class Client {
 	public Client() {
 	}
 
+	/**
+	 * Sets a wsdl url for this client. It is the url this client 
+	 * will use to get the wsdl describing the remote soap service.
+	 * 
+	 * You must set this url before being able to call remote service
+	 * or get explanation about remote service.
+	 * 
+	 * Getting wdsl and analysing them is an expensive operation.
+	 * For this reason, a cache of service descriptions is shared
+	 * among all Client instances. The key in this cache is the
+	 * wsdl url.
+	 * 
+	 * This method will try to get the service description from the
+	 * cache first, using the wsdl url as key. Then, only if no 
+	 * service description can be found, will it get the wsdl from 
+	 * the url and analyse it to store service description in the 
+	 * cache. 
+	 * 
+	 * This cache mechanism is thread safe.
+	 * 
+	 * The cache uses a WeakHashMap so that its entries will be 
+	 * automatically dropped from memory if not used or memory needed.
+	 * 
+	 * @see explain
+	 * @see call
+	 * 
+	 * @see WeakHashMap
+	 * 
+	 * @param wsdlUrl the url to get wsdl from.
+	 * @throws IOException if the wsdl is not reachable for any reason.
+	 * @throws MalformedWsdlException if it can not analyse the wsdl.
+	 */
+	public void setWsdlUrl(String wsdlUrl) throws IOException, MalformedWsdlException {
+		synchronized (WSDL_CACHE) {
+			serviceDescription = WSDL_CACHE.get(new URL(wsdlUrl));
+			if (serviceDescription == null)	parseWsdl(new URL(wsdlUrl));
+		}
+		this.wsdlSet = true;
+	}
+	
+	/**
+	 * @see explain(Writer)
+	 * @param out
+	 * @throws IOException
+	 */
 	public void explain(OutputStream out) throws IOException {
 		explain(new OutputStreamWriter(out));
 	}
 
+	/**
+	 * Displays a description of the remote soap service from its wsdl.
+	 * You must set a wsdl url before being able to call this method.
+	 * The description is written in out.
+	 * You are responsible to close out.
+	 * 
+	 * Ex: client.explain(System.out);
+	 * 
+	 * @param out the Writer to print description to.
+	 * @throws IOException
+	 */
 	public void explain(Writer out) throws IOException {
-		if (this.wsdlUrl == null) throw new IllegalStateException("you must set a wsdl url to get an explanation...");
+		if (! this.wsdlSet) throw new IllegalStateException("you must set a wsdl url to get an explanation...");
 
 		BufferedWriter bout = new BufferedWriter(out);
 		for (Entry<String, WsdlOperation> entry : serviceDescription.operations.entrySet()) {
-			if ("*".equals(entry.getKey())) continue;
+			if ("*".equals(entry.getKey())) continue; //special operation that may be removed some time
+			
 			bout.write(entry.getKey());
-
-			printTree(bout, "\t", entry.getValue().parts);
-
+			printType(bout, "\t", entry.getValue().parts);
 			bout.newLine();
 		}
 		bout.flush();
 	}
 
-	private String printTree(BufferedWriter bout, String indentation, Map<String, WsdlElement> type) throws IOException {
-		for (Entry<String, WsdlElement> messageEntry : type.entrySet()) {
-			bout.newLine();
-			bout.write(indentation);
-			bout.write(messageEntry.getKey());
-			printTree(bout, indentation + "\t", messageEntry.getValue().children);
-		}
-		return indentation;
+	/**
+	 * Calls a remote operation without parameters.
+	 * 
+	 * The operation is identified by the given operation parameter.
+	 * 
+	 * @see explain to have information about the remote service available operations.
+	 * 
+	 * @param operation
+	 * @return
+	 * @throws FaultResponseException
+	 * @throws IOException
+	 * @throws MalformedResponseException
+	 */
+	public ComposedValue call(String operation) throws FaultResponseException, IOException, MalformedResponseException  {
+		return call(operation, new ComposedValue());
 	}
 
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
+		if (! this.wsdlSet) throw new IllegalStateException("you must set a wsdl url before trying to call a remote method...");
+		
 		Document message;
 		try {
 			message = createMessage(operation, parameters);
@@ -158,10 +222,6 @@ public class Client {
 		return document;
 	}
 
-	public ComposedValue call(String operation) throws FaultResponseException, IOException, MalformedResponseException  {
-		return call(operation, new ComposedValue());
-	}
-
 	/**
 	 * Override this method if you want to customize the http connection.
 	 * For instance you may add http headers like SOAPAction...
@@ -171,27 +231,29 @@ public class Client {
 
 	}
 
-	public void setWsdlUrl(String wsdlUrl) throws IOException, MalformedWsdlException {
-		this.wsdlUrl = new URL(wsdlUrl);
-		serviceDescription = WSDL_CACHE.get(this.wsdlUrl);
-		if (serviceDescription == null)	parseWsdl(this.wsdlUrl);
-	}
-
 	/**
 	 * Avoid using this method. Prefer setWsdlUrl() instead.
+	 * 
+	 * This method is only usefull if you want to override a service description
+	 * previously stored in cache for the given wsdlUrl.
+	 * 
+	 * @see setWsdlUrl
+	 * 
 	 * @param wsdlUrl
 	 * @throws IOException
 	 * @throws MalformedWsdlException
 	 */
 	public void setWsdlUrlOverrideCache(String wsdlUrl) throws IOException, MalformedWsdlException {
-		this.wsdlUrl = new URL(wsdlUrl);
-		parseWsdl(this.wsdlUrl);
+		parseWsdl(new URL(wsdlUrl));
+		this.wsdlSet = true;
 	}
 
 	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
 			serviceDescription = WsdlParser.parse(wsdlUrl.openStream());
-			WSDL_CACHE.put(wsdlUrl, serviceDescription);
+			synchronized (WSDL_CACHE) {
+				WSDL_CACHE.put(wsdlUrl, serviceDescription);
+			}
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException("Unexpected exception while \"analysing\" wsdl: " + e, e);
 		} catch (XPathExpressionException e) {
@@ -223,6 +285,18 @@ public class Client {
 
 	//----
 
+	private String printType(BufferedWriter bout, String indentation, 
+			Map<String, WsdlElement> type) throws IOException {
+		
+		for (Entry<String, WsdlElement> messageEntry : type.entrySet()) {
+			bout.newLine();
+			bout.write(indentation);
+			bout.write(messageEntry.getKey());
+			printType(bout, indentation + "\t", messageEntry.getValue().children);
+		}
+		return indentation;
+	}
+	
 	private Element createOperationElement(String operation, Document document) {
 
 		Element envelope = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
