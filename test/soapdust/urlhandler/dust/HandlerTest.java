@@ -1,6 +1,7 @@
 package soapdust.urlhandler.dust;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
+import java.util.Hashtable;
 
 import junit.framework.TestCase;
 import soapdust.Client;
@@ -20,17 +23,17 @@ public class HandlerTest extends TestCase {
 	}
 	
 	public void testDustProtocolIsSUpportedByURL() throws MalformedURLException {
-		new URL("dust://"); //should not fail
+		new URL("dust:"); //should not fail
 	}
 	
 	public void testOpeningADustURLReturnsAnHttpConnection() throws IOException {
-		URLConnection connection = new URL("dust://").openConnection();
+		URLConnection connection = new URL("dust:").openConnection();
 		
 		assertTrue(connection instanceof HttpURLConnection);
 	}
 	
 	public void testDustUrlRequestStatusCodeDefaultsTo200() throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("dust://").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL("dust:").openConnection();
 		
 		assertEquals(200, connection.getResponseCode());
 	}
@@ -66,20 +69,20 @@ public class HandlerTest extends TestCase {
 	}
 	
 	public void testOneCanWriteInADustUrl() throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("dust://").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL("dust:").openConnection();
 		
 		connection.getOutputStream(); //shoudl not fail
 	}
 	
-//	public void testWrittenDataAreStoredByUrlKeys() throws MalformedURLException, IOException {
-//		byte[] written = new byte[] {1, 2, 3, 4};
-//		HttpURLConnection connection = (HttpURLConnection) new URL("dust://").openConnection();
-//		OutputStream out = connection.getOutputStream();
-//		
-//		out.write(written);
-//		
-//		assertEquals(written, Handler.saved.get("dust://").toByteArray());
-//	}
+	public void testWrittenDataAreStoredByUrlKeys() throws MalformedURLException, IOException {
+		byte[] written = new byte[] {1, 2, 3, 4};
+		HttpURLConnection connection = (HttpURLConnection) new URL("dust:").openConnection();
+		OutputStream out = connection.getOutputStream();
+		
+		out.write(written);
+		
+		assertTrue(Arrays.equals(written, Handler.saved.get("dust:").toByteArray()));
+	}
 	
 	//---
 	private void assertUrlContent(URL url, String expectedContent) throws IOException {
