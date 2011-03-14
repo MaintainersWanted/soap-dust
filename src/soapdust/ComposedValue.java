@@ -6,6 +6,8 @@ import java.util.Set;
 
 public class ComposedValue {
 
+	//TODO would'nt it be cool if this class implemented map and if element could be found with path string ?
+
 	private HashMap<String, Object> children = new LinkedHashMap<String, Object>(); //ensure parameters are kept in addition order.
 
 	public ComposedValue getComposedValue(String key) {

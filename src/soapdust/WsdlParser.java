@@ -24,11 +24,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class WsdlParser {
-
-	//TODO optimize this if we can. all the time is spent in this class... :(
+class WsdlParser {
 	
-	public static ServiceDescription parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+	static ServiceDescription parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		DocumentBuilder parser = newXmlParser();
 
 		Document document = parser.parse(inputStream);

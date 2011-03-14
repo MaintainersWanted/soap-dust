@@ -3,7 +3,7 @@ package soapdust;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ServiceDescription {
+class ServiceDescription {
 	public Map<String, WsdlOperation> operations = new DefaultToStarMap<WsdlOperation>();
 }
 

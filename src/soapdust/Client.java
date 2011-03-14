@@ -15,6 +15,9 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +58,13 @@ public class Client {
 	private Map<String, List<String>> lastReceivedHeaders;
 
 	private static Map<URL, ServiceDescription> WSDL_CACHE = new WeakHashMap<URL, ServiceDescription>();
+
+	static {
+		String handlers = System.getProperty("java.protocol.handler.pkgs");
+		if (handlers == null) handlers = "";
+		handlers  = handlers + "|soapdust.urlhandler";
+		System.setProperty("java.protocol.handler.pkgs", handlers);
+	}
 
 	public Client(boolean debug) {
 		this();
@@ -105,12 +115,15 @@ public class Client {
 	}
 	
 	/**
-	 * @see explain(Writer)
-	 * @param out
-	 * @throws IOException
+	 * Set the url of the remote service to query.
+	 * 
+	 * You must set this url before trying to call any method.
+	 * 
+	 * @param url of the end point of the remote service.
+	 * @throws MalformedURLException
 	 */
-	public void explain(OutputStream out) throws IOException {
-		explain(new OutputStreamWriter(out));
+	public void setEndPoint(String url) throws MalformedURLException {
+		this.endPointUrl = new URL(url);
 	}
 
 	/**
@@ -139,33 +152,61 @@ public class Client {
 	}
 
 	/**
+	 * @see explain(Writer)
+	 * @param out
+	 * @throws IOException
+	 */
+	public void explain(OutputStream out) throws IOException {
+		explain(new OutputStreamWriter(out));
+	}
+
+	/**
 	 * Calls a remote operation without parameters.
 	 * 
 	 * The operation is identified by the given operation parameter.
 	 * 
 	 * @see explain to have information about the remote service available operations.
 	 * 
-	 * @param operation
-	 * @return
-	 * @throws FaultResponseException
-	 * @throws IOException
-	 * @throws MalformedResponseException
+	 * @param operation the remote operation to call
+	 * @return the response of the remote server in a ComposedValue
+	 * @throws FaultResponseException if the remote server returns a SOAP fault
+	 * @throws IOException in case of problem during communication with remote server
+	 * @throws MalformedResponseException if the remote server returns a malformed, 
+	 * non-soap response.
 	 */
 	public ComposedValue call(String operation) throws FaultResponseException, IOException, MalformedResponseException  {
 		return call(operation, new ComposedValue());
 	}
 
+	/**
+	 * Calls a remote operation.
+	 * 
+	 * The operation is identified by the given operation parameter.
+	 *
+	 * Parameters to use for the operation are specified in the given parameters.
+	 * 
+	 * @see explain to have information about the remote service available operations
+	 * and expected parameters.
+	 * 
+	 * @param operation the remote operation to call
+	 * @param parameters the parameters to transmit
+	 * @return the response of the remote server in a ComposedValue
+	 * @throws FaultResponseException if the remote server returns a SOAP fault
+	 * @throws IOException in case of problem during communication with remote server
+	 * @throws MalformedResponseException if the remote server returns a malformed, 
+	 * non-soap response.
+	 */
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
-		if (! this.wsdlSet) throw new IllegalStateException("you must set a wsdl url before trying to call a remote method...");
+		if (! this.wsdlSet)     throw new IllegalStateException("you must set a wsdl url before trying to call a remote method...");
+		if (this.endPointUrl == null) throw new IllegalStateException("you must set an end point url before trying to call a remote method...");
 		
 		Document message;
 		try {
 			message = createMessage(operation, parameters);
 		} catch (ParserConfigurationException e) {
-			String msg = "Unexpected exception while preparing soap request: " + e;
-			throw new RuntimeException(msg, e);
+			throw new RuntimeException("Unexpected exception while preparing soap request: " + e, e);
 		}
-		HttpURLConnection connection = initHttpConnection();
+		HttpURLConnection connection = initHttpConnection(this.endPointUrl);
 		addSoapAction(connection, operation);
 		try {
 			try {
@@ -185,6 +226,50 @@ public class Client {
 		}
 	}
 
+	/**
+	 * Set a user name for BASIC-AUTH authentication.
+	 * @param userName
+	 */
+	public void setUsername(String userName) {
+		this.userName = userName;
+	}
+
+	/**
+	 * Set a password for BASIC-AUTH authentication.
+	 * @param password
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	/**
+	 * Avoid using this method. Prefer setWsdlUrl() instead.
+	 * 
+	 * This method is only usefull if you want to override a service description
+	 * previously stored in cache for the given wsdlUrl.
+	 * 
+	 * @see setWsdlUrl
+	 * 
+	 * @param wsdlUrl
+	 * @throws IOException
+	 * @throws MalformedWsdlException
+	 */
+	public void setWsdlUrlOverrideCache(String wsdlUrl) throws IOException, MalformedWsdlException {
+		parseWsdl(new URL(wsdlUrl));
+		this.wsdlSet = true;
+	}
+
+	/**
+	 * Override this method if you want to customize the http connection.
+	 * For instance you may set a connect or read timeout.
+	 * @param connection the HttpURLConnection to customize
+	 */
+	protected void customizeHttpConnectionBeforeCall(HttpURLConnection connection) {
+
+	}
+
+	//---
+	
 	private void addSoapAction(HttpURLConnection connection, String operation) {
 		WsdlOperation wsdlOperation = serviceDescription.operations.get(operation);
 		if (wsdlOperation != null && wsdlOperation.soapAction != null) {
@@ -222,32 +307,6 @@ public class Client {
 		return document;
 	}
 
-	/**
-	 * Override this method if you want to customize the http connection.
-	 * For instance you may add http headers like SOAPAction...
-	 * @param connection the HttpURLConnection to customize
-	 */
-	protected void customizeHttpConnectionBeforeCall(HttpURLConnection connection) {
-
-	}
-
-	/**
-	 * Avoid using this method. Prefer setWsdlUrl() instead.
-	 * 
-	 * This method is only usefull if you want to override a service description
-	 * previously stored in cache for the given wsdlUrl.
-	 * 
-	 * @see setWsdlUrl
-	 * 
-	 * @param wsdlUrl
-	 * @throws IOException
-	 * @throws MalformedWsdlException
-	 */
-	public void setWsdlUrlOverrideCache(String wsdlUrl) throws IOException, MalformedWsdlException {
-		parseWsdl(new URL(wsdlUrl));
-		this.wsdlSet = true;
-	}
-
 	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
 			serviceDescription = WsdlParser.parse(wsdlUrl.openStream());
@@ -269,21 +328,6 @@ public class Client {
 		DocumentBuilder parser = documentBuilderFactory.newDocumentBuilder();
 		return parser;
 	}
-
-	public void setUsername(String userName) {
-		this.userName = userName;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void setEndPoint(String url) throws MalformedURLException {
-		this.endPointUrl = new URL(url);
-	}
-
-
-	//----
 
 	private String printType(BufferedWriter bout, String indentation, 
 			Map<String, WsdlElement> type) throws IOException {
@@ -344,7 +388,7 @@ public class Client {
 		return parseResponseBody(inputStream);
 	}
 
-	void handleResponseCode(HttpURLConnection connection) throws IOException,
+	private void handleResponseCode(HttpURLConnection connection) throws IOException,
 	MalformedResponseException {
 		int responseCode = responseCode(connection);
 		String errorMessage = "unsupported HTTP response code " + responseCode;
@@ -377,7 +421,7 @@ public class Client {
 		return save.toByteArray();
 	}
 
-	FaultResponseException createFaultException(HttpURLConnection connection) throws IOException, SAXException, ParserConfigurationException {
+	private FaultResponseException createFaultException(HttpURLConnection connection) throws IOException, SAXException, ParserConfigurationException {
 		InputStream errorStream = errorStream(connection);
 		int responseCode = responseCode(connection);
 		byte[] data = inputToBytes(errorStream);
@@ -420,10 +464,7 @@ public class Client {
 		return inputStream;
 	}
 
-	/**
-	 * Package visibility for unit tests only.
-	 */
-	InputStream errorStream(HttpURLConnection connection)
+	private InputStream errorStream(HttpURLConnection connection)
 	throws IOException {
 		InputStream inputStream;
 		inputStream = connection.getErrorStream();
@@ -442,8 +483,8 @@ public class Client {
 
 
 
-	private HttpURLConnection initHttpConnection() throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) endPointUrl.openConnection();
+	private HttpURLConnection initHttpConnection(URL url) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		addAuthenticationIfNeeded(connection);
 		connection.setRequestMethod("POST");
 		connection.setRequestProperty("Content-Type", "text/xml; charset=UTF-8");
@@ -493,7 +534,7 @@ public class Client {
 		}
 	}
 
-	ComposedValue parseResponseBody(InputStream inputStream) throws IOException, SAXException, ParserConfigurationException {
+	private ComposedValue parseResponseBody(InputStream inputStream) throws IOException, SAXException, ParserConfigurationException {
 		Node soapBody = soapNode(inputStream, "/" + SOAPENV + ":Envelope/" + SOAPENV + ":Body");
 		Object parseResponseBody = parseResponseBody(soapBody);
 		resolvePendingChildren();
@@ -607,5 +648,4 @@ public class Client {
 		Node attribute = node.getAttributes().getNamedItem(attributeName);
 		return attribute != null ? attribute.getNodeValue() : "";
 	}
-
 }

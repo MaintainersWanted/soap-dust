@@ -3,22 +3,22 @@ package soapdust;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class WsdlOperation {
-	public static final int RPC = 0;
-	public static final int DOCUMENT = 1;
+class WsdlOperation {
+	static final int RPC = 0;
+	static final int DOCUMENT = 1;
 	
-	public String soapAction;
-	public Map<String, WsdlElement> parts = new LinkedHashMap<String, WsdlElement>();
-	public String namespace;
+	String soapAction;
+	Map<String, WsdlElement> parts = new LinkedHashMap<String, WsdlElement>();
+	String namespace;
 	
 	private int style;
 
-	public WsdlOperation(String soapAction, String namespace) {
+	WsdlOperation(String soapAction, String namespace) {
 		this.soapAction = soapAction;
 		this.namespace = namespace;
 	}
 
-	public void setStyle(String style) {
+	void setStyle(String style) {
 		if ("document".equals(style)) {
 			this.style = DOCUMENT;
 		} else if ("rpc".equals(style)) {
@@ -26,7 +26,7 @@ public class WsdlOperation {
 		}
 	}
 
-	public int getStyle() {
+	int getStyle() {
 		return this.style;
 	}
 }
