@@ -44,7 +44,6 @@ public class ComposedValue {
 				children.put(child, value);
 			} else {
 				//TODO this sucks !!! Find a better way to represent object with several children having the same name.
-				//     see also similar TODO in Client.
 				int i = 1;
 				for(; children.get(child + i) != null; i++);
 				children.put(child + i, value);

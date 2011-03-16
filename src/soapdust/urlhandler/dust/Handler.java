@@ -73,20 +73,15 @@ public class Handler extends URLStreamHandler {
 			
 			@Override
 			public void connect() throws IOException {
-				// TODO Auto-generated method stub
-				
 			}
 			
 			@Override
 			public boolean usingProxy() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
 			@Override
 			public void disconnect() {
-				// TODO Auto-generated method stub
-				
 			}
 		};
 	}

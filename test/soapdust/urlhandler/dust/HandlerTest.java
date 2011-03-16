@@ -86,7 +86,6 @@ public class HandlerTest extends TestCase {
 		assertTrue(Arrays.equals(written, Handler.saved.get("dust:").toByteArray()));
 	}
 	
-	//TODO change dust: urls like dust:status:500:file:test/response.xml
 	//TODO check that empty file is returned when no file in url
 	
 	//---

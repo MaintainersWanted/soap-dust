@@ -72,7 +72,7 @@ public class ClientRequestManagementTest extends TestCase {
 			"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
 			"<Header/>" +
 			"<Body>" +
-			  "<sender xmlns=\"element1NS\">sender</sender>" + //FIXME actual: definitionNS 
+			  "<sender xmlns=\"element1NS\">sender</sender>" +
 			  "<MSISDN xmlns=\"element1NS\">30123456789</MSISDN>" +
 			  "<IDOffre xmlns=\"element1NS\">12043</IDOffre>" +
 			  "<doscli xmlns=\"element1NS\">" +

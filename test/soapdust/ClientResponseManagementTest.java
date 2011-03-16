@@ -1,6 +1,7 @@
 package soapdust;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -94,19 +95,38 @@ public class ClientResponseManagementTest extends TestCase {
 		}
 	}
 
+	public void testParsingMalformedResponseStoresReceivedDataInException() throws IOException, FaultResponseException, MalformedWsdlException {
+		client.setEndPoint("dust:file:test/soapdust/response-malformed.xml");
+		try {
+			client.call("test");
+			fail("MalformedResponseException expected");
+		} catch(MalformedResponseException e) {
+			assertTrue(Arrays.equals(readFile("test/soapdust/response-malformed.xml"), e.response));
+		}
+	}
+
+	public void testParsingMalformedFaultResponseStoresReceivedDataInException() throws IOException, FaultResponseException, MalformedWsdlException {
+		client.setEndPoint("dust:status:500;file:test/soapdust/response-malformed.xml");
+		try {
+			client.call("test");
+			fail("MalformedResponseException expected");
+		} catch(MalformedResponseException e) {
+			assertTrue(Arrays.equals(readFile("test/soapdust/response-malformed.xml"), e.response));
+		}
+	}
+
 	
 	//---
 
 	private byte[] readFile(String file) throws IOException {
-		ByteArrayOutputStream expectedBytes = new ByteArrayOutputStream();
+		ByteArrayOutputStream content = new ByteArrayOutputStream();
 		FileInputStream in = new FileInputStream(file);
 		byte[] buffer = new byte[1024];
-
-		//TODO use DataInputStream.readFully()
+		
 		for(int read = in.read(buffer, 0, buffer.length); read != -1; read = in.read(buffer, 0, buffer.length)) {
-			expectedBytes.write(buffer, 0, read);
+			content.write(buffer, 0, read);
 		}
 
-		return expectedBytes.toByteArray();
+		return content.toByteArray();
 	}
 }
