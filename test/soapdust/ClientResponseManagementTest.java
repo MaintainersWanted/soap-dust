@@ -22,7 +22,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 	
 	public void testThrowsFaultExceptionInCaseOfFaultResponse() throws IOException, MalformedResponseException, MalformedWsdlException {
-		client.setEndPoint("dust://status:500/test/soapdust/response-with-fault.xml");
+		client.setEndPoint("dust:status:500;file:test/soapdust/response-with-fault.xml");
 		
 		try {
 			client.call("test");
@@ -40,7 +40,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 
 	public void testParseBodyWithHref() throws IOException, SAXException, ParserConfigurationException, FaultResponseException, MalformedResponseException {
-		client.setEndPoint("dust://test/soapdust/response-with-href.xml");
+		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");
 		
 		ComposedValue result = client.call("test");
 
@@ -60,7 +60,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testEmptyNodeResultInNullStringOrComposedValueAndDoesNotFail() 
 	throws IOException, SAXException, ParserConfigurationException, FaultResponseException, MalformedResponseException {
 
-		client.setEndPoint("dust://test/soapdust/response-with-empty-nodes.xml");
+		client.setEndPoint("dust:file:test/soapdust/response-with-empty-nodes.xml");
 		
 		ComposedValue result = client.call("test");
 
@@ -74,7 +74,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 	
 	public void testUnhandledttpStatusThrowsMalformedResponseException() throws FaultResponseException, IOException {
-		client.setEndPoint("dust://status:153/test/soapdust/response-with-href.xml");//TODO add a response.wsdl file for general purpose queries
+		client.setEndPoint("dust:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		
 		try {
 			client.call("test");
@@ -85,7 +85,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 
 	public void testUnhandledHttpStatusStoresReceivedDataInException() throws IOException, FaultResponseException {
-		client.setEndPoint("dust://status:153/test/soapdust/response-with-href.xml");//TODO add a response.wsdl file for general purpose queries
+		client.setEndPoint("dust:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");

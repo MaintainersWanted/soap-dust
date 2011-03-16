@@ -1,37 +1,23 @@
 package soapdust;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import junit.framework.TestCase;
+import soapdust.urlhandler.dust.Handler;
 
 public class ClientRequestManagementTest extends TestCase {
 
-	//TODO replace this tests to use test: urls instead of mocks
-	
-	//TODO the 2 following tests are slow... check why and fix this
-	public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Client client = clientUnderTest(out);
-		client.setEndPoint("http://localhost/");
+	// the 2 following tests are slow... because jira.wsdl takes time to parse
+	public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+		Client client = new Client();
 		client.setWsdlUrl("file:test/soapdust/jira.wsdl");
-
+		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+		
 		ComposedValue authentication = new ComposedValue();
-		authentication.put("login", "login"); //put your login here
-		authentication.put("password", "password"); //put your password here
+		authentication.put("login", "login");
+		authentication.put("password", "password");
 
-		try {
-			client.call("login", authentication);
-		} catch (MalformedResponseException e) {
-			//ignore
-		}
+		client.call("login", authentication);
 
 		//rpc style -> wrapping node named by the operation name
 		String expected =
@@ -46,7 +32,7 @@ public class ClientRequestManagementTest extends TestCase {
 			"</Body>" +
 			"</Envelope>";
 
-		assertEquals(expected, out.toString());
+		assertEquals(expected, Handler.saved.get("dust:file:test/soapdust/response-with-href.xml").toString());
 	}
 
 
@@ -55,11 +41,10 @@ public class ClientRequestManagementTest extends TestCase {
     //  I must not write crappy wsdl that I can not understand myself
     //  I must not write crappy wsdl that I can not understand myself
     //  I must not write crappy wsdl that I can not understand myself
-	public void estBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException {
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		Client client = clientUnderTest(out);
-		client.setEndPoint("http://localhost/");
+	public void estBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+		Client client = new Client();
 		client.setWsdlUrl("file:test/soapdust/test.wsdl");
+		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 
 		ComposedValue messageParameter1 = new ComposedValue();
 		messageParameter1.put("sender", "sender");
@@ -78,12 +63,8 @@ public class ClientRequestManagementTest extends TestCase {
 			messageParameter1.put("doscli", dosCli);
 		}
 
-		try {
-			//TODO handle multi-part messages
-			client.call("testOperation1", messageParameter1);
-		} catch (MalformedResponseException e) {
-			//ignore
-		}
+		//TODO handle multi-part messages
+		client.call("testOperation1", messageParameter1);
 
 		//document style -> no wrapping node
 		String expected =
@@ -105,35 +86,6 @@ public class ClientRequestManagementTest extends TestCase {
 			"</Body>" +
 			"</Envelope>";
 
-		assertEquals(expected, out.toString());
+		assertEquals(expected, Handler.saved.get("dust:test/soapdust/response-with-href.xml").toString());
 	}
-
-	//TODO remove this class and use test: urls instead
-	private Client clientUnderTest(final ByteArrayOutputStream out) {
-		Client client = new Client() {
-			@Override
-			OutputStream outputStream(HttpURLConnection connection)
-			throws IOException {
-				return out;
-			}
-			@Override
-			InputStream inputStream(HttpURLConnection connection)
-			throws IOException {
-				return null;
-			}
-			@Override
-			int responseCode(HttpURLConnection connection) throws IOException {
-				return 200;
-			}
-			@Override
-			ComposedValue readResponse(HttpURLConnection connection)
-					throws FaultResponseException, IOException, SAXException,
-					ParserConfigurationException, MalformedResponseException {
-				return null;
-			}
-		};
-		return client;
-	}
-
-	
 }

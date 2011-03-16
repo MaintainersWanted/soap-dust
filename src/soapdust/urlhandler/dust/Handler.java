@@ -13,22 +13,30 @@ import java.net.URLStreamHandler;
 import java.util.Hashtable;
 
 public class Handler extends URLStreamHandler {
-
+	private static final String STATUS_CAPTURE = "$2";
+	private static final String FILE_CAPTURE = "$2";
+	private static final String FILE_REGEX = "(|.*;)file:([^;]*).*";
+	private static final String STATUS_REGEX = "(|.*;)status:([^;]*).*";
+	
 	public static Hashtable<String, ByteArrayOutputStream> saved = new Hashtable<String, ByteArrayOutputStream>();
 
 	@Override
 	protected URLConnection openConnection(URL url) throws IOException {
+		final String urlPath = url.getPath();
 		final int status;
 		final String path;
-		
-		if ("status".equals(url.getHost())) {
-			status = url.getPort();
-			path = url.getPath().substring(1);
+
+		if(urlPath.matches(STATUS_REGEX)) {
+			status = Integer.parseInt(urlPath.replaceAll(STATUS_REGEX, STATUS_CAPTURE));
 		} else {
 			status = 200;
-			path = url.getHost() + url.getPath();
 		}
-		
+		if (urlPath.matches(FILE_REGEX)) {
+			path = urlPath.replaceAll(FILE_REGEX, FILE_CAPTURE);
+		} else {
+			path = null;
+		}
+
 		return new HttpURLConnection(url) {
 			
 			@Override

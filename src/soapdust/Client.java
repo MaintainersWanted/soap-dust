@@ -364,7 +364,7 @@ public class Client {
 	}			
 
 
-	ComposedValue readResponse(HttpURLConnection connection) 
+	private ComposedValue readResponse(HttpURLConnection connection) 
 	throws FaultResponseException, IOException, SAXException, ParserConfigurationException, MalformedResponseException {
 
 		InputStream inputStream;
@@ -445,19 +445,13 @@ public class Client {
 		out.close();
 	}
 
-	/**
-	 * Package visibility for unit tests only.
-	 */ 
-	OutputStream outputStream(HttpURLConnection connection)
+	private OutputStream outputStream(HttpURLConnection connection)
 	throws IOException {
 		OutputStream out = connection.getOutputStream();
 		return out;
 	}
 
-	/**
-	 * Package visibility for unit tests only.
-	 */
-	InputStream inputStream(HttpURLConnection connection)
+	private InputStream inputStream(HttpURLConnection connection)
 	throws IOException {
 		InputStream inputStream;
 		inputStream = connection.getInputStream();
@@ -471,17 +465,10 @@ public class Client {
 		return inputStream;
 	}
 
-	/**
-	 * Package visibility for unit tests only.
-	 */
-	int responseCode(HttpURLConnection connection) throws IOException {
+	private int responseCode(HttpURLConnection connection) throws IOException {
 		int responseCode = connection.getResponseCode();
 		return responseCode;
 	}
-
-
-
-
 
 	private HttpURLConnection initHttpConnection(URL url) throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();

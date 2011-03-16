@@ -1,7 +1,6 @@
 package soapdust.urlhandler.dust;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.Hashtable;
 
 import junit.framework.TestCase;
 import soapdust.Client;
@@ -39,33 +37,37 @@ public class HandlerTest extends TestCase {
 	}
 
 	public void testOneCanOverrideDefaultResponseCode() throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("dust://status:500/").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL("dust:status:500").openConnection();
 		
 		assertEquals(500, connection.getResponseCode());
 	}
 	
 	public void testDustServerResponseContentIsExtractedFromFile() throws IOException {
-		assertUrlContent(new URL("dust://test/soapdust/urlhandler/dust/hello.txt"), 
+		assertUrlContent(new URL("dust:file:test/soapdust/urlhandler/dust/hello.txt"), 
 				"Hello World !");
 	}
 
 	public void testDustServerResponseContentIsExtractedFromFileWithExplicitStatus200() throws IOException {
-		assertUrlContent(new URL("dust://test/soapdust/urlhandler/dust/hello.txt"), 
+		assertUrlContent(new URL("dust:file:test/soapdust/urlhandler/dust/hello.txt"), 
 				"Hello World !");
 	}
 	
 	public void testResponseIsDuplicatedInErrorStream() throws IOException {
-		assertUrlErrorStreamContent(new URL("dust://test/soapdust/urlhandler/dust/hello.txt"), 
+		assertUrlErrorStreamContent(new URL("dust:file:test/soapdust/urlhandler/dust/hello.txt"), 
 				"Hello World !");
 	}
 
 	public void test5xxStatusThrowsIOExceptionwhenTryingToRead() throws MalformedURLException, IOException {
-		HttpURLConnection connection = (HttpURLConnection) new URL("dust://status:500/test/soapdust/urlhandler/dust/hello.txt").openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL("dust:status:500;file:test/soapdust/urlhandler/dust/hello.txt").openConnection();
 
 		try {
 			connection.getInputStream();
 			fail();
 		} catch(IOException e) {}
+	}
+
+	public void testCanReadResponseFromErrorStramWhen5xxStatus() throws MalformedURLException, IOException {
+		assertUrlErrorStreamContent(new URL("dust:status:500;file:test/soapdust/urlhandler/dust/hello.txt"), "Hello World !");
 	}
 	
 	public void testOneCanWriteInADustUrl() throws IOException {
@@ -83,6 +85,9 @@ public class HandlerTest extends TestCase {
 		
 		assertTrue(Arrays.equals(written, Handler.saved.get("dust:").toByteArray()));
 	}
+	
+	//TODO change dust: urls like dust:status:500:file:test/response.xml
+	//TODO check that empty file is returned when no file in url
 	
 	//---
 	private void assertUrlContent(URL url, String expectedContent) throws IOException {
