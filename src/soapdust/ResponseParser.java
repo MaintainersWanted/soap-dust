@@ -25,31 +25,27 @@ import org.xml.sax.SAXException;
 
 public class ResponseParser {
 
-	ComposedValue parse(InputStream inputStream) throws IOException, MalformedResponseException {
-		byte[] data = inputToBytes(inputStream);
-		inputStream = new ByteArrayInputStream(data);
+	ComposedValue parse(InputStream inputStream, byte[] trace) throws IOException, MalformedResponseException {
 		try {
 			Node soapBody = soapNode(inputStream, "/" + SOAPENV + ":Envelope/" + SOAPENV + ":Body");
 			Object parseResponseBody = parse(soapBody);
 			resolvePendingChildren();
 			return (ComposedValue) parseResponseBody;
 		} catch (SAXException e) {
-			throw new MalformedResponseException("Server returned a malformed response: " + e, 200, data);
+			throw new MalformedResponseException("Server returned a malformed response: " + e, 200, trace);
 		}
 	}
 	
-	FaultResponseException parseFault(InputStream inputStream, int responseCode) throws MalformedResponseException, IOException {
-		byte[] data = inputToBytes(inputStream);
-		inputStream = new ByteArrayInputStream(data);
+	FaultResponseException parseFault(InputStream inputStream, int responseCode, byte[] trace) throws MalformedResponseException, IOException {
 		try {
 			Node fault = soapNode(inputStream, SOAPENV + ":Envelope/" + SOAPENV + ":Body/" + SOAPENV + ":Fault");
 
 			ComposedValue result = (ComposedValue) parse(fault);
 			String message = result.getChildrenKeys().contains("faultstring") ? result.getStringValue("faultstring") : null;
 
-			return new FaultResponseException(message, result, data, responseCode);
+			return new FaultResponseException(message, result, responseCode);
 		} catch (SAXException e) {
-			throw new MalformedResponseException("Server returned a malformed response: " + e, responseCode, data);
+			throw new MalformedResponseException("Server returned a malformed response: " + e, responseCode, trace);
 		}
 	}
 	

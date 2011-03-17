@@ -1,7 +1,6 @@
 package soapdust;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,13 +29,12 @@ public class ClientResponseManagementTest extends TestCase {
 			fail("FaultResponseException expected");
 			
 		} catch (FaultResponseException faultException) {
-			assertEquals("soapenv:Server.userException", 
-					faultException.fault.getStringValue("faultcode"));
-			assertEquals("com.atlassian.jira.rpc.exception.RemoteAuthenticationException: Invalid username or password.", 
-					faultException.fault.getStringValue("faultstring"));
 			assertEquals(500, faultException.responseCode);
-			assertTrue(Arrays.equals(readFile("test/soapdust/response-with-fault.xml"), 
-					faultException.response));
+			ComposedValue fault = faultException.fault;
+			assertEquals("soapenv:Server.userException", 
+					fault.getStringValue("faultcode"));
+			assertEquals("com.atlassian.jira.rpc.exception.RemoteAuthenticationException: Invalid username or password.", 
+					fault.getStringValue("faultstring"));
 		}
 	}
 
@@ -95,7 +93,33 @@ public class ClientResponseManagementTest extends TestCase {
 		}
 	}
 
-	public void testParsingMalformedResponseStoresReceivedDataInException() throws IOException, FaultResponseException, MalformedWsdlException {
+	public void testParsingMalformedResponseThrowsException() throws IOException, FaultResponseException, MalformedWsdlException {
+		Client.activeTraceMode(false);
+		
+		client.setEndPoint("dust:file:test/soapdust/response-malformed.xml");
+		try {
+			client.call("test");
+			fail("MalformedResponseException expected");
+		} catch(MalformedResponseException e) {
+			assertNull(e.response);
+		}
+	}
+
+	public void testParsingMalformedFaultResponseThrowsException() throws IOException, FaultResponseException, MalformedWsdlException {
+		Client.activeTraceMode(false);
+
+		client.setEndPoint("dust:status:500;file:test/soapdust/response-malformed.xml");
+		try {
+			client.call("test");
+			fail("MalformedResponseException expected");
+		} catch(MalformedResponseException e) {
+			assertNull(e.response);
+		}
+	}
+
+	public void testParsingMalformedResponseStoresReceivedDataInExceptionWhenTraceModeActivated() throws IOException, FaultResponseException, MalformedWsdlException {
+		Client.activeTraceMode(true);
+
 		client.setEndPoint("dust:file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");
@@ -105,7 +129,9 @@ public class ClientResponseManagementTest extends TestCase {
 		}
 	}
 
-	public void testParsingMalformedFaultResponseStoresReceivedDataInException() throws IOException, FaultResponseException, MalformedWsdlException {
+	public void testParsingMalformedFaultResponseStoresReceivedDataInExceptionWhenTraceModeActivated() throws IOException, FaultResponseException, MalformedWsdlException {
+		Client.activeTraceMode(true);
+
 		client.setEndPoint("dust:status:500;file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");

@@ -1,6 +1,7 @@
 package soapdust;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -249,17 +250,15 @@ public class Client {
 	throws FaultResponseException, IOException, MalformedResponseException {
 
 		try {
-			//TODO check Handler so that in is not duplicated
-			//     so that we can switch the following two lines
-			//     and see a test fail
-			InputStream inputStream = connection.getInputStream();
 			handleResponseCode(connection);
-			return new ResponseParser().parse(inputStream);
+			InTrace inTrace = new InTrace(connection.getInputStream());
+			return new ResponseParser().parse(inTrace.in, inTrace.trace);
 			
 		} catch (IOException e) {
 			int responseCode = connection.getResponseCode();
 			if (responseCode != 200 && responseCode != -1) {
-				throw new ResponseParser().parseFault(connection.getErrorStream(), responseCode);
+				InTrace inTrace = new InTrace(connection.getErrorStream());
+				throw new ResponseParser().parseFault(inTrace.in, responseCode, inTrace.trace);
 			} else {
 				throw e;
 			}
@@ -276,21 +275,8 @@ public class Client {
 		case 302:
 			errorMessage += " Location: " + connection.getHeaderField("Location");
 		default:
-			byte[] data = inputToBytes(connection.getInputStream());
-			throw new MalformedResponseException(errorMessage, responseCode, data);
+			throw new MalformedResponseException(errorMessage, responseCode, inputToBytes(connection.getInputStream()));
 		}
-	}
-
-	private byte[] inputToBytes(InputStream in)
-	throws IOException {
-		byte[] buffer = new byte[1024];
-		ByteArrayOutputStream content = new ByteArrayOutputStream();
-		
-		for(int read = in.read(buffer, 0, buffer.length); read != -1; read = in.read(buffer, 0, buffer.length)) {
-			content.write(buffer, 0, read);
-		}
-
-		return content.toByteArray();
 	}
 
 	private void sendRequest(Document message, HttpURLConnection connection)
@@ -349,4 +335,40 @@ public class Client {
 			throw new MalformedWsdlException("Unable to \"analyse\" the specified wsdl: " + e, e);
 		}
 	}
+
+	private static volatile boolean traceMode = false;
+	/**
+	 * Avoid using this method if you do not know what you are doing
+	 * @param active
+	 */
+	public static synchronized void activeTraceMode(boolean active) {
+		traceMode = active;
+	}
+	private class InTrace {
+		byte[] trace;
+		InputStream in;
+		InTrace(InputStream in) throws IOException {
+			if (traceMode) {
+				this.trace = inputToBytes(in);
+				this.in = new ByteArrayInputStream(trace);
+			} else {
+				this.in = in;
+			}
+		}
+	}
+
+	//TODO move this method inside the inner class
+	private byte[] inputToBytes(InputStream in)
+	throws IOException {
+		byte[] buffer = new byte[1024];
+		ByteArrayOutputStream content = new ByteArrayOutputStream();
+		
+		for(int read = in.read(buffer, 0, buffer.length); read != -1; read = in.read(buffer, 0, buffer.length)) {
+			content.write(buffer, 0, read);
+		}
+
+		return content.toByteArray();
+	}
+
+
 }
