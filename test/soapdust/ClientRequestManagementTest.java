@@ -3,7 +3,7 @@ package soapdust;
 import java.io.IOException;
 
 import junit.framework.TestCase;
-import soapdust.urlhandler.dust.Handler;
+import soapdust.urlhandler.test.Handler;
 
 public class ClientRequestManagementTest extends TestCase {
 
@@ -11,7 +11,7 @@ public class ClientRequestManagementTest extends TestCase {
 	public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
 		Client client = new Client();
 		client.setWsdlUrl("file:test/soapdust/jira.wsdl");
-		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+		client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		
 		ComposedValue authentication = new ComposedValue();
 		authentication.put("login", "login");
@@ -32,7 +32,7 @@ public class ClientRequestManagementTest extends TestCase {
 			"</Body>" +
 			"</Envelope>";
 
-		assertEquals(expected, Handler.saved.get("dust:file:test/soapdust/response-with-href.xml").toString());
+		assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
 	}
 
 
@@ -44,7 +44,7 @@ public class ClientRequestManagementTest extends TestCase {
 	public void estBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
 		Client client = new Client();
 		client.setWsdlUrl("file:test/soapdust/test.wsdl");
-		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+		client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 
 		ComposedValue messageParameter1 = new ComposedValue();
 		messageParameter1.put("sender", "sender");
@@ -86,6 +86,6 @@ public class ClientRequestManagementTest extends TestCase {
 			"</Body>" +
 			"</Envelope>";
 
-		assertEquals(expected, Handler.saved.get("dust:test/soapdust/response-with-href.xml").toString());
+		assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
 	}
 }

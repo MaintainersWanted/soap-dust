@@ -1,5 +1,6 @@
-package soapdust.urlhandler.dust;
+package soapdust.urlhandler.test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +13,35 @@ import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.Hashtable;
 
+/**
+ * This class handles test: urls. The jvm is automatically initialized
+ * so that this class is used to resolve test: urls.
+ * 
+ * test: urls allows you to test an application that access to a
+ * http server by pointing your application to a test: url instead
+ * of a http: url.
+ * 
+ * With a test: url, you can specify the http status code you want the
+ * http request to return and also a file which content will be
+ * returned as the http response content or error content.
+ * 
+ * test: may be of the form :
+ * 
+ * test:status:500 => requesting this url will result in a 500 http status
+ * 
+ * test:file:test/response.xml => requesting this url will return the content of the given file
+ * 
+ * test:status:500;file:test/response.xml
+ * 
+ * status: is optionnal and defaults to 200
+ * file: if optionnal and defaults to empty file
+ *
+ * One can consult the data written "to" a test: url by accessing the public
+ * HashTable saved in this class. Data is indexed by url.
+ * 
+ * See HandlerTest.java for examples of using this class.
+ *
+ */
 public class Handler extends URLStreamHandler {
 	private static final String STATUS_CAPTURE = "$2";
 	private static final String FILE_CAPTURE = "$2";
@@ -26,16 +56,9 @@ public class Handler extends URLStreamHandler {
 		final int status;
 		final String path;
 
-		if(urlPath.matches(STATUS_REGEX)) {
-			status = Integer.parseInt(urlPath.replaceAll(STATUS_REGEX, STATUS_CAPTURE));
-		} else {
-			status = 200;
-		}
-		if (urlPath.matches(FILE_REGEX)) {
-			path = urlPath.replaceAll(FILE_REGEX, FILE_CAPTURE);
-		} else {
-			path = null;
-		}
+		String statusAsString = extractValue(urlPath, STATUS_REGEX, STATUS_CAPTURE);
+		status = statusAsString == null ? 200 : Integer.parseInt(statusAsString);
+		path = extractValue(urlPath, FILE_REGEX, FILE_CAPTURE);
 
 		return new HttpURLConnection(url) {
 			
@@ -47,7 +70,11 @@ public class Handler extends URLStreamHandler {
 			@Override
 			public InputStream getInputStream() throws IOException {
 				if (status >=500 && status <= 599) throw new IOException("fake server returned a fake error");
-				return new FileInputStream(path);
+				if (path == null) {
+					return new ByteArrayInputStream(new byte[0]);
+				} else {
+					return new FileInputStream(path);
+				}
 			}
 			
 			@Override
@@ -84,5 +111,13 @@ public class Handler extends URLStreamHandler {
 			public void disconnect() {
 			}
 		};
+	}
+
+	private String extractValue(final String urlPath, String regex, String capture) {
+		if (urlPath.matches(regex)) {
+			return urlPath.replaceAll(regex, capture);
+		} else {
+			return null;
+		}
 	}
 }

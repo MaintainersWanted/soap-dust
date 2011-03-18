@@ -17,12 +17,13 @@ public class ClientResponseManagementTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		Client.activeTraceMode(false);
 		client = new Client();
 		client.setWsdlUrl("file:test/soapdust/test.wsdl");
 	}
 	
 	public void testThrowsFaultExceptionInCaseOfFaultResponse() throws IOException, MalformedResponseException, MalformedWsdlException {
-		client.setEndPoint("dust:status:500;file:test/soapdust/response-with-fault.xml");
+		client.setEndPoint("test:status:500;file:test/soapdust/response-with-fault.xml");
 		
 		try {
 			client.call("test");
@@ -39,7 +40,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 
 	public void testParseBodyWithHref() throws IOException, SAXException, ParserConfigurationException, FaultResponseException, MalformedResponseException {
-		client.setEndPoint("dust:file:test/soapdust/response-with-href.xml");
+		client.setEndPoint("test:file:test/soapdust/response-with-href.xml");
 		
 		ComposedValue result = client.call("test");
 
@@ -59,7 +60,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testEmptyNodeResultInNullStringOrComposedValueAndDoesNotFail() 
 	throws IOException, SAXException, ParserConfigurationException, FaultResponseException, MalformedResponseException {
 
-		client.setEndPoint("dust:file:test/soapdust/response-with-empty-nodes.xml");
+		client.setEndPoint("test:file:test/soapdust/response-with-empty-nodes.xml");
 		
 		ComposedValue result = client.call("test");
 
@@ -73,7 +74,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 	
 	public void testUnhandledttpStatusThrowsMalformedResponseException() throws FaultResponseException, IOException {
-		client.setEndPoint("dust:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+		client.setEndPoint("test:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		
 		try {
 			client.call("test");
@@ -84,7 +85,7 @@ public class ClientResponseManagementTest extends TestCase {
 	}
 
 	public void testUnhandledHttpStatusStoresReceivedDataInException() throws IOException, FaultResponseException {
-		client.setEndPoint("dust:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+		client.setEndPoint("test:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");
@@ -96,7 +97,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testParsingMalformedResponseThrowsException() throws IOException, FaultResponseException, MalformedWsdlException {
 		Client.activeTraceMode(false);
 		
-		client.setEndPoint("dust:file:test/soapdust/response-malformed.xml");
+		client.setEndPoint("test:file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");
@@ -108,7 +109,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testParsingMalformedFaultResponseThrowsException() throws IOException, FaultResponseException, MalformedWsdlException {
 		Client.activeTraceMode(false);
 
-		client.setEndPoint("dust:status:500;file:test/soapdust/response-malformed.xml");
+		client.setEndPoint("test:status:500;file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");
@@ -120,7 +121,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testParsingMalformedResponseStoresReceivedDataInExceptionWhenTraceModeActivated() throws IOException, FaultResponseException, MalformedWsdlException {
 		Client.activeTraceMode(true);
 
-		client.setEndPoint("dust:file:test/soapdust/response-malformed.xml");
+		client.setEndPoint("test:file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");
@@ -132,7 +133,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testParsingMalformedFaultResponseStoresReceivedDataInExceptionWhenTraceModeActivated() throws IOException, FaultResponseException, MalformedWsdlException {
 		Client.activeTraceMode(true);
 
-		client.setEndPoint("dust:status:500;file:test/soapdust/response-malformed.xml");
+		client.setEndPoint("test:status:500;file:test/soapdust/response-malformed.xml");
 		try {
 			client.call("test");
 			fail("MalformedResponseException expected");

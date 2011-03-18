@@ -3,7 +3,6 @@ package soapdust;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -253,7 +252,6 @@ public class Client {
 			handleResponseCode(connection);
 			InTrace inTrace = new InTrace(connection.getInputStream());
 			return new ResponseParser().parse(inTrace.in, inTrace.trace);
-			
 		} catch (IOException e) {
 			int responseCode = connection.getResponseCode();
 			if (responseCode != 200 && responseCode != -1) {
@@ -275,7 +273,7 @@ public class Client {
 		case 302:
 			errorMessage += " Location: " + connection.getHeaderField("Location");
 		default:
-			throw new MalformedResponseException(errorMessage, responseCode, inputToBytes(connection.getInputStream()));
+			throw new MalformedResponseException(errorMessage, responseCode, readFully(connection.getInputStream()));
 		}
 	}
 
@@ -338,7 +336,19 @@ public class Client {
 
 	private static volatile boolean traceMode = false;
 	/**
-	 * Avoid using this method if you do not know what you are doing
+	 * Avoid using this method if you are not interested in the
+	 * result. This may have performance penalty.
+	 * 
+	 * Change the trace mode status for all Client instances. 
+	 * The trace mode defaults to false.
+	 * 
+	 * When trace mode is activated, every MalformedResponseException
+	 * thrown by a Client will contain the data (as a byte array)
+	 * received from the remote server.
+	 * 
+	 * This may have a performance penalty since it implies that all
+	 * the data sent by the server be saved before trying to parse it.
+	 * 
 	 * @param active
 	 */
 	public static synchronized void activeTraceMode(boolean active) {
@@ -347,9 +357,10 @@ public class Client {
 	private class InTrace {
 		byte[] trace;
 		InputStream in;
+
 		InTrace(InputStream in) throws IOException {
 			if (traceMode) {
-				this.trace = inputToBytes(in);
+				this.trace = readFully(in);
 				this.in = new ByteArrayInputStream(trace);
 			} else {
 				this.in = in;
@@ -357,9 +368,7 @@ public class Client {
 		}
 	}
 
-	//TODO move this method inside the inner class
-	private byte[] inputToBytes(InputStream in)
-	throws IOException {
+	private byte[] readFully(InputStream in) throws IOException {
 		byte[] buffer = new byte[1024];
 		ByteArrayOutputStream content = new ByteArrayOutputStream();
 		
@@ -369,6 +378,4 @@ public class Client {
 
 		return content.toByteArray();
 	}
-
-
 }
