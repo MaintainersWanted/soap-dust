@@ -2,8 +2,6 @@ package soapdust;
 
 import static soapdust.SoapDustNameSpaceContext.SOAPENV;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -23,7 +21,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class ResponseParser {
+class ResponseParser {
 
 	ComposedValue parse(InputStream inputStream, byte[] trace) throws IOException, MalformedResponseException {
 		try {
@@ -166,19 +164,5 @@ public class ResponseParser {
 
 		xpath.setNamespaceContext(new SoapDustNameSpaceContext());
 		return xpath;
-	}
-
-	//---
-	//FIXME this method is duplicated in Client
-	private byte[] inputToBytes(InputStream in)
-	throws IOException {
-		byte[] buffer = new byte[1024];
-		ByteArrayOutputStream content = new ByteArrayOutputStream();
-		
-		for(int read = in.read(buffer, 0, buffer.length); read != -1; read = in.read(buffer, 0, buffer.length)) {
-			content.write(buffer, 0, read);
-		}
-
-		return content.toByteArray();
 	}
 }

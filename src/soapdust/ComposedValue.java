@@ -3,7 +3,16 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-
+/**
+ * The main data structure used by soap-dust.
+ * 
+ * A ComposedValue is a tree composed of other ComposedValue or of String.
+ * 
+ * For soap-dust, every data is either a String or a ComposedValue.
+ * For instance if you need to send an int to a remote server, you
+ * have to use its String representation. That is, for instance 200
+ * for the int 200.
+ */
 public class ComposedValue {
 
 	//TODO would'nt it be cool if this class implemented map and if element could be found with path string ?

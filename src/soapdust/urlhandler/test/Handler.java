@@ -69,7 +69,8 @@ public class Handler extends URLStreamHandler {
 			
 			@Override
 			public InputStream getInputStream() throws IOException {
-				if (status >=500 && status <= 599) throw new IOException("fake server returned a fake error");
+				if (errorStatus()) throw new IOException("fake server returned a fake error");
+				
 				if (path == null) {
 					return new ByteArrayInputStream(new byte[0]);
 				} else {
@@ -79,10 +80,14 @@ public class Handler extends URLStreamHandler {
 			
 			@Override
 			public InputStream getErrorStream() {
-				try {
-					return new FileInputStream(path);
-				} catch (FileNotFoundException e) {
-					throw new RuntimeException(e);
+				if (errorStatus()) {
+					try {
+						return new FileInputStream(path);
+					} catch (FileNotFoundException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					return null;
 				}
 			}
 			
@@ -110,6 +115,11 @@ public class Handler extends URLStreamHandler {
 			@Override
 			public void disconnect() {
 			}
+
+			private boolean errorStatus() {
+				return status >=500 && status <= 599;
+			}
+
 		};
 	}
 

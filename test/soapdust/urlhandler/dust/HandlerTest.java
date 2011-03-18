@@ -16,6 +16,8 @@ import junit.framework.TestCase;
 import soapdust.Client;
 import soapdust.urlhandler.test.Handler;
 
+//TODO look at the http rfc to check all status code for which HttpURLConnection throws an IOException
+
 public class HandlerTest extends TestCase {
 	private static final byte[] TEST_DATA = new byte[] {0, 1, 2, 3};
 	private static final String TEST_FILE = System.getProperty("java.io.tmpdir") + File.separator + "test_file";
@@ -74,12 +76,11 @@ public class HandlerTest extends TestCase {
 		assertUrlErrorStreamContent(new URL("test:status:500;file:" + TEST_FILE), TEST_DATA);
 	}
 
-//TODO
-//	public void testCanNotReadResponseFromErrorStreamWhenNot5xxStatus() throws IOException {
-//		HttpURLConnection connection = (HttpURLConnection) new URL("test:file:" + TEST_FILE).openConnection();
-//		
-//		assertNull(connection.getErrorStream());
-//	}
+	public void testCanNotReadResponseFromErrorStreamWhenNot5xxStatus() throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) new URL("test:file:" + TEST_FILE).openConnection();
+		
+		assertNull(connection.getErrorStream());
+	}
 	
 	public void testOneCanWriteInADustUrl() throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL("test:").openConnection();

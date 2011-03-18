@@ -28,6 +28,9 @@ import org.xml.sax.SAXException;
 
 import sun.misc.BASE64Encoder;
 
+/**
+ * Instances of this class allow to query a remote soap server.
+ */
 public class Client {
 
 	private ServiceDescription serviceDescription;
@@ -103,7 +106,8 @@ public class Client {
 	 * The description is written in out.
 	 * You are responsible to close out.
 	 * 
-	 * Ex: client.explain(System.out);
+	 * Ex:
+	 * <code> client.explain(System.out); </code>
 	 * 
 	 * @param out the Writer to print description to.
 	 * @throws IOException
@@ -247,11 +251,10 @@ public class Client {
 	
 	private ComposedValue readResponse(HttpURLConnection connection) 
 	throws FaultResponseException, IOException, MalformedResponseException {
-
+		
+		InputStream inputStream;
 		try {
-			handleResponseCode(connection);
-			InTrace inTrace = new InTrace(connection.getInputStream());
-			return new ResponseParser().parse(inTrace.in, inTrace.trace);
+			inputStream = connection.getInputStream();
 		} catch (IOException e) {
 			int responseCode = connection.getResponseCode();
 			if (responseCode != 200 && responseCode != -1) {
@@ -261,6 +264,9 @@ public class Client {
 				throw e;
 			}
 		}
+		handleResponseCode(connection);
+		InTrace inTrace = new InTrace(inputStream);
+		return new ResponseParser().parse(inTrace.in, inTrace.trace);
 	}
 
 	private void handleResponseCode(HttpURLConnection connection) throws IOException,
