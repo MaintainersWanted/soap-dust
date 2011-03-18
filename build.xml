@@ -6,6 +6,7 @@
   <property name="classes.main.dir" value="${build.dir}/classes"/>
   <property name="src.main.dir" value="${basedir}/src"/>
   <property name="jar.file" value="${build.dir}/soap-dust.jar"/>
+  <property name="api.dir" value="${basedir}/../../www/htdocs/api"/>
 
   <target name="release"
           description="Build a versioned library jar file. Check that you do not have unchecked local modifications before proceeding.">
@@ -30,6 +31,12 @@
 
   <target name="clean" description="clean project (remove target directory).">
     <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="doc" description="generate javadoc">
+    <delete dir="${api.dir}"/>
+    <javadoc sourcepath="${src.main.dir}"
+             destdir="${api.dir}" />
   </target>
 
   <!-- -->
