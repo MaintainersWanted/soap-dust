@@ -1,7 +1,4 @@
-CHG resolve wsdl parsing performance issues
-ADD expose some cool methods for testing such as extractResponse, for instance by creating a new ClientTest class ?
-CHECK mail from Luc in tocheck.mail
-ADD received data in MalformedResponseException when possible
-ADD return HTTP status in MalformedResponseException
+ADD javadoc on website
 ADD handle remote file import in wsdl with wsdl:import tag
 ADD add a mode that throws exceptions when parameters do not match what is expected from wsdl
+CHG resolve wsdl parsing performance issues just a cache is not enough
