@@ -1,4 +1,0 @@
-ADD javadoc on website
-ADD handle remote file import in wsdl with wsdl:import tag
-ADD add a mode that throws exceptions when parameters do not match what is expected from wsdl
-CHG resolve wsdl parsing performance issues just a cache is not enough
