@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:ns1="schema1NS" 
+  xmlns:tns="element1NS"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+  <xs:schema elementFormDefault="qualified" targetNamespace="element1NS" version="1.0" xmlns:ns1="schema1NS" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:import namespace="schema1NS"/>
+   <xs:element name="messageOperationParam" type="tns:messageType"/>
+   <xs:element name="messageType">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="message" type="xs:string"/>
+      <xs:element name="untyped"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+  </xs:schema>
+ </types>
+ <message name="messageOperation">
+  <part name="param" element="tns:messageOperationParam"/>
+ </message>
+ <portType name="TestPort">
+  <operation name="operation">
+   <input message="tns:messageOperation"/>
+   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+  </operation>
+ </portType>
+ <binding name="TestBinding" type="tns:TestPort">
+  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="operation">
+   <soap:operation soapAction="operation"/>
+   <input>
+    <soap:body use="literal"/>
+   </input>
+   <output>
+    <soap:body use="literal"/>
+   </output>
+  </operation>
+ </binding>
+ <service name="TestService">
+  <port binding="tns:TestBinding" name="TestServicePort">
+   <soap:address location="http://example.com/TestService"/>
+  </port>
+ </service>
+</definitions>
