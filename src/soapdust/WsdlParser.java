@@ -26,6 +26,8 @@ import org.xml.sax.SAXException;
 
 class WsdlParser {
 	
+	//FIXME this class is utter crap ! One should rewrite it from scratch to be more xsd/wsdl/soap compliant
+	
 	static ServiceDescription parse(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
 		DocumentBuilder parser = newXmlParser();
 
@@ -106,37 +108,44 @@ class WsdlParser {
 				parent.put(parameterName, parameter);
 //			}
 
-			String parameterType = typeOrElementAttribute(parameterNode);
-			String parameterTypeNamespace = namespace;
-			if(parameterType.lastIndexOf(":") != -1) {
-				String[] split = parameterType.split(":");
-				parameterTypeNamespace = localNameSpaceContext.getNamespaceURI(split[0]);
-				parameterType = split[1];
-			}
-
-			Node schema = (Node) xpath.compile(WSDL + ":types/" + XSD + ":schema[@targetNamespace='" + parameterTypeNamespace + "']").evaluate(definitions, XPathConstants.NODE);
-			if (schema == null) {continue;}
-			
-			SoapDustNameSpaceContext parameterTypeNSContext = new SoapDustNameSpaceContext(globalNameSpaceContext);
-			addXmlNs(parameterTypeNSContext, schema);
-			
-			addSubParameters(xpath, definitions, globalNameSpaceContext,
-					parameter, parameterType, parameterTypeNamespace, schema,
-					parameterTypeNSContext);
+			addSubParameters(namespace, xpath, definitions, localNameSpaceContext,
+					globalNameSpaceContext, messagePart, parameterNode,
+					parameter);
 		}
 	}
 
-	private static void addSubParameters(XPath xpath, Node definitions,
+	private static void addSubParameters(String namespace,
+			XPath xpath, Node definitions,
+			SoapDustNameSpaceContext localNameSpaceContext,
 			SoapDustNameSpaceContext globalNameSpaceContext,
-			WsdlElement parameter, String parameterType,
-			String parameterTypeNamespace, Node schema,
-			SoapDustNameSpaceContext parameterTypeNSContext)
+			boolean messagePart, Node parameterNode, WsdlElement parameter)
 			throws XPathExpressionException {
 		
+		String parameterType = typeOrElementAttribute(parameterNode);
+		String parameterTypeNamespace = namespace;
+		if(parameterType.lastIndexOf(":") != -1) {
+			String[] split = parameterType.split(":");
+			parameterTypeNamespace = localNameSpaceContext.getNamespaceURI(split[0]);
+			parameterType = split[1];
+		}
+
+		Node schema = (Node) xpath.compile(WSDL + ":types/" + XSD + ":schema[@targetNamespace='" + parameterTypeNamespace + "']").evaluate(definitions, XPathConstants.NODE);
+		if (schema == null) {return;}
+		
+		SoapDustNameSpaceContext parameterTypeNSContext = new SoapDustNameSpaceContext(globalNameSpaceContext);
+		addXmlNs(parameterTypeNSContext, schema);
+
 		Node type = (Node) xpath.compile(".//*[@name='" + parameterType + "']").evaluate(schema, XPathConstants.NODE);
 		if (type != null) {
-			NodeList subParameters = (NodeList) xpath.compile(".//" + XSD + ":element").evaluate(type, XPathConstants.NODESET);
-			addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
+			String typeType = attribute(type, "type");
+			if ("".equals(typeType)) {//is it possible for a complexType or a simpleType to have an attribute type ?
+				NodeList subParameters = (NodeList) xpath.compile(".//" + XSD + ":element").evaluate(type, XPathConstants.NODESET);
+				addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
+			} else {
+				addSubParameters(namespace, xpath, definitions, localNameSpaceContext,
+						globalNameSpaceContext, messagePart, type,
+						parameter);
+			}
 		}
 	}
 

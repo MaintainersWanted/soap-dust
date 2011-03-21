@@ -1,6 +1,7 @@
 package soapdust;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -102,5 +103,14 @@ public class WsdlParserTest extends TestCase {
 		WsdlOperation defaultOperation = result.operations.get("*");
 		assertEquals("", defaultOperation.soapAction);
 		assertEquals(WsdlOperation.RPC, defaultOperation.getStyle());
+	}
+	
+	public void testParseWsdlWithElementAsMessagePart() throws XPathExpressionException, FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+		ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/message-part-is-an-element.wsdl"));
+
+		WsdlOperation operation = result.operations.get("operation");
+		WsdlElement element = operation.parts.get("param");
+		assertNotNull(element.children.get("message"));
+		assertNotNull(element.children.get("untyped"));
 	}
 }
