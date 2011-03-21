@@ -97,14 +97,14 @@ class WsdlParser {
 			Node parameterNode = parameterNodes.item(i);
 			String parameterName = attribute(parameterNode, "name");
 			WsdlElement parameter = new WsdlElement(namespace);
-			if (messagePart) {
-				String parameterType = attribute(parameterNode, "type");
-				if (parameterType == null || parameterType.equals("")) parameterType = attribute(parameterNode, "element");
-				parameterType = parameterType.substring(parameterType.indexOf(":") + 1);
-				parent.put(parameterType, parameter);
-			} else {
+//			if (messagePart) {
+//				String parameterType = attribute(parameterNode, "type");
+//				if (parameterType == null || parameterType.equals("")) parameterType = attribute(parameterNode, "element");
+//				parameterType = parameterType.substring(parameterType.indexOf(":") + 1);
+//				parent.put(parameterType, parameter);
+//			} else {
 				parent.put(parameterName, parameter);
-			}
+//			}
 
 			String parameterType = typeOrElementAttribute(parameterNode);
 			String parameterTypeNamespace = namespace;
@@ -119,9 +119,22 @@ class WsdlParser {
 			
 			SoapDustNameSpaceContext parameterTypeNSContext = new SoapDustNameSpaceContext(globalNameSpaceContext);
 			addXmlNs(parameterTypeNSContext, schema);
-			Node type = (Node) xpath.compile(".//*[@name='" + parameterType + "']").evaluate(schema, XPathConstants.NODE);
-			if (type == null) {continue;}
 			
+			addSubParameters(xpath, definitions, globalNameSpaceContext,
+					parameter, parameterType, parameterTypeNamespace, schema,
+					parameterTypeNSContext);
+		}
+	}
+
+	private static void addSubParameters(XPath xpath, Node definitions,
+			SoapDustNameSpaceContext globalNameSpaceContext,
+			WsdlElement parameter, String parameterType,
+			String parameterTypeNamespace, Node schema,
+			SoapDustNameSpaceContext parameterTypeNSContext)
+			throws XPathExpressionException {
+		
+		Node type = (Node) xpath.compile(".//*[@name='" + parameterType + "']").evaluate(schema, XPathConstants.NODE);
+		if (type != null) {
 			NodeList subParameters = (NodeList) xpath.compile(".//" + XSD + ":element").evaluate(type, XPathConstants.NODESET);
 			addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
 		}

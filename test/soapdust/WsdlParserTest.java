@@ -15,6 +15,7 @@ public class WsdlParserTest extends TestCase {
 	public void testParseWsdlReturnsServiceDescriptionWithOperations() throws XPathExpressionException, ParserConfigurationException, SAXException, IOException {
 		ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/test.wsdl"));
 		
+		//FIXME never null so assert for something else (see operations get)
 		assertNotNull(result.operations.get("testOperation1"));
 		assertNotNull(result.operations.get("testOperation2"));
 	}
@@ -58,9 +59,10 @@ public class WsdlParserTest extends TestCase {
 		ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/test.wsdl"));
 
 		WsdlOperation operation1 = result.operations.get("testOperation1");
-		assertNotNull(operation1.parts.get("messageParameter1Element"));
+		assertNotNull(operation1.parts.get("testOperation1"));
 
-		assertNotNull(operation1.parts.get("string"));
+		assertNotNull(operation1.parts.get("messageParameter2"));
+
 		WsdlOperation operation2 = result.operations.get("testOperation2");
 		assertTrue(operation2.parts.isEmpty());
 	}
@@ -79,7 +81,7 @@ public class WsdlParserTest extends TestCase {
 
 		WsdlOperation operation1 = result.operations.get("testOperation1");
 
-		WsdlElement parameter1 = operation1.parts.get("messageParameter1Element");
+		WsdlElement parameter1 = operation1.parts.get("testOperation1");
 		assertEquals("element1NS", parameter1.children.get("sender").namespace);
 		assertEquals("element1NS", parameter1.children.get("MSISDN").namespace);
 		assertEquals("element1NS", parameter1.children.get("IDOffre").namespace);

@@ -36,12 +36,7 @@ public class ClientRequestManagementTest extends TestCase {
 	}
 
 
-	//FIXME this test fail but it is probably because of the very strange self-made wsdl...
-    //  I must not write crappy wsdl that I can not understand myself
-    //  I must not write crappy wsdl that I can not understand myself
-    //  I must not write crappy wsdl that I can not understand myself
-    //  I must not write crappy wsdl that I can not understand myself
-	public void estBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+	public void testBuildXmlSoapTestRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
 		Client client = new Client();
 		client.setWsdlUrl("file:test/soapdust/test.wsdl");
 		client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
@@ -62,9 +57,12 @@ public class ClientRequestManagementTest extends TestCase {
 			}
 			messageParameter1.put("doscli", dosCli);
 		}
-
+		
+		ComposedValue testOperation1 = new ComposedValue();
+		testOperation1.put("testOperation1", messageParameter1);
+		
 		//TODO handle multi-part messages
-		client.call("testOperation1", messageParameter1);
+		client.call("testOperation1", testOperation1);
 
 		//document style -> no wrapping node
 		String expected =
@@ -72,6 +70,7 @@ public class ClientRequestManagementTest extends TestCase {
 			"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
 			"<Header/>" +
 			"<Body>" +
+			"<testOperation1 xmlns=\"definitionNS\">" +
 			  "<sender xmlns=\"element1NS\">sender</sender>" +
 			  "<MSISDN xmlns=\"element1NS\">30123456789</MSISDN>" +
 			  "<IDOffre xmlns=\"element1NS\">12043</IDOffre>" +
@@ -83,6 +82,7 @@ public class ClientRequestManagementTest extends TestCase {
 			      "<message xmlns=\"element1NS\">coucou</message>" +
 			    "</subParameter4>" +
 			  "</doscli>" +
+			"</testOperation1>" + 
 			"</Body>" +
 			"</Envelope>";
 
