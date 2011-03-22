@@ -71,7 +71,9 @@ class RequestBuilder {
 				Text value = document.createTextNode((String) childValue);
 				param.appendChild(value);
 			} else if (childValue instanceof ComposedValue) {
-				addParameters(document, param, (ComposedValue) childValue, paramWsdlElement == null ? parent : paramWsdlElement.children, namespace);
+				ComposedValue child = (ComposedValue) childValue;
+				if (child.type != null) param.setAttribute("type", child.type); //FIXME quick fix...
+                addParameters(document, param, child, paramWsdlElement == null ? parent : paramWsdlElement.children, namespace);
 			} else {
 				throw new IllegalArgumentException("ComposedValue can only be composed of ComposedValue or String, not: " + childValue.getClass());
 			}
