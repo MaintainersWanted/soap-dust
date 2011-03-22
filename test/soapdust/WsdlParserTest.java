@@ -113,4 +113,9 @@ public class WsdlParserTest extends TestCase {
 		assertNotNull(element.children.get("message"));
 		assertNotNull(element.children.get("untyped"));
 	}
+	
+	public void testParseWsdlWithElementWhoseTypeNameIsTheSameButInDifferentNamespaceDoNotStackOverflow() throws XPathExpressionException, FileNotFoundException, ParserConfigurationException, SAXException, IOException {
+	    ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/type-element-whose-type-has-the-same-name.wsdl"));
+	    //should not stack overflow
+	}
 }

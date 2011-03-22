@@ -135,7 +135,7 @@ class WsdlParser {
 		SoapDustNameSpaceContext parameterTypeNSContext = new SoapDustNameSpaceContext(globalNameSpaceContext);
 		addXmlNs(parameterTypeNSContext, schema);
 
-		Node type = (Node) xpath.compile(".//*[@name='" + parameterType + "']").evaluate(schema, XPathConstants.NODE);
+		Node type = (Node) xpath.compile("./*[@name='" + parameterType + "']").evaluate(schema, XPathConstants.NODE);
 		if (type != null) {
 			String typeType = attribute(type, "type");
 			if ("".equals(typeType)) {//is it possible for a complexType or a simpleType to have an attribute type ?
