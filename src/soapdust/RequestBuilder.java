@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -72,7 +73,11 @@ class RequestBuilder {
 				param.appendChild(value);
 			} else if (childValue instanceof ComposedValue) {
 				ComposedValue child = (ComposedValue) childValue;
-				if (child.type != null) param.setAttribute("type", child.type); //FIXME quick fix...
+				if (child.type != null) {
+					Attr attr = document.createAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "type");
+					attr.setNodeValue(child.type);
+					param.setAttributeNode(attr);
+				}
                 addParameters(document, param, child, paramWsdlElement == null ? parent : paramWsdlElement.children, namespace);
 			} else {
 				throw new IllegalArgumentException("ComposedValue can only be composed of ComposedValue or String, not: " + childValue.getClass());

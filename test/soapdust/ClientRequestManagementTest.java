@@ -21,7 +21,7 @@ public class ClientRequestManagementTest extends TestCase {
 
         //rpc style -> wrapping node named by the operation name
         String expected =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<Header/>" +
             "<Body>" +
@@ -66,7 +66,7 @@ public class ClientRequestManagementTest extends TestCase {
 
         //document style -> no wrapping node
         String expected =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<Header/>" +
             "<Body>" +
@@ -120,7 +120,7 @@ public class ClientRequestManagementTest extends TestCase {
 
         //document style -> no wrapping node
         String expected =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<Header/>" +
             "<Body>" +
@@ -128,7 +128,7 @@ public class ClientRequestManagementTest extends TestCase {
             "<sender xmlns=\"element1NS\">sender</sender>" +
             "<MSISDN xmlns=\"element1NS\">30123456789</MSISDN>" +
             "<IDOffre xmlns=\"element1NS\">12043</IDOffre>" +
-            "<doscli type=\"messageSubSubParameter\" xmlns=\"element1NS\">" +
+            "<doscli xmlns:ns0=\"http://www.w3.org/2001/XMLSchema-instance\" ns0:type=\"messageSubSubParameter\" xmlns=\"element1NS\">" +
               "<subParameter1 xmlns=\"schema1NS\">1</subParameter1>" +
               "<subParameter2 xmlns=\"schema1NS\">2</subParameter2>" +
               "<subParameter3 xmlns=\"schema1NS\">3</subParameter3>" +
