@@ -48,7 +48,7 @@ public class ComposedValue {
 		return getNonNullValue(key);
 	}
 	
-	public void put(String child, Object value) {
+	public ComposedValue put(String child, Object value) {
 		if ((value instanceof String) || (value instanceof ComposedValue)) {
 			if (children.get(child) == null) {
 				children.put(child, value);
@@ -67,6 +67,7 @@ public class ComposedValue {
 				throw new IllegalArgumentException(message + value.getClass());
 			}
 		}
+		return this;
 	}
 	
 	public Set<String> getChildrenKeys() {
