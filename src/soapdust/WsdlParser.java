@@ -49,7 +49,7 @@ class WsdlParser {
 			WsdlOperation operation = new WsdlOperation(soapActionFor(xpath, definitions, operationNode), definitionsTargetNamespace);
 			operation.setStyle(soapOperationStyleFor(xpath, definitions, operationNode));
 			serviceDescription.operations.put(attribute(operationNode, "name"), operation);
-			addParameters(xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, operation.parts);
+			addParameters(operation, xpath, nameSpaceContext, definitions, operationNode, definitionsTargetNamespace, operation.parts);
 		}
 		return serviceDescription;
 	}
@@ -77,7 +77,7 @@ class WsdlParser {
 	}
 
 
-	private static void addParameters(XPath xpath, SoapDustNameSpaceContext nameSpaceContext, Node definitions,
+	private static void addParameters(WsdlOperation operation, XPath xpath, SoapDustNameSpaceContext nameSpaceContext, Node definitions,
 			Node operationNode, String namespace, Map<String, WsdlElement> parent) throws XPathExpressionException {
 
 		Node input = (Node) xpath.compile(WSDL + ":input").evaluate(operationNode, XPathConstants.NODE);
@@ -89,32 +89,33 @@ class WsdlParser {
 		Node message = (Node) xpath.compile(WSDL + ":message[@name='" + messageName + "']").evaluate(definitions, XPathConstants.NODE);
 		NodeList params = (NodeList) xpath.compile(WSDL + ":part").evaluate(message, XPathConstants.NODESET);
 
-		addParameters(parent, namespace, params, xpath, definitions, nameSpaceContext, nameSpaceContext, true);
+		addParameters(operation, parent, namespace, params, xpath, definitions, nameSpaceContext, nameSpaceContext, true);
 	}
 	
-	private static void addParameters(Map<String, WsdlElement> parent, String namespace, NodeList parameterNodes, XPath xpath, Node definitions, 
+	private static void addParameters(WsdlOperation operation, Map<String, WsdlElement> parent, String namespace, NodeList parameterNodes, XPath xpath, Node definitions, 
 			SoapDustNameSpaceContext localNameSpaceContext, SoapDustNameSpaceContext globalNameSpaceContext, boolean messagePart) throws XPathExpressionException {
 		
 		for(int i = 0; i < parameterNodes.getLength(); i++) {
 			Node parameterNode = parameterNodes.item(i);
 			String parameterName = attribute(parameterNode, "name");
 			WsdlElement parameter = new WsdlElement(namespace);
-//			if (messagePart) {
-//				String parameterType = attribute(parameterNode, "type");
-//				if (parameterType == null || parameterType.equals("")) parameterType = attribute(parameterNode, "element");
-//				parameterType = parameterType.substring(parameterType.indexOf(":") + 1);
-//				parent.put(parameterType, parameter);
-//			} else {
+			if ((operation.getStyle() == WsdlOperation.DOCUMENT) && messagePart) {
+				String parameterType = attribute(parameterNode, "type");
+				if (parameterType == null || parameterType.equals("")) parameterType = attribute(parameterNode, "element");
+				parameterType = parameterType.substring(parameterType.indexOf(":") + 1);
+				parent.put(parameterType, parameter);
+			} else {
 				parent.put(parameterName, parameter);
-//			}
+			}
 
-			addSubParameters(namespace, xpath, definitions, localNameSpaceContext,
+			addSubParameters(operation, namespace, xpath, definitions, localNameSpaceContext,
 					globalNameSpaceContext, messagePart, parameterNode,
 					parameter);
 		}
 	}
 
-	private static void addSubParameters(String namespace,
+	private static void addSubParameters(WsdlOperation operation,
+			String namespace,
 			XPath xpath, Node definitions,
 			SoapDustNameSpaceContext localNameSpaceContext,
 			SoapDustNameSpaceContext globalNameSpaceContext,
@@ -140,9 +141,9 @@ class WsdlParser {
 			String typeType = attribute(type, "type");
 			if ("".equals(typeType)) {//is it possible for a complexType or a simpleType to have an attribute type ?
 				NodeList subParameters = (NodeList) xpath.compile(".//" + XSD + ":element").evaluate(type, XPathConstants.NODESET);
-				addParameters(parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
+				addParameters(operation, parameter.children, parameterTypeNamespace, subParameters, xpath, definitions, parameterTypeNSContext, globalNameSpaceContext, false);
 			} else {
-				addSubParameters(namespace, xpath, definitions, localNameSpaceContext,
+				addSubParameters(operation, namespace, xpath, definitions, localNameSpaceContext,
 						globalNameSpaceContext, messagePart, type,
 						parameter);
 			}

@@ -39,7 +39,6 @@
  </types>
  <message name="messageOperation1">
   <part name="testOperation1" element="tns:messageParameter1Element"/>
-  <part name="messageParameter2" type="xsd:string"/>
  </message>
  <portType name="TestPort">
   <operation name="testOperation1">

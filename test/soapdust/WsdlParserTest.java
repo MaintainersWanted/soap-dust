@@ -60,9 +60,7 @@ public class WsdlParserTest extends TestCase {
 		ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/test.wsdl"));
 
 		WsdlOperation operation1 = result.operations.get("testOperation1");
-		assertNotNull(operation1.parts.get("testOperation1"));
-
-		assertNotNull(operation1.parts.get("messageParameter2"));
+		assertNotNull(operation1.parts.get("messageParameter1Element"));
 
 		WsdlOperation operation2 = result.operations.get("testOperation2");
 		assertTrue(operation2.parts.isEmpty());
@@ -82,7 +80,7 @@ public class WsdlParserTest extends TestCase {
 
 		WsdlOperation operation1 = result.operations.get("testOperation1");
 
-		WsdlElement parameter1 = operation1.parts.get("testOperation1");
+		WsdlElement parameter1 = operation1.parts.get("messageParameter1Element");
 		assertEquals("element1NS", parameter1.children.get("sender").namespace);
 		assertEquals("element1NS", parameter1.children.get("MSISDN").namespace);
 		assertEquals("element1NS", parameter1.children.get("IDOffre").namespace);
@@ -109,7 +107,7 @@ public class WsdlParserTest extends TestCase {
 		ServiceDescription result = WsdlParser.parse(new FileInputStream("test/soapdust/message-part-is-an-element.wsdl"));
 
 		WsdlOperation operation = result.operations.get("operation");
-		WsdlElement element = operation.parts.get("param");
+		WsdlElement element = operation.parts.get("messageOperationParam");
 		assertNotNull(element.children.get("message"));
 		assertNotNull(element.children.get("untyped"));
 	}

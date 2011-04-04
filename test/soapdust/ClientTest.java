@@ -18,7 +18,7 @@ public class ClientTest extends TestCase {
 		
 		assertEquals(
 				"testOperation1"                  + LINE_SEPARATOR +
-				"\t" + "testOperation1"           + LINE_SEPARATOR +
+				"\t" + "messageParameter1Element" + LINE_SEPARATOR +
 				"\t\t" + "sender"                 + LINE_SEPARATOR +
 				"\t\t" + "MSISDN"                 + LINE_SEPARATOR +
 				"\t\t" + "IDOffre"                + LINE_SEPARATOR +
@@ -29,9 +29,22 @@ public class ClientTest extends TestCase {
 				"\t\t\t" + "subParameter4"        + LINE_SEPARATOR +
 				"\t\t\t\t" + "message"            + LINE_SEPARATOR +
 				"\t\t\t\t" + "untyped"            + LINE_SEPARATOR +
-				"\t" + "messageParameter2"        + LINE_SEPARATOR +
 				"testOperation2"                  + LINE_SEPARATOR 
 				, result.toString());
+	}
+	
+	public void testExplainDocumentLiteralWsdl() throws IOException, MalformedWsdlException {
+		StringWriter result = new StringWriter();
+		Client client = new Client();
+		client.setWsdlUrl("file:test/soapdust/document-literal.wsdl");
+
+		client.explain(result);
+		
+		assertEquals(
+				"myMethod"         + LINE_SEPARATOR +
+				"\t" + "xElement"  + LINE_SEPARATOR +
+				"\t" + "yElement"  + LINE_SEPARATOR,
+				result.toString());
 	}
 	
 	public void testSetWsdlUsesCache() throws IOException, MalformedWsdlException {
