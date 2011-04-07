@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:tns="element1NS"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+  <xs:schema elementFormDefault="qualified" targetNamespace="element1NS" 
+             version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="person" type="tns:people"/>
+    <xs:element name="people">
+      <xs:complexType>
+        <xs:sequence>
+         <xs:element name="firstname" type="xs:string"/>
+         <xs:element name="lastname" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </xs:schema>
+ </types>
+</definitions>
