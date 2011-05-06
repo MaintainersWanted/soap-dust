@@ -26,7 +26,7 @@ public class ClientResponseManagementTest extends TestCase {
 		client.setEndPoint("test:status:500;file:test/soapdust/response-with-fault.xml");
 		
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("FaultResponseException expected");
 			
 		} catch (FaultResponseException faultException) {
@@ -42,7 +42,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testParseBodyWithHref() throws IOException, SAXException, ParserConfigurationException, FaultResponseException, MalformedResponseException {
 		client.setEndPoint("test:file:test/soapdust/response-with-href.xml");
 		
-		ComposedValue result = client.call("test");
+		ComposedValue result = client.call("testOperation1");
 
 		ComposedValue return0 = result
 		.getComposedValue("getIssuesFromFilterResponse")
@@ -62,7 +62,7 @@ public class ClientResponseManagementTest extends TestCase {
 
 		client.setEndPoint("test:file:test/soapdust/response-with-empty-nodes.xml");
 		
-		ComposedValue result = client.call("test");
+		ComposedValue result = client.call("testOperation1");
 
 		ComposedValue version = result
 		.getComposedValue("getIssuesFromFilterResponse")
@@ -77,7 +77,7 @@ public class ClientResponseManagementTest extends TestCase {
 		client.setEndPoint("test:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch (MalformedResponseException e) {
 			assertEquals(153, e.responseCode);
@@ -87,7 +87,7 @@ public class ClientResponseManagementTest extends TestCase {
 	public void testUnhandledHttpStatusStoresReceivedDataInException() throws IOException, FaultResponseException {
 		client.setEndPoint("test:status:153;file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch(MalformedResponseException e) {
 			assertTrue(Arrays.equals(readFile("test/soapdust/response-with-href.xml"), e.response));
@@ -99,7 +99,7 @@ public class ClientResponseManagementTest extends TestCase {
 		
 		client.setEndPoint("test:file:test/soapdust/response-malformed.xml");
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch(MalformedResponseException e) {
 			assertNull(e.response);
@@ -111,7 +111,7 @@ public class ClientResponseManagementTest extends TestCase {
 
 		client.setEndPoint("test:status:500;file:test/soapdust/response-malformed.xml");
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch(MalformedResponseException e) {
 			assertNull(e.response);
@@ -123,7 +123,7 @@ public class ClientResponseManagementTest extends TestCase {
 
 		client.setEndPoint("test:file:test/soapdust/response-malformed.xml");
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch(MalformedResponseException e) {
 			assertTrue(Arrays.equals(readFile("test/soapdust/response-malformed.xml"), e.response));
@@ -135,7 +135,7 @@ public class ClientResponseManagementTest extends TestCase {
 
 		client.setEndPoint("test:status:500;file:test/soapdust/response-malformed.xml");
 		try {
-			client.call("test");
+			client.call("testOperation1");
 			fail("MalformedResponseException expected");
 		} catch(MalformedResponseException e) {
 			assertTrue(Arrays.equals(readFile("test/soapdust/response-malformed.xml"), e.response));

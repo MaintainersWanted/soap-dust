@@ -2,6 +2,7 @@
 <definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
   xmlns:ns1="schema1NS" 
   xmlns:tns="element1NS"
+  xmlns:dns="definitionNS"
   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
  <types>
@@ -42,12 +43,14 @@
  </message>
  <portType name="TestPort">
   <operation name="testOperation1">
-   <input message="tns:messageOperation1"/>
-   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
-   <fault message="tns:InvalidInputException" name="InvalidInputException"/>
-   <fault message="tns:LimandeException" name="LimandeException"/>
+   <input message="dns:messageOperation1"/>
+   <output message="dns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+   <fault message="dns:InvalidInputException" name="InvalidInputException"/>
+   <fault message="dns:LimandeException" name="LimandeException"/>
   </operation>
-  <operation name="testOperation2" style="rpc"/>
+  <operation name="testOperation2">
+   <output message="dns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+  </operation>
  </portType>
  <binding name="TestBinding" type="tns:TestPort">
   <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
@@ -67,6 +70,7 @@
    </fault>
   </operation>
   <operation name="testOperation2">
+   <soap:operation style="rpc"/>
   </operation>
  </binding>
  <service name="TestService">

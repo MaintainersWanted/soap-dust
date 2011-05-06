@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:tns="element1NS"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+  <xs:schema elementFormDefault="qualified" targetNamespace="element1NS" 
+             version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:element name="name" type="xs:string"/>
+  </xs:schema>
+ </types>
+</definitions>

@@ -12,7 +12,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,6 +25,12 @@ import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import soapdust.wsdl.Definition;
+import soapdust.wsdl.Message;
+import soapdust.wsdl.Operation;
+import soapdust.wsdl.Part;
+import soapdust.wsdl.Type;
+import soapdust.wsdl.WebServiceDescription;
 import sun.misc.BASE64Encoder;
 
 /**
@@ -40,6 +45,8 @@ public class Client {
 	private boolean wsdlSet; //used to check that wsdl has been set before allowing some operations
 
 	private static Map<URL, ServiceDescription> WSDL_CACHE = new WeakHashMap<URL, ServiceDescription>();
+	private static Map<URL, WebServiceDescription> WSDL_CACHE2 = new WeakHashMap<URL, WebServiceDescription>();
+	private WebServiceDescription serviceDescription2;
 
 	static {
 		String handlers = System.getProperty("java.protocol.handler.pkgs");
@@ -81,8 +88,10 @@ public class Client {
 	 * @throws MalformedWsdlException if it can not analyse the wsdl.
 	 */
 	public void setWsdlUrl(String wsdlUrl) throws IOException, MalformedWsdlException {
+		
 		synchronized (WSDL_CACHE) {
 			serviceDescription = WSDL_CACHE.get(new URL(wsdlUrl));
+			serviceDescription2 = WSDL_CACHE2.get(new URL(wsdlUrl));
 			if (serviceDescription == null)	parseWsdl(new URL(wsdlUrl));
 		}
 		this.wsdlSet = true;
@@ -116,14 +125,17 @@ public class Client {
 		if (! this.wsdlSet) throw new IllegalStateException("you must set a wsdl url to get an explanation...");
 
 		BufferedWriter bout = new BufferedWriter(out);
-		for (Entry<String, WsdlOperation> entry : serviceDescription.operations.entrySet()) {
-			if ("*".equals(entry.getKey())) continue; //special operation that may be removed some time
-			
-			bout.write(entry.getKey());
-			printType(bout, "\t", entry.getValue().parts);
-			bout.newLine();
+		
+		if (bout != null) {
+			for (Definition definition : serviceDescription2.getDefinitions()) {
+				for (Operation operation : definition.operations.values()) {
+					bout.write(operation.name);
+					printInput(bout, "\t", operation.input);
+					bout.newLine();
+				}
+				bout.flush();
+			}
 		}
-		bout.flush();
 	}
 
 	/**
@@ -178,7 +190,7 @@ public class Client {
 		HttpURLConnection connection = initHttpConnection(this.endPointUrl);
 		addSoapAction(connection, operation);
 		try {
-			Document request = new RequestBuilder(serviceDescription).build(operation, parameters);
+			Document request = new RequestBuilder(serviceDescription, serviceDescription2).build(operation, parameters);
 			sendRequest(request, connection);
 			return readResponse(connection);
 		} finally {
@@ -230,25 +242,38 @@ public class Client {
 
 	//---
 	
-	private void addSoapAction(HttpURLConnection connection, String operation) {
-		WsdlOperation wsdlOperation = serviceDescription.operations.get(operation);
-		if (wsdlOperation != null && wsdlOperation.soapAction != null) {
-			connection.addRequestProperty("SOAPAction", wsdlOperation.soapAction);
+	private void addSoapAction(HttpURLConnection connection, String operationName) {
+		
+		//FIXME should'nt we have a reference to the definition here ?
+		Operation operation = serviceDescription2.findOperation(operationName);
+		if (operation.soapAction != null) {
+			connection.addRequestProperty("SOAPAction", operation.soapAction);
+		}
+		
+//		WsdlOperation wsdlOperation = serviceDescription.operations.get(operationName);
+//		if (wsdlOperation != null && wsdlOperation.soapAction != null) {
+//			connection.addRequestProperty("SOAPAction", wsdlOperation.soapAction);
+//		}
+	}
+
+	private void printInput(BufferedWriter bout, String indentation,
+			Message input) throws IOException {
+		if (input == null) return;
+		for (Part part : input.getParts()) {
+			printType(bout, indentation, part.type);
 		}
 	}
 
-	private String printType(BufferedWriter bout, String indentation, 
-			Map<String, WsdlElement> type) throws IOException {
-		
-		for (Entry<String, WsdlElement> messageEntry : type.entrySet()) {
-			bout.newLine();
-			bout.write(indentation);
-			bout.write(messageEntry.getKey());
-			printType(bout, indentation + "\t", messageEntry.getValue().children);
+	private void printType(BufferedWriter bout, String indentation, Type type) throws IOException {
+		if (type == null) return;
+		bout.newLine();
+		bout.write(indentation);
+		bout.write(type.name);
+		for (Type subType: type.getTypes()) {
+			printType(bout, indentation + "\t", subType);
 		}
-		return indentation;
 	}
-	
+
 	private ComposedValue readResponse(HttpURLConnection connection) 
 	throws FaultResponseException, IOException, MalformedResponseException {
 		
@@ -328,8 +353,12 @@ public class Client {
 	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
 			serviceDescription = WsdlParser.parse(wsdlUrl.openStream());
+			serviceDescription2 = new soapdust.wsdl.WsdlParser(wsdlUrl).parse();
 			synchronized (WSDL_CACHE) {
 				WSDL_CACHE.put(wsdlUrl, serviceDescription);
+			}
+			synchronized (WSDL_CACHE2) {
+				WSDL_CACHE2.put(wsdlUrl, serviceDescription2);
 			}
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException("Unexpected exception while \"analysing\" wsdl: " + e, e);

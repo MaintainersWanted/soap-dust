@@ -62,12 +62,21 @@ class WsdlParser {
 			//no soap action specified in wsdl
 			return null;
 		} else {
-			return attribute(soapAction, "soapAction");
+			String attribute = attribute(soapAction, "soapAction");
+			return "".equals(attribute) ? null : attribute;
 		}
 	}
 
 	private static String soapOperationStyleFor(XPath xpath, Node definitions, Node operationNode) throws XPathExpressionException {
-		String style = attribute(operationNode, "style");
+		String style = null;
+		{
+			String name = attribute(operationNode, "name");
+			String expression = WSDL + ":binding/" + WSDL + ":operation[@name='" + name + "']/" + SOAP + ":operation";  
+			Node soapOperationNode = (Node) xpath.compile(expression).evaluate(definitions, XPathConstants.NODE);
+			if (soapOperationNode != null) {
+				style = attribute(soapOperationNode, "style");
+			}
+		}
 		if (style == null || style.equals("")) {
 			String expression = WSDL + ":binding/" + SOAP + ":binding";
 			Node binding = (Node) xpath.compile(expression).evaluate(definitions, XPathConstants.NODE);

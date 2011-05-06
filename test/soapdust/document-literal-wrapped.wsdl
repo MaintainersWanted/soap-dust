@@ -36,7 +36,7 @@
      </operation>
  </portType>
 
- <binding name="TestBinding">
+ <binding name="TestBinding" type="PT">
   <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
   <operation name="myMethod">
    <input>
