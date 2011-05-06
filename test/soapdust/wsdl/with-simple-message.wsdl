@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:ns1="schema1NS" 
+  xmlns:tns="element1NS"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+  <xs:schema targetNamespace="schema1NS" version="1.0" xmlns:tns="schema1NS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nns="element1NS">
+   <xs:complexType name="messageSubParameter">
+    <xs:sequence>
+     <xs:element form="qualified" name="subParameter1" nillable="true" type="xs:string"/>
+     <xs:element form="qualified" name="subParameter2" nillable="true" type="xs:string"/>
+     <xs:element form="qualified" name="subParameter3" nillable="true" type="xs:string"/>
+     <xs:element form="qualified" name="subParameter4" nillable="true" type="nns:messageSubSubParameter"/>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:schema>
+  <xs:schema elementFormDefault="qualified" targetNamespace="element1NS" version="1.0" xmlns:ns1="schema1NS" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:import namespace="schema1NS"/>
+   <xs:element name="messageParameter1Element">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="sender" type="xs:string"/>
+      <xs:element name="MSISDN" type="xs:string"/>
+      <xs:element name="IDOffre" type="xs:string"/>
+      <xs:element name="doscli" type="ns1:messageSubParameter"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+   <xs:element name="messageSubSubParameter">
+    <xs:complexType>
+     <xs:sequence>
+      <xs:element name="message" type="xs:string"/>
+      <xs:element name="untyped"/>
+     </xs:sequence>
+    </xs:complexType>
+   </xs:element>
+  </xs:schema>
+ </types>
+ <message name="messageOperation1">
+  <part name="testPart1" element="tns:messageParameter1Element"/>
+  <part name="testPart2" type="ns1:messageSubParameter"/>
+ </message>
+</definitions>

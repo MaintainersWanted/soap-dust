@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:tns="element1NS"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+<xsd:schema elementFormDefault="qualified" targetNamespace="element1NS" 
+             version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xsd:annotation>
+    <xsd:documentation xml:lang="en">
+     Purchase order schema for Example.com.
+     Copyright 2000 Example.com. All rights reserved.
+    </xsd:documentation>
+  </xsd:annotation>
+
+  <xsd:complexType name="Items">
+    <xsd:sequence>
+      <xsd:element name="item" minOccurs="0" maxOccurs="unbounded">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="productName" type="xsd:string"/>
+            <xsd:element name="quantity" type="xsd:positiveInteger"/>
+            <xsd:element name="USPrice"  type="xsd:decimal"/>
+            <xsd:element name="shipDate" type="xsd:date" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>
+</types>
+</definitions>

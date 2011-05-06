@@ -346,7 +346,7 @@ public class Client {
 		if (password != null && userName == null) {
 			throw new NullPointerException("password is not null: userName can not be null");
 		}
-		String authenticationString = new BASE64Encoder().encode((userName + ":" + password).getBytes());
+		String authenticationString = BASE64Encoder.encode((userName + ":" + password));
 		connection.setRequestProperty("Authorization", "Basic " + authenticationString);
 	}
 

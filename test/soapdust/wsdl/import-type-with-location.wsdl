@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="TestService" targetNamespace="definitionNS" xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:tns="imported-type-with-location"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types>
+  <xs:schema elementFormDefault="qualified" targetNamespace="element2NS" 
+             version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:import namespace="imported-type-with-location" 
+               schemaLocation="file:test/soapdust/wsdl/somewhere-else/imported-type-with-location.xsd"/>
+    <xs:complexType name="car">
+      <xs:sequence>
+       <xs:element name="id" type="xs:string"/>
+       <xs:element name="owner" type="tns:people"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:schema>
+ </types>
+</definitions>
