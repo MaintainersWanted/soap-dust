@@ -31,7 +31,6 @@ import soapdust.wsdl.Operation;
 import soapdust.wsdl.Part;
 import soapdust.wsdl.Type;
 import soapdust.wsdl.WebServiceDescription;
-import sun.misc.BASE64Encoder;
 
 /**
  * Instances of this class allow to query a remote soap server.
