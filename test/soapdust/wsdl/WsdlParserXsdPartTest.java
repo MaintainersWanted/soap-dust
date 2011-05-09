@@ -198,7 +198,7 @@ public class WsdlParserXsdPartTest extends TestCase {
 	
 	private void assertType(String expectedNS, String expectedName, Type type) {
 		assertNotNull(type);
-		assertEquals(expectedNS, type.nameSpace);
+		assertEquals(expectedNS, type.namespace);
 		assertEquals(expectedName, type.name);
 	}
 }

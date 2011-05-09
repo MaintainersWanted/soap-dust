@@ -5,13 +5,13 @@ import java.util.LinkedHashMap;
 
 public class Type implements TypeContainer {
 
-	public final String nameSpace;
+	public final String namespace;
 	public final String name;
 	
 	private final LinkedHashMap<String, Type> types = new LinkedHashMap<String, Type>();
 
 	public Type(String ns, String name) {
-		this.nameSpace = ns;
+		this.namespace = ns;
 		this.name = name;
 	}
 	
@@ -29,7 +29,7 @@ public class Type implements TypeContainer {
 
 	@Override
 	public String toString() {
-		return nameSpace + "|" + name + getTypes();
+		return namespace + "|" + name + getTypes();
 	}
 
 
