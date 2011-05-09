@@ -20,7 +20,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -37,15 +36,13 @@ import soapdust.wsdl.WebServiceDescription;
  */
 public class Client {
 
-	private ServiceDescription serviceDescription;
 	private URL endPointUrl;
 	private String password;
 	private String userName;
 	private boolean wsdlSet; //used to check that wsdl has been set before allowing some operations
 
-	private static Map<URL, ServiceDescription> WSDL_CACHE = new WeakHashMap<URL, ServiceDescription>();
-	private static Map<URL, WebServiceDescription> WSDL_CACHE2 = new WeakHashMap<URL, WebServiceDescription>();
-	private WebServiceDescription serviceDescription2;
+	private static Map<URL, WebServiceDescription> WSDL_CACHE = new WeakHashMap<URL, WebServiceDescription>();
+	private WebServiceDescription serviceDescription;
 
 	static {
 		String handlers = System.getProperty("java.protocol.handler.pkgs");
@@ -90,8 +87,7 @@ public class Client {
 		
 		synchronized (WSDL_CACHE) {
 			serviceDescription = WSDL_CACHE.get(new URL(wsdlUrl));
-			serviceDescription2 = WSDL_CACHE2.get(new URL(wsdlUrl));
-			if (serviceDescription == null)	parseWsdl(new URL(wsdlUrl));
+			if (serviceDescription == null) parseWsdl(new URL(wsdlUrl));
 		}
 		this.wsdlSet = true;
 	}	
@@ -126,7 +122,7 @@ public class Client {
 		BufferedWriter bout = new BufferedWriter(out);
 		
 		if (bout != null) {
-			for (Definition definition : serviceDescription2.getDefinitions()) {
+			for (Definition definition : serviceDescription.getDefinitions()) {
 				for (Operation operation : definition.operations.values()) {
 					bout.write(operation.name);
 					printInput(bout, "\t", operation);
@@ -189,7 +185,7 @@ public class Client {
 		HttpURLConnection connection = initHttpConnection(this.endPointUrl);
 		addSoapAction(connection, operation);
 		try {
-			Document request = new RequestBuilder(serviceDescription2).build(operation, parameters);
+			Document request = new RequestBuilder(serviceDescription).build(operation, parameters);
 			sendRequest(request, connection);
 			return readResponse(connection);
 		} finally {
@@ -244,7 +240,7 @@ public class Client {
 	private void addSoapAction(HttpURLConnection connection, String operationName) {
 		
 		//FIXME should'nt we have a reference to the definition here ?
-		Operation operation = serviceDescription2.findOperation(operationName);
+		Operation operation = serviceDescription.findOperation(operationName);
 		if (operation.soapAction != null) {
 			connection.addRequestProperty("SOAPAction", operation.soapAction);
 		}
@@ -366,17 +362,11 @@ public class Client {
 
 	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
-			serviceDescription = WsdlParser.parse(wsdlUrl.openStream());
-			serviceDescription2 = new soapdust.wsdl.WsdlParser(wsdlUrl).parse();
+			serviceDescription = new soapdust.wsdl.WsdlParser(wsdlUrl).parse();
 			synchronized (WSDL_CACHE) {
 				WSDL_CACHE.put(wsdlUrl, serviceDescription);
 			}
-			synchronized (WSDL_CACHE2) {
-				WSDL_CACHE2.put(wsdlUrl, serviceDescription2);
-			}
 		} catch (ParserConfigurationException e) {
-			throw new RuntimeException("Unexpected exception while \"analysing\" wsdl: " + e, e);
-		} catch (XPathExpressionException e) {
 			throw new RuntimeException("Unexpected exception while \"analysing\" wsdl: " + e, e);
 		} catch (SAXException e) {
 			throw new MalformedWsdlException("Unable to \"analyse\" the specified wsdl: " + e, e);
