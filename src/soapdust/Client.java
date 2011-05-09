@@ -129,7 +129,7 @@ public class Client {
 			for (Definition definition : serviceDescription2.getDefinitions()) {
 				for (Operation operation : definition.operations.values()) {
 					bout.write(operation.name);
-					printInput(bout, "\t", operation.input);
+					printInput(bout, "\t", operation);
 					bout.newLine();
 				}
 				bout.flush();
@@ -256,10 +256,25 @@ public class Client {
 	}
 
 	private void printInput(BufferedWriter bout, String indentation,
-			Message input) throws IOException {
+			Operation operation) throws IOException {
+		Message input = operation.input;
 		if (input == null) return;
-		for (Part part : input.getParts()) {
-			printType(bout, indentation, part.type);
+		
+		switch(operation.style) {
+		case Operation.STYLE_DOCUMENT:
+			for (Part part : input.getParts()) {
+				printType(bout, indentation, part.type);
+			}
+			break;
+		case Operation.STYLE_RPC:
+		default:
+			for (Part part : input.getParts()) {
+				bout.newLine();
+				bout.write(indentation);
+				bout.write(part.name);
+				printType(bout, indentation + "\t", part.type);
+			}
+			break;
 		}
 	}
 
