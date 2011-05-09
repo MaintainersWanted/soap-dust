@@ -18,8 +18,8 @@ public class RequestJiraWithSoapdust extends TestCase {
 		String authKey = null;
 		try {
 			ComposedValue authentication = new ComposedValue();
-			authentication.put("login", "login"); //put your login here
-			authentication.put("password", "password"); //put your password here
+			authentication.put("in0", "login"); //put your login here
+			authentication.put("in1", "password"); //put your password here
 
 			ComposedValue login = client.call("login", authentication);
 
