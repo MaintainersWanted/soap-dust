@@ -20,7 +20,7 @@ public class Definition {
 	}
 	
 	public Message newMessage(String name) {
-		Message message = new Message();
+		Message message = new Message(this);
 		messages.put(name, message);
 		return message;
 	}

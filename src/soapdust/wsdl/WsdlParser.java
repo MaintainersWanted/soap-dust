@@ -101,15 +101,16 @@ public class WsdlParser {
 		Message message = definition.newMessage(attribute(messageNode, "name"));
 		
 		for (Node partNode : children(messageNode, WSDL_NS , "part")) {
-			message.addPart(attribute(partNode, "name"), newPart(xsd, definition.nameSpace, partNode));
+			newPart(xsd, definition, message, partNode);
 		}
 	}
 
-	private Part newPart(XSD xsd, String targetNameSpace, Node partNode) throws SAXParseException {
-		
+	private void newPart(XSD xsd, Definition definition, Message message,
+			Node partNode) throws SAXParseException {
+
 		String[] typeDescription = typeDescription(attribute(partNode, "element", "type"), 
-				targetNameSpace, partNode);
-		Type type = xsd.findType(typeDescription[0], typeDescription[1]);
-		return new Part(type);
+				definition.nameSpace, partNode);
+		Type partType = xsd.findType(typeDescription[0], typeDescription[1]);
+		message.newPart(attribute(partNode, "name"), partType);
 	}
 }
