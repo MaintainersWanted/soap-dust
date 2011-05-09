@@ -1,7 +1,5 @@
 package soapdust;
 
-import java.util.Map;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,7 +31,7 @@ class RequestBuilder {
 
 			Element operationElement = createOperationElement(operationName, document);
 			Operation operation = serviceDescription.findOperation(operationName);
-			addParameters2(document, operationElement, operation, parameters);
+			addParameters(document, operationElement, operation, parameters);
 			return document;
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException("Unexpected exception while preparing soap request: " + e, e);
@@ -62,7 +60,7 @@ class RequestBuilder {
 		}
 	}			
 
-	private void addParameters2(Document document, Element operationElement,
+	private void addParameters(Document document, Element operationElement,
 			Operation operation, ComposedValue parameters) {
 		Message message = operation.input;
 		
@@ -95,14 +93,14 @@ class RequestBuilder {
 					attr.setNodeValue(child.type);
 					param.setAttributeNode(attr);
 				}
-				addParameters2(document, param, part.type, child);
+				addParameters(document, param, part.type, child);
 			} else {
 				throw new IllegalArgumentException("ComposedValue can only be composed of ComposedValue or String, not: " + childValue.getClass());
 			}
 		}
 	}
 
-	private void addParameters2(Document document, Element parent, Type parentType,
+	private void addParameters(Document document, Element parent, Type parentType,
 			ComposedValue parameters) {
 		for (String childKey : parameters.getChildrenKeys()) {
 			Type type = parentType.getType(childKey);
@@ -120,7 +118,7 @@ class RequestBuilder {
 					attr.setNodeValue(child.type);
 					param.setAttributeNode(attr);
 				}
-				addParameters2(document, param, type, child);
+				addParameters(document, param, type, child);
 			} else {
 				throw new IllegalArgumentException("ComposedValue can only be composed of ComposedValue or String, not: " + childValue.getClass());
 			}
