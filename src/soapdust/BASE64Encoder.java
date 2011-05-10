@@ -28,7 +28,7 @@
  * Author: Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland<br>
  * Multi-licensed: EPL / LGPL / GPL / AL / BSD.
  */
- public class BASE64Encoder {
+ class BASE64Encoder {
 
  // The line separator string of the operating system.
  private static final String systemLineSeparator = System.getProperty("line.separator");
