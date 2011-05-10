@@ -51,6 +51,13 @@ public class WsdlParserOperationPartTest extends TestCase {
 		assertEquals("soapActionForTestOperation1", (result.getDefinition("definitionNS").operations.get("testOperation1").soapAction));
 	}
 	
+	public void testAssociateNullSoapActionWithOperationWhenNoSoapActionForThisOperation() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/with-operations-without-soap-action.wsdl")).parse();
+		
+		assertNull(result.getDefinition("definitionNS").operations.get("testOperation1").soapAction);
+	}
+	
 	public void testAssociateInputWithOperation() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
 		WebServiceDescription result = 
 			new WsdlParser(new URL("file:test/soapdust/wsdl/with-operations.wsdl")).parse();

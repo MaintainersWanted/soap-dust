@@ -1,8 +1,9 @@
 package soapdust.wsdl;
 
-import static soapdust.wsdl.XMLUtil.WSDL_NS;
 import static soapdust.wsdl.XMLUtil.SOAP_NS;
+import static soapdust.wsdl.XMLUtil.WSDL_NS;
 import static soapdust.wsdl.XMLUtil.attribute;
+import static soapdust.wsdl.XMLUtil.attributeOrNull;
 import static soapdust.wsdl.XMLUtil.children;
 import static soapdust.wsdl.XMLUtil.newXmlParser;
 import static soapdust.wsdl.XMLUtil.typeDescription;
@@ -11,9 +12,7 @@ import static soapdust.wsdl.XMLUtil.validateWsdl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,8 +21,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.TypeDefParticle;
 
 /**
  * wsdl 1.1 parser
@@ -88,7 +85,7 @@ public class WsdlParser {
 				for (Node soapOperationNode: children(wsdlOperationNode, SOAP_NS , "operation")) {
 					Operation operation = definition.operations.get(attribute(wsdlOperationNode, "name"));
 					operation.style = Operation.toStyle(attribute(soapOperationNode, "style"), defaultStyle);
-					operation.soapAction = attribute(soapOperationNode, "soapAction");
+					operation.soapAction = attributeOrNull(soapOperationNode, "soapAction");
 				}				
 			}
 		}

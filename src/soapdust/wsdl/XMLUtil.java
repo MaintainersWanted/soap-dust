@@ -83,12 +83,17 @@ class XMLUtil {
 	}
 
 	static String attribute(Node node, String... attributes) {
+		String value = attributeOrNull(node, attributes);
+		return value == null ? "" : value;
+	}
+	
+	static String attributeOrNull(Node node, String... attributes) {
 		for(int i = 0; i < attributes.length; i++) {
 			String attribute = attributes[i];
 			Node attr = node.getAttributes().getNamedItem(attribute);
 			if (attr != null) return attr.getNodeValue();
 		}
-		return "";
+		return null;
 	}
 	
 	static String[] typeDescription(String type, String defaultNameSpace, Node node) throws SAXParseException {
