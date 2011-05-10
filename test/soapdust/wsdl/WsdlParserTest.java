@@ -17,4 +17,9 @@ public class WsdlParserTest extends TestCase {
 		
 		assertNotNull(result.getDefinition("definitionNS"));
 	}
+	
+
+	public void testParseWsdlWithElementWhoseTypeNameIsTheSameButInDifferentNamespaceDoNotStackOverflow() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+	    new WsdlParser(new URL("file:test/soapdust/wsdl/type-element-whose-type-has-the-same-name.wsdl")).parse();
+	}
 }
