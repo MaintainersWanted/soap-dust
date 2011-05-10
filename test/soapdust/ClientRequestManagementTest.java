@@ -9,7 +9,6 @@ public class ClientRequestManagementTest extends TestCase {
 
 	//FIXME distinguish between literal and encoded...
 	
-    // the 2 following tests are slow... because jira.wsdl takes time to parse
     public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
         Client client = new Client();
         client.setWsdlUrl("file:test/soapdust/jira.wsdl");
