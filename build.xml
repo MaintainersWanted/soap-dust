@@ -5,6 +5,7 @@
   <property name="build.dir" value="${basedir}/target"/>
   <property name="classes.main.dir" value="${build.dir}/classes"/>
   <property name="src.main.dir" value="${basedir}/src"/>
+  <property name="resources.dir" value="${basedir}/resources"/>
   <property name="jar.file" value="${build.dir}/soap-dust.jar"/>
   <property name="api.dir" value="${basedir}/../../www/htdocs/api"/>
 
@@ -52,6 +53,9 @@
   <target name="prepare">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${classes.main.dir}"/>
+    <copy todir="${classes.main.dir}">
+      <fileset dir="${resources.dir}"/>
+    </copy>
   </target>
 
 </project>
