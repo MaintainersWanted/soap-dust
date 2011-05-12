@@ -30,6 +30,7 @@ import soapdust.wsdl.Operation;
 import soapdust.wsdl.Part;
 import soapdust.wsdl.Type;
 import soapdust.wsdl.WebServiceDescription;
+import soapdust.wsdl.WsdlParser;
 
 /**
  * Instances of this class allow to query a remote soap server.
@@ -362,7 +363,7 @@ public class Client {
 
 	private void parseWsdl(URL wsdlUrl) throws IOException, MalformedWsdlException {
 		try {
-			serviceDescription = new soapdust.wsdl.WsdlParser(wsdlUrl).parse();
+			serviceDescription = new WsdlParser(wsdlUrl).parse();
 			synchronized (WSDL_CACHE) {
 				WSDL_CACHE.put(wsdlUrl, serviceDescription);
 			}
