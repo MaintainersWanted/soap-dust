@@ -9,8 +9,10 @@ import static soapdust.wsdl.XMLUtil.newXmlParser;
 import static soapdust.wsdl.XMLUtil.typeDescription;
 import static soapdust.wsdl.XMLUtil.validateWsdl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -34,34 +36,38 @@ public class WsdlParser {
 	}
 	
 	public WebServiceDescription parse() throws SAXException, IOException, ParserConfigurationException {
-		return parse(context.openStream());
+		return parse(new WebServiceDescription());
 	}
-	
-	public WebServiceDescription parse(InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
-		
+
+	private WebServiceDescription parse(WebServiceDescription description) throws SAXException, IOException, ParserConfigurationException {
+		InputStream inputStream = context.openStream();
+
 		DocumentBuilder parser = newXmlParser();
-
 		Document document = parser.parse(inputStream);
-		
 		validateWsdl(document);
-		
-		WebServiceDescription description = new WebServiceDescription();
+		Node definitionNode = children(document, WSDL_NS , "definitions").get(0);
+		return parse(description, definitionNode);
+	}
 
-		Node definitions = children(document, WSDL_NS , "definitions").get(0);
-		String targetNameSpace = attribute(definitions, "targetNamespace");
+	private WebServiceDescription parse(WebServiceDescription description, Node definitionNode) throws SAXException, IOException, ParserConfigurationException {
 		
-		Definition definition = description.newDefinition(targetNameSpace);
+		Definition definition = description.newDefinition(attribute(definitionNode, "targetNamespace"));
 		
-		for (Node typeNode: children(definitions, WSDL_NS , "types")) {
-			new XSDParser(this.context).parse(typeNode, description.xsd);
-		}
-		description.xsd.purgePendingSchemas();
+		parseImportWsdl(description, definitionNode);
 		
-		for (Node messageNode : children(definitions, WSDL_NS , "message")) {
-			parseMessage(description.xsd, definition, messageNode);
-		}
+		parseTypes(description, definitionNode);
 		
-		for (Node portNode: children(definitions, WSDL_NS , "portType")) {
+		parseMessages(description, definitionNode, definition);
+		
+		parseOperations(description, definitionNode, definition);
+
+		return description;
+	}
+
+	private void parseOperations(WebServiceDescription description,
+			Node definitionNode, Definition definition)
+			throws SAXParseException {
+		for (Node portNode: children(definitionNode, WSDL_NS , "portType")) {
 			for (Node operationNode: children(portNode, WSDL_NS , "operation")) {
 				String operationName = attribute(operationNode, "name");
 				Operation operation = definition.newOperation(operationName);
@@ -69,14 +75,14 @@ public class WsdlParser {
 				if (inputNodes.size() == 1) {
 					Node inputNode = inputNodes.get(0); //there is an input node
 					String[] messageDescription = 
-						typeDescription(attribute(inputNode, "message"), targetNameSpace, inputNode);
+						typeDescription(attribute(inputNode, "message"), definition.nameSpace, inputNode);
 					operation.input = 
 						description.getDefinition(messageDescription[0]).getMessage(messageDescription[1]);
 				}
 			}
 		}
 		
-		for (Node wsdlBindingNode: children(definitions, WSDL_NS , "binding")) {
+		for (Node wsdlBindingNode: children(definitionNode, WSDL_NS , "binding")) {
 			int defaultStyle = Operation.STYLE_DOCUMENT;
 			for (Node soapBindingNode: children(wsdlBindingNode, SOAP_NS , "binding")) {
 				defaultStyle = Operation.toStyle(attribute(soapBindingNode, "style"));
@@ -89,25 +95,44 @@ public class WsdlParser {
 				}				
 			}
 		}
-
-		return description;
 	}
 
-	private void parseMessage(XSD xsd, Definition definition, Node messageNode) throws SAXParseException {
-		
-		Message message = definition.newMessage(attribute(messageNode, "name"));
-		
-		for (Node partNode : children(messageNode, WSDL_NS , "part")) {
-			newPart(xsd, definition, message, partNode);
+	private void parseMessages(WebServiceDescription description,
+			Node definitionNode, Definition definition) throws SAXParseException {
+		for (Node messageNode : children(definitionNode, WSDL_NS , "message")) {
+			Message message = definition.newMessage(attribute(messageNode, "name"));
+			for (Node partNode : children(messageNode, WSDL_NS , "part")) {
+				String partName = attribute(partNode, "name");
+				String partType = attribute(partNode, "element", "type");
+				String[] typeDescription = 
+					typeDescription(partType, definition.nameSpace, partNode);
+				message.newPart(partName, 
+						description.xsd.findType(typeDescription[0], typeDescription[1]));
+			}
 		}
 	}
 
-	private void newPart(XSD xsd, Definition definition, Message message,
-			Node partNode) throws SAXParseException {
+	private void parseTypes(WebServiceDescription description,
+			Node definitionNode) throws FileNotFoundException,
+			ParserConfigurationException, SAXException, IOException {
+		for (Node typeNode: children(definitionNode, WSDL_NS , "types")) {
+			new XSDParser(this.context).parse(typeNode, description.xsd);
+		}
+		description.xsd.purgePendingSchemas();
+	}
 
-		String[] typeDescription = typeDescription(attribute(partNode, "element", "type"), 
-				definition.nameSpace, partNode);
-		Type partType = xsd.findType(typeDescription[0], typeDescription[1]);
-		message.newPart(attribute(partNode, "name"), partType);
+	private void parseImportWsdl(WebServiceDescription description, Node definitionNode) 
+	throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		for (Node importNode : children(definitionNode, WSDL_NS , "import")) {
+			String namespace = attribute(importNode, "namespace");
+			String location = attributeOrNull(importNode, "location");
+			URL url;
+			if (location != null) {
+				url = new URL(context, location);
+			} else {
+				url = new URL(context, namespace);
+			}
+			new WsdlParser(url).parse(description);
+		}
 	}
 }

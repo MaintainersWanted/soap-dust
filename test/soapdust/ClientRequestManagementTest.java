@@ -255,6 +255,31 @@ public class ClientRequestManagementTest extends TestCase {
         assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
+    public void testBuildRequestWhenWsdlImportsWsdl() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+    	Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/import-wsdl.wsdl");
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        ComposedValue params = new ComposedValue();
+        params.put("x", "5");
+        params.put("y", "5.0");
+        client.call("myMethod", params);
+        
+        String expected = 
+        	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<Header/>" +
+        	"<Body>" +
+        	  "<myMethod xmlns=\"definitionNS\">" +
+        	    "<x>5</x>" +
+        	    "<y>5.0</y>" +
+        	  "</myMethod>" +
+        	"</Body>" +
+        	"</Envelope>";
+        
+        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+    }
+    
 
 
 }
