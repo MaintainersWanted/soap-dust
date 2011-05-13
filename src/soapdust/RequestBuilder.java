@@ -70,13 +70,13 @@ class RequestBuilder {
 			switch(operation.style) {
 			case Operation.STYLE_DOCUMENT:
 				part = message.getPartByTypeName(childKey);
-				Type type = part.type;
+				Type type = part.type; //FIXME NPE sometimes :(
 				partNamespace = type.namespace;
 				break;
 			case Operation.STYLE_RPC:
 			default:
 				part = message.getPart(childKey);
-				partNamespace = part.namespace(); //FIXME is it possible that we do not find any part here ? If so -> NPE
+				partNamespace = part.namespace(); //FIXME NPE sometimes :(
 				break;
 			}
 			Element param = document.createElementNS(partNamespace, childKey);
