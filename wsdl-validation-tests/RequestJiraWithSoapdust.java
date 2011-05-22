@@ -18,6 +18,7 @@ public class RequestJiraWithSoapdust extends TestCase {
 		String authKey = null;
 		try {
 			ComposedValue authentication = new ComposedValue();
+			//see http://jira.codehaus.org to create an account if you dare.
 			authentication.put("in0", "login"); //put your login here
 			authentication.put("in1", "password"); //put your password here
 
