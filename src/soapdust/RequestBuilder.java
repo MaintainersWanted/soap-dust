@@ -104,7 +104,14 @@ class RequestBuilder {
 			ComposedValue parameters) {
 		for (String childKey : parameters.getChildrenKeys()) {
 			Type type = parentType.getType(childKey);
-			Element param = document.createElementNS(type.namespace, childKey);
+			final String typeNamespace;
+			if (type == null) {
+				//Try to tolerate unsupported xsd :(
+				typeNamespace = parent.getNamespaceURI();
+			} else {
+				typeNamespace = type.namespace; 
+			}
+			Element param = document.createElementNS(typeNamespace, childKey); 
 			parent.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
