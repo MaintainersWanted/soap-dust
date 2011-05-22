@@ -18,8 +18,8 @@ public class QueryJiraWithSoapdust {
 		try {
 			ComposedValue authentication = new ComposedValue();
 			//see http://jira.codehaus.org to create an account if you dare.
-			authentication.put("login", ""); //put your login here
-			authentication.put("password", ""); //put your password here
+			authentication.put("in0", ""); //put your login here
+			authentication.put("in1", ""); //put your password here
 
 			ComposedValue login = client.call("login", authentication);
 
@@ -35,8 +35,8 @@ public class QueryJiraWithSoapdust {
 		}
 
 		ComposedValue query = new ComposedValue();
-		query.put("auth", authKey);
-		query.put("filter", "10093");
+		query.put("in0", authKey);
+		query.put("in1", "10093");
 
 		ComposedValue result = client.call("getIssuesFromFilter", query);
 
