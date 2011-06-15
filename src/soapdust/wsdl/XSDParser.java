@@ -49,7 +49,8 @@ public class XSDParser {
 			throws ParserConfigurationException, SAXException, IOException,
 			FileNotFoundException, SAXParseException {
 		
-		Schema schema = xsd.newSchema(attribute(schemaNode, "targetNamespace"));
+		Schema schema = xsd.newSchema(attribute(schemaNode, "targetNamespace"), 
+		        attribute(schemaNode, "elementFormDefault").equals("qualified") ? true : false);
 		
 		for (Node importNode : children(schemaNode, "http://www.w3.org/2001/XMLSchema", "import")) {
 			String nameSpace = attribute(importNode, "namespace");
@@ -97,7 +98,7 @@ public class XSDParser {
 	
 	private Type newType(Schema schema, Node typeNode) throws SAXParseException {
 		if(attribute(typeNode, "type").equals("")) {
-			return new Type(schema.targetNameSpace, attribute(typeNode, "name"));
+			return new Type(schema.targetNameSpace, attribute(typeNode, "name"), schema.qualified);
 		} else {
 			return newDelegateType(schema, typeNode);
 		}

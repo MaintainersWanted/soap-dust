@@ -7,13 +7,16 @@ import java.util.Map;
 public class Schema implements TypeContainer {
 
 	public final String targetNameSpace;
+	public final boolean qualified;
 
 	private final Map<String, Type> types = new HashMap<String, Type>();
 	private final XSD xsd;
 
-	public Schema(XSD xsd, String targetNameSpace) {
+
+	public Schema(XSD xsd, String targetNameSpace, boolean qualified) {
 		this.xsd = xsd;
 		this.targetNameSpace = targetNameSpace;
+        this.qualified = qualified;
 	}
 
 	public Collection<Type> getTypes() {

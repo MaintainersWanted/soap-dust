@@ -80,7 +80,7 @@ class RequestBuilder {
 				break;
 			}
 			Element param = document.createElementNS(partNamespace, childKey);
-			operationElement.appendChild(param);
+            operationElement.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
 			if (childValue instanceof String) {
@@ -109,10 +109,10 @@ class RequestBuilder {
 				//Try to tolerate unsupported xsd :(
 				typeNamespace = parent.getNamespaceURI();
 			} else {
-				typeNamespace = type.namespace; 
+				typeNamespace = type.qualified ? type.namespace : ""; 
 			}
 			Element param = document.createElementNS(typeNamespace, childKey); 
-			parent.appendChild(param);
+            parent.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
 			if (childValue instanceof String) {

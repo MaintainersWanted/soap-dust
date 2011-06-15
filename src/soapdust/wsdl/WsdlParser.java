@@ -89,7 +89,14 @@ public class WsdlParser {
 			}
 			for (Node wsdlOperationNode: children(wsdlBindingNode, WSDL_NS , "operation")) {
 				for (Node soapOperationNode: children(wsdlOperationNode, SOAP_NS , "operation")) {
-					Operation operation = definition.operations.get(attribute(wsdlOperationNode, "name"));
+				    
+				    //FIXME we should really search for the operation in the good definition using
+				    //      the binding's type instead of randomly searching using its name.
+				    //      see binding type here : http://www.w3.org/TR/wsdl#_bindings
+				    //      see definition ref here : http://www.w3.org/TR/wsdl#_document-n
+//					Operation operation = definition.operations.get(attribute(wsdlOperationNode, "name"));
+				    Operation operation = description.findOperation(attribute(wsdlOperationNode, "name"));
+                    
 					operation.style = Operation.toStyle(attribute(soapOperationNode, "style"), defaultStyle);
 					operation.soapAction = attributeOrNull(soapOperationNode, "soapAction");
 				}				

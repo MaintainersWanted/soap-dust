@@ -31,16 +31,34 @@ public class WsdlParserXsdPartTest extends TestCase {
 		
 	}
 
-	public void testTypeAsAnElement() throws SAXException, IOException, ParserConfigurationException {
-		WebServiceDescription description = 
-			new WsdlParser(new URL("file:test/soapdust/wsdl/just-a-string.wsdl")).parse();
+    public void testTypeAsAnElement() throws SAXException, IOException, ParserConfigurationException {
+        WebServiceDescription description = 
+            new WsdlParser(new URL("file:test/soapdust/wsdl/just-a-string.wsdl")).parse();
 
-		Type name = description.getSchema("element1NS").getType("name");
-		assertType("element1NS", "name", name);
-		assertEquals(0, name.getTypes().size());
-	}
-	
-	public void testTypeAsAComplexType() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
+        Type name = description.getSchema("element1NS").getType("name");
+        assertType("element1NS", "name", name);
+        assertEquals(0, name.getTypes().size());
+    }
+    
+    public void testTypeHasQualifiedForm() throws SAXException, IOException, ParserConfigurationException {
+        //FIXME handle every form of qualified/unqualified types as described here : http://xmlfr.org/w3c/TR/xmlschema-0/#UnqualLocals
+        WebServiceDescription description = 
+            new WsdlParser(new URL("file:test/soapdust/wsdl/just-a-string.wsdl")).parse();
+
+        Type name = description.getSchema("element1NS").getType("name");
+        assertType("element1NS", "name", name, true);
+    }
+
+    public void testTypeHasUnqualifiedForm() throws SAXException, IOException, ParserConfigurationException {
+        //FIXME handle every form of qualified/unqualified types as described here : http://xmlfr.org/w3c/TR/xmlschema-0/#UnqualLocals
+        WebServiceDescription description = 
+            new WsdlParser(new URL("file:test/soapdust/wsdl/unqualified-schema.wsdl")).parse();
+
+        Type name = description.getSchema("element1NS").getType("name");
+        assertType("element1NS", "name", name, false);
+    }
+    
+    public void testTypeAsAComplexType() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
 		WebServiceDescription description = 
 			new WsdlParser(new URL("file:test/soapdust/wsdl/just-one-complex-type.wsdl")).parse();
 
@@ -197,8 +215,13 @@ public class WsdlParserXsdPartTest extends TestCase {
 	//---
 	
 	private void assertType(String expectedNS, String expectedName, Type type) {
-		assertNotNull(type);
-		assertEquals(expectedNS, type.namespace);
-		assertEquals(expectedName, type.name);
+	    assertType(expectedNS, expectedName, type, true);
+	}
+
+	private void assertType(String expectedNS, String expectedName, Type type, boolean qualified) {
+        assertNotNull(type);
+        assertEquals(expectedNS, type.namespace);
+        assertEquals(expectedName, type.name);
+        assertEquals(qualified, type.qualified);
 	}
 }

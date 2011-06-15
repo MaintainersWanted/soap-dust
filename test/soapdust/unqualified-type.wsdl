@@ -6,7 +6,7 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
  <types>
-  <xs:schema targetNamespace="definitionNS" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:schema targetNamespace="definitionNS" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified">
    <xs:element name="myMethod">
     <xs:complexType>
      <xs:sequence>

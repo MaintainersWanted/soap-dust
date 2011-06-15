@@ -280,6 +280,32 @@ public class ClientRequestManagementTest extends TestCase {
         assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
+    public void testBuildRequestWhenSchemaUnqualified() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+        Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/unqualified-type.wsdl");
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        client.call("myMethod", new ComposedValue().
+                put("myMethod",
+                        new ComposedValue().
+                        put("x", "5").
+                        put("y", "5.0")));
+        
+        String expected = 
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+            "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<Header/>" +
+            "<Body>" +
+              "<myMethod xmlns=\"definitionNS\">" +
+                "<x xmlns=\"\">5</x>" +
+                "<y xmlns=\"\">5.0</y>" +
+              "</myMethod>" +
+            "</Body>" +
+            "</Envelope>";
+        
+        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+    }
+    
 
 
 }
