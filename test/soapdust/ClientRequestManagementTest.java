@@ -33,7 +33,7 @@ public class ClientRequestManagementTest extends TestCase {
             "</Body>" +
             "</Envelope>";
 
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
 
 
@@ -86,7 +86,7 @@ public class ClientRequestManagementTest extends TestCase {
             "</Body>" +
             "</Envelope>";
 
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
 
     public void testBuildXmlSoapTestRequestWithSpecificType() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -138,7 +138,7 @@ public class ClientRequestManagementTest extends TestCase {
             "</Body>" +
             "</Envelope>";
 
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
     public void testBuildRpcEncodedRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -173,7 +173,7 @@ public class ClientRequestManagementTest extends TestCase {
 //        </soap:body>
 //        </soap:envelope>
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
 
     public void testBuildRpcLiteralRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -198,7 +198,7 @@ public class ClientRequestManagementTest extends TestCase {
         	"</Body>" +
         	"</Envelope>";
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
     public void testBuildDocumentEncodedRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -226,7 +226,7 @@ public class ClientRequestManagementTest extends TestCase {
         	"</Body>" +
         	"</Envelope>";
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
     public void testBuildDocumentLiteralWrappedRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -252,7 +252,7 @@ public class ClientRequestManagementTest extends TestCase {
         	"</Body>" +
         	"</Envelope>";
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
     public void testBuildRequestWhenWsdlImportsWsdl() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -277,7 +277,7 @@ public class ClientRequestManagementTest extends TestCase {
         	"</Body>" +
         	"</Envelope>";
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
     public void testBuildRequestWhenSchemaUnqualified() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
@@ -303,7 +303,7 @@ public class ClientRequestManagementTest extends TestCase {
             "</Body>" +
             "</Envelope>";
         
-        assertEquals(expected, Handler.saved.get("test:file:test/soapdust/response-with-href.xml").toString());
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
     
 
