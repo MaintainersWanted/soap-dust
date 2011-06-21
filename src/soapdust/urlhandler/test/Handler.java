@@ -57,6 +57,11 @@ public class Handler extends URLStreamHandler {
 	}
     private static Hashtable<String, Matcher> savedMatchers = new Hashtable<String, Matcher>();
 
+    public static void clear() {
+        saved.clear();
+        savedMatchers.clear();
+    }
+    
 	@Override
 	protected URLConnection openConnection(URL url) throws IOException {
 		final String urlPath = url.getPath();

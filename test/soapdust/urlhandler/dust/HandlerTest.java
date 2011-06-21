@@ -27,7 +27,7 @@ public class HandlerTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		new Client(); //ensures url protocols management initialization
-        Handler.saved.clear(); //ensures that the map is empty before each test
+        Handler.clear(); //ensures that the map is empty before each test
 		writeFile(TEST_FILE, TEST_DATA);
 		writeFile(TEST_FILE_2, TEST_DATA_2);
 	}
