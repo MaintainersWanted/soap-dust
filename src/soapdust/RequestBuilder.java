@@ -70,13 +70,15 @@ class RequestBuilder {
 			switch(operation.style) {
 			case Operation.STYLE_DOCUMENT:
 				part = message.getPartByTypeName(childKey);
-				Type type = part.type; //FIXME NPE sometimes :(
+				if (part == null) throw new IllegalArgumentException("unkown message part of type " + childKey + ". Know part types are: " + message.getPartsTypes());
+				Type type = part.type;
 				partNamespace = type.namespace;
 				break;
 			case Operation.STYLE_RPC:
 			default:
 				part = message.getPart(childKey);
-				partNamespace = part.namespace(); //FIXME NPE sometimes :(
+                if (part == null) throw new IllegalArgumentException("unkown message part " + childKey + ". Know parts: " + message.getPartsMap().keySet());
+				partNamespace = part.namespace();
 				break;
 			}
 			Element param = document.createElementNS(partNamespace, childKey);
