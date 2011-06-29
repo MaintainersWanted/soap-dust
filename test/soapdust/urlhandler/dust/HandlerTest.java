@@ -12,6 +12,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import junit.framework.TestCase;
 import soapdust.Client;
 import soapdust.urlhandler.test.Handler;
@@ -37,12 +39,18 @@ public class HandlerTest extends TestCase {
 		new URL("test:"); //should not fail
 	}
 	
-	public void testOpeningADustURLReturnsAnHttpConnection() throws IOException {
-		URLConnection connection = new URL("test:").openConnection();
-		
-		assertTrue(connection instanceof HttpURLConnection);
-	}
-	
+    public void testOpeningADustURLReturnsAnHttpConnection() throws IOException {
+        URLConnection connection = new URL("test:").openConnection();
+        
+        assertTrue(connection instanceof HttpURLConnection);
+    }
+    
+    public void testOpeningADustURLReturnsAnHttpsConnection() throws IOException {
+        URLConnection connection = new URL("test:").openConnection();
+        
+        assertTrue(connection instanceof HttpsURLConnection);
+    }
+    
 	public void testDustUrlRequestStatusCodeDefaultsTo200() throws IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL("test:").openConnection();
 		

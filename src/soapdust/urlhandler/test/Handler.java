@@ -11,11 +11,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * This class handles test: urls. The jvm is automatically initialized
@@ -75,7 +79,7 @@ public class Handler extends URLStreamHandler {
 		    saved.put(url.toString(), new ArrayList<ByteArrayOutputStream>());
 		}
 
-		return new HttpURLConnection(url) {
+		return new HttpsURLConnection(url) {
 			
 			@Override
 			public int getResponseCode() throws IOException {
@@ -134,6 +138,22 @@ public class Handler extends URLStreamHandler {
 			private boolean errorStatus() {
 				return status >=500 && status <= 599;
 			}
+
+            @Override
+            public String getCipherSuite() {
+                return null;
+            }
+
+            @Override
+            public Certificate[] getLocalCertificates() {
+                return null;
+            }
+
+            @Override
+            public Certificate[] getServerCertificates()
+                    throws SSLPeerUnverifiedException {
+                return null;
+            }
 
 		};
 	}
