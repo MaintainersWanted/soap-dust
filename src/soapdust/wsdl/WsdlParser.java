@@ -44,7 +44,7 @@ public class WsdlParser {
 
 		DocumentBuilder parser = newXmlParser();
 		Document document = parser.parse(inputStream);
-		validateWsdl(document);
+//		validateWsdl(document); we have problems with this with jdk1.5 and with androïd so...
 		Node definitionNode = children(document, WSDL_NS , "definitions").get(0);
 		return parse(description, definitionNode);
 	}

@@ -13,15 +13,16 @@ import org.xml.sax.SAXParseException;
 
 public class WsdlParserXsdPartTest extends TestCase {
 	
-	public void testParseMalformedWsdlFails() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
-		try {
-			new WsdlParser(new URL("file:test/soapdust/wsdl/malformed.wsdl")).parse();
-			fail("SAXParserxception should be thrown for this invalid wsdl");
-		} catch(SAXParseException e) {
-			String msg = e.getMessage();
-			assertTrue(msg, msg.contains("Invalid content was found starting with element 'type'"));
-		}
-	}
+// we do not validate wsdl anymore : problems with jdk1.5 and Androïd :( 
+//	public void testParseMalformedWsdlFails() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
+//		try {
+//			new WsdlParser(new URL("file:test/soapdust/wsdl/malformed.wsdl")).parse();
+//			fail("SAXParserxception should be thrown for this invalid wsdl");
+//		} catch(SAXParseException e) {
+//			String msg = e.getMessage();
+//			assertTrue(msg, msg.contains("Invalid content was found starting with element 'type'"));
+//		}
+//	}
 
 	public void testSchemaHasANameSpace() throws FileNotFoundException, SAXException, IOException, ParserConfigurationException {
 		WebServiceDescription description = 
