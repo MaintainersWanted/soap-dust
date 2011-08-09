@@ -105,14 +105,20 @@ class RequestBuilder {
 	private void addParameters(Document document, Element parent, Type parentType,
 			ComposedValue parameters) {
 		for (String childKey : parameters.getChildrenKeys()) {
-			Type type = parentType.getType(childKey);
-			final String typeNamespace;
-			if (type == null) {
-				//Try to tolerate unsupported xsd :(
-				typeNamespace = parent.getNamespaceURI();
-			} else {
-				typeNamespace = type.qualified ? type.namespace : ""; 
-			}
+		    final String typeNamespace;
+		    Type type = null;
+		    if (parentType == null) {
+		        //Try to tolerate unsupported xsd :(
+		        typeNamespace = parent.getNamespaceURI();
+		    } else {
+		        type = parentType.getType(childKey);
+		        if (type == null) {
+		            //Try to tolerate unsupported xsd :(
+		            typeNamespace = parent.getNamespaceURI();
+		        } else {
+		            typeNamespace = type.qualified ? type.namespace : ""; 
+		        }
+		    }
 			Element param = document.createElementNS(typeNamespace, childKey); 
             parent.appendChild(param);
 			
