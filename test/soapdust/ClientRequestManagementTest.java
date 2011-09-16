@@ -23,15 +23,15 @@ public class ClientRequestManagementTest extends TestCase {
         //rpc style -> wrapping node named by the operation name
         String expected =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-            "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-            "<Header/>" +
-            "<Body>" +
-            "<login xmlns=\"http://jira.codehaus.org//rpc/soap/jirasoapservice-v2\">" +
-            "<in0>login</in0>" +
-            "<in1>password</in1>" +
-            "</login>" +
-            "</Body>" +
-            "</Envelope>";
+            "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<sdns0:Header/>" +
+            "<sdns0:Body>" +
+            "<sdns1:login xmlns:sdns1=\"http://jira.codehaus.org//rpc/soap/jirasoapservice-v2\">" +
+            "<sdns1:in0>login</sdns1:in0>" +
+            "<sdns1:in1>password</sdns1:in1>" +
+            "</sdns1:login>" +
+            "</sdns0:Body>" +
+            "</sdns0:Envelope>";
 
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -67,24 +67,24 @@ public class ClientRequestManagementTest extends TestCase {
         //document style -> no wrapping node
         String expected =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-            "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-            "<Header/>" +
-            "<Body>" +
-            "<messageParameter1Element xmlns=\"element1NS\">" +
-              "<sender>sender</sender>" +
-              "<MSISDN>30123456789</MSISDN>" +
-              "<IDOffre>12043</IDOffre>" +
-              "<doscli>" +
-                "<subParameter1 xmlns=\"schema1NS\">1</subParameter1>" +
-                "<subParameter2 xmlns=\"schema1NS\">2</subParameter2>" +
-                "<subParameter3 xmlns=\"schema1NS\">3</subParameter3>" +
-                "<subParameter4 xmlns=\"schema1NS\">" +
-                "<message xmlns=\"element1NS\">coucou</message>" +
-                "</subParameter4>" +
-              "</doscli>" +
-            "</messageParameter1Element>" + 
-            "</Body>" +
-            "</Envelope>";
+            "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<sdns0:Header/>" +
+            "<sdns0:Body>" +
+            "<sdns1:messageParameter1Element xmlns:sdns1=\"element1NS\">" +
+              "<sdns1:sender>sender</sdns1:sender>" +
+              "<sdns1:MSISDN>30123456789</sdns1:MSISDN>" +
+              "<sdns1:IDOffre>12043</sdns1:IDOffre>" +
+              "<sdns1:doscli>" +
+                "<sdns2:subParameter1 xmlns:sdns2=\"schema1NS\">1</sdns2:subParameter1>" +
+                "<sdns2:subParameter2 xmlns:sdns2=\"schema1NS\">2</sdns2:subParameter2>" +
+                "<sdns2:subParameter3 xmlns:sdns2=\"schema1NS\">3</sdns2:subParameter3>" +
+                "<sdns2:subParameter4 xmlns:sdns2=\"schema1NS\">" +
+                  "<sdns1:message>coucou</sdns1:message>" +
+                "</sdns2:subParameter4>" +
+              "</sdns1:doscli>" +
+            "</sdns1:messageParameter1Element>" + 
+            "</sdns0:Body>" +
+            "</sdns0:Envelope>";
 
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -119,24 +119,24 @@ public class ClientRequestManagementTest extends TestCase {
         //document style -> no wrapping node
         String expected =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-            "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-            "<Header/>" +
-            "<Body>" +
-            "<messageParameter1Element xmlns=\"element1NS\">" + 
-            "<sender>sender</sender>" +
-            "<MSISDN>30123456789</MSISDN>" +
-            "<IDOffre>12043</IDOffre>" +
-            "<doscli xmlns:ns0=\"http://www.w3.org/2001/XMLSchema-instance\" ns0:type=\"messageSubSubParameter\">" +
-              "<subParameter1 xmlns=\"schema1NS\">1</subParameter1>" +
-              "<subParameter2 xmlns=\"schema1NS\">2</subParameter2>" +
-              "<subParameter3 xmlns=\"schema1NS\">3</subParameter3>" +
-              "<subParameter4 xmlns=\"schema1NS\">" +
-                "<message xmlns=\"element1NS\">coucou</message>" +
-              "</subParameter4>" +
-            "</doscli>" +
-            "</messageParameter1Element>" + 
-            "</Body>" +
-            "</Envelope>";
+            "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<sdns0:Header/>" +
+            "<sdns0:Body>" +
+            "<sdns1:messageParameter1Element xmlns:sdns1=\"element1NS\">" + 
+            "<sdns1:sender>sender</sdns1:sender>" +
+            "<sdns1:MSISDN>30123456789</sdns1:MSISDN>" +
+            "<sdns1:IDOffre>12043</sdns1:IDOffre>" +
+            "<sdns1:doscli xmlns:ns0=\"http://www.w3.org/2001/XMLSchema-instance\" ns0:type=\"messageSubSubParameter\">" +
+              "<sdns2:subParameter1 xmlns:sdns2=\"schema1NS\">1</sdns2:subParameter1>" +
+              "<sdns2:subParameter2 xmlns:sdns2=\"schema1NS\">2</sdns2:subParameter2>" +
+              "<sdns2:subParameter3 xmlns:sdns2=\"schema1NS\">3</sdns2:subParameter3>" +
+              "<sdns2:subParameter4 xmlns:sdns2=\"schema1NS\">" +
+                "<sdns1:message>coucou</sdns1:message>" +
+              "</sdns2:subParameter4>" +
+            "</sdns1:doscli>" +
+            "</sdns1:messageParameter1Element>" + 
+            "</sdns0:Body>" +
+            "</sdns0:Envelope>";
 
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -153,15 +153,15 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-        	"<Header/>" +
-        	"<Body>" +
-        	  "<myMethod xmlns=\"definitionNS\">" +
-        	    "<x>5</x>" +
-        	    "<y>5.0</y>" +
-        	  "</myMethod>" +
-        	"</Body>" +
-        	"</Envelope>";
+        	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<sdns0:Header/>" +
+        	"<sdns0:Body>" +
+        	  "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+        	    "<sdns1:x>5</sdns1:x>" +
+        	    "<sdns1:y>5.0</sdns1:y>" +
+        	  "</sdns1:myMethod>" +
+        	"</sdns0:Body>" +
+        	"</sdns0:Envelope>";
         
         //FIXME expected should be the following (see xsd:int and float) : 
 //        <soap:envelope>
@@ -188,15 +188,15 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-        	"<Header/>" +
-        	"<Body>" +
-        	  "<myMethod xmlns=\"definitionNS\">" +
-        	    "<x>5</x>" +
-        	    "<y>5.0</y>" +
-        	  "</myMethod>" +
-        	"</Body>" +
-        	"</Envelope>";
+        	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<sdns0:Header/>" +
+        	"<sdns0:Body>" +
+        	  "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+        	    "<sdns1:x>5</sdns1:x>" +
+        	    "<sdns1:y>5.0</sdns1:y>" +
+        	  "</sdns1:myMethod>" +
+        	"</sdns0:Body>" +
+        	"</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -218,13 +218,13 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-        	"<Header/>" +
-        	"<Body>" +
-              "<xElement xmlns=\"definitionNS\">5</xElement>" +
-              "<yElement xmlns=\"definitionNS\">5.0</yElement>" +
-        	"</Body>" +
-        	"</Envelope>";
+        	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<sdns0:Header/>" +
+        	"<sdns0:Body>" +
+              "<sdns1:xElement xmlns:sdns1=\"definitionNS\">5</sdns1:xElement>" +
+              "<sdns1:yElement xmlns:sdns1=\"definitionNS\">5.0</sdns1:yElement>" +
+        	"</sdns0:Body>" +
+        	"</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -242,15 +242,15 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-        	"<Header/>" +
-        	"<Body>" +
-        	  "<myMethod xmlns=\"definitionNS\">" +
-                "<x>5</x>" +
-                "<y>5.0</y>" +
-              "</myMethod>" +
-        	"</Body>" +
-        	"</Envelope>";
+        	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<sdns0:Header/>" +
+        	"<sdns0:Body>" +
+        	  "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+                "<sdns1:x>5</sdns1:x>" +
+                "<sdns1:y>5.0</sdns1:y>" +
+              "</sdns1:myMethod>" +
+        	"</sdns0:Body>" +
+        	"</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -267,15 +267,15 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-        	"<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-        	"<Header/>" +
-        	"<Body>" +
-        	  "<myMethod xmlns=\"definitionNS\">" +
-        	    "<x>5</x>" +
-        	    "<y>5.0</y>" +
-        	  "</myMethod>" +
-        	"</Body>" +
-        	"</Envelope>";
+        	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        	"<sdns0:Header/>" +
+        	"<sdns0:Body>" +
+        	  "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+        	    "<sdns1:x>5</sdns1:x>" +
+        	    "<sdns1:y>5.0</sdns1:y>" +
+        	  "</sdns1:myMethod>" +
+        	"</sdns0:Body>" +
+        	"</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
@@ -293,15 +293,15 @@ public class ClientRequestManagementTest extends TestCase {
         
         String expected = 
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
-            "<Envelope xmlns=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
-            "<Header/>" +
-            "<Body>" +
-              "<myMethod xmlns=\"definitionNS\">" +
-                "<x xmlns=\"\">5</x>" +
-                "<y xmlns=\"\">5.0</y>" +
-              "</myMethod>" +
-            "</Body>" +
-            "</Envelope>";
+            "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+            "<sdns0:Header/>" +
+            "<sdns0:Body>" +
+              "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+                "<x>5</x>" +
+                "<y>5.0</y>" +
+              "</sdns1:myMethod>" +
+            "</sdns0:Body>" +
+            "</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }

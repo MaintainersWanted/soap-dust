@@ -1,5 +1,8 @@
 package soapdust;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,9 +43,9 @@ class RequestBuilder {
 	
 	private Element createOperationElement(String operationName, Document document) {
 
-		Element envelope = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
-		Element header = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Header");
-		Element body = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+		Element envelope = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
+		Element header = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Header");
+		Element body = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
 		document.appendChild(envelope);
 		envelope.appendChild(header);
@@ -51,14 +54,14 @@ class RequestBuilder {
 		Operation operation = serviceDescription.findOperation(operationName);
 		switch (operation.style) {
 		case Operation.STYLE_RPC:
-			Element operationElement = document.createElementNS(operation.definition.nameSpace, operationName);
+			Element operationElement = createElement(document, operation.definition.nameSpace, operationName);
 			body.appendChild(operationElement);
 			return operationElement;
 		case Operation.STYLE_DOCUMENT:
 		default:
 			return body;
 		}
-	}			
+	}
 
 	private void addParameters(Document document, Element operationElement,
 			Operation operation, ComposedValue parameters) {
@@ -81,7 +84,7 @@ class RequestBuilder {
 				partNamespace = part.namespace();
 				break;
 			}
-			Element param = document.createElementNS(partNamespace, childKey);
+			Element param = createElement(document, partNamespace, childKey);
             operationElement.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
@@ -119,7 +122,7 @@ class RequestBuilder {
 		            typeNamespace = type.qualified ? type.namespace : ""; 
 		        }
 		    }
-			Element param = document.createElementNS(typeNamespace, childKey); 
+		    Element param = createElement(document, typeNamespace, childKey); 
             parent.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
@@ -140,4 +143,19 @@ class RequestBuilder {
 		}
 		
 	}
+
+	private Map<String, String> nsMap = new HashMap<String, String>();
+	{
+		nsMap.put("", ""); //no namespace -> no prefix
+	}
+	private int nsIndex = 0;
+	private Element createElement(Document document, String nsUri, String tagName) {
+		String nsPrefix = nsMap.get(nsUri);
+		if (nsPrefix == null) {
+			nsPrefix = "sdns" + (nsIndex++) + ":";
+			nsMap.put(nsUri, nsPrefix);
+		}
+		return document.createElementNS(nsUri, nsPrefix + tagName);
+//		return document.createElementNS(nsUri, tagName);
+	}			
 }
