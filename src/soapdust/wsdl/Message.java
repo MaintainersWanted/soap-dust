@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Message {
 
@@ -38,9 +39,13 @@ public class Message {
 		return parts.values();
 	}
 
-	public Map<String, Part> getPartsMap() {
-		return Collections.unmodifiableMap(parts);
-	}
+    public Map<String, Part> getPartsMap() {
+        return Collections.unmodifiableMap(parts);
+    }
+
+    public Set<String> getPartsTypes() {
+        return partsByTypeName.keySet();
+    }
 
 	public String namespace() {
 		return definition.nameSpace;

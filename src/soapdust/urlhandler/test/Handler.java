@@ -11,7 +11,15 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 /**
  * This class handles test: urls. The jvm is automatically initialized
@@ -44,12 +52,20 @@ import java.util.Hashtable;
  */
 public class Handler extends URLStreamHandler {
 	private static final String STATUS_CAPTURE = "$2";
-	private static final String FILE_CAPTURE = "$2";
-	private static final String FILE_REGEX = "(|.*;)file:([^;]*).*";
 	private static final String STATUS_REGEX = "(|.*;)status:([^;]*).*";
 	
-	public static Hashtable<String, ByteArrayOutputStream> saved = new Hashtable<String, ByteArrayOutputStream>();
+	public static Hashtable<String, List<ByteArrayOutputStream>> saved = new Hashtable<String, List<ByteArrayOutputStream>>();
+	public static ByteArrayOutputStream lastSaved(String url) {
+	    List<ByteArrayOutputStream> list = saved.get(url);
+        return list.get(list.size() - 1);
+	}
+    private static Hashtable<String, Matcher> savedMatchers = new Hashtable<String, Matcher>();
 
+    public static void clear() {
+        saved.clear();
+        savedMatchers.clear();
+    }
+    
 	@Override
 	protected URLConnection openConnection(URL url) throws IOException {
 		final String urlPath = url.getPath();
@@ -58,9 +74,12 @@ public class Handler extends URLStreamHandler {
 
 		String statusAsString = extractValue(urlPath, STATUS_REGEX, STATUS_CAPTURE);
 		status = statusAsString == null ? 200 : Integer.parseInt(statusAsString);
-		path = extractValue(urlPath, FILE_REGEX, FILE_CAPTURE);
+		path = extractPath(urlPath);
+		if (saved.get(url.toString()) == null) {
+		    saved.put(url.toString(), new ArrayList<ByteArrayOutputStream>());
+		}
 
-		return new HttpURLConnection(url) {
+		return new HttpsURLConnection(url) {
 			
 			@Override
 			public int getResponseCode() throws IOException {
@@ -93,8 +112,8 @@ public class Handler extends URLStreamHandler {
 			
 			@Override
 			public OutputStream getOutputStream() throws IOException {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				Handler.saved.put(url.toString(), out);
+				final ByteArrayOutputStream out = new ByteArrayOutputStream();
+				Handler.saved.get(url.toString()).add(out);
 				return out;
 			}
 			
@@ -120,8 +139,40 @@ public class Handler extends URLStreamHandler {
 				return status >=500 && status <= 599;
 			}
 
+            @Override
+            public String getCipherSuite() {
+                return null;
+            }
+
+            @Override
+            public Certificate[] getLocalCertificates() {
+                return null;
+            }
+
+            @Override
+            public Certificate[] getServerCertificates()
+                    throws SSLPeerUnverifiedException {
+                return null;
+            }
+
 		};
 	}
+
+    private String extractPath(final String urlPath) {
+        final String path;
+        Matcher matcher = savedMatchers.get(urlPath); 
+		if (matcher == null) {
+		    matcher = Pattern.compile("file:([^;]*)").matcher(urlPath);
+		    savedMatchers.put(urlPath, matcher);
+		}
+		if (! matcher.find()) {
+		    matcher.reset();
+		    path = matcher.find() ? matcher.group(1) : null;
+		} else {
+		    path = matcher.group(1);
+		}
+        return path;
+    }
 
 	private String extractValue(final String urlPath, String regex, String capture) {
 		if (urlPath.matches(regex)) {

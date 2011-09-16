@@ -11,7 +11,7 @@ public class DelegateType extends Type {
 
 	public DelegateType(Schema schema, String ns, String name, 
 			String delegateNs, String delegateName) {
-		super(ns, name);
+		super(ns, name, schema.qualified);
 		this.schema = schema;
 		this.delegateNs = delegateNs;
 		this.delegateName = delegateName;

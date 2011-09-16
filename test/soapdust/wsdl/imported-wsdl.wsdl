@@ -6,7 +6,7 @@
   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
  <types>
-  <xs:schema targetNamespace="schema1NS" version="1.0" xmlns:tns="schema1NS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nns="element1NS" elementFormDefault="qualified">
+  <xs:schema targetNamespace="schema1NS" version="1.0" xmlns:tns="schema1NS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nns="element1NS">
    <xs:complexType name="messageSubParameter">
     <xs:sequence>
      <xs:element form="qualified" name="subParameter1" nillable="true" type="xs:string"/>
@@ -44,38 +44,13 @@
  <portType name="TestPort">
   <operation name="testOperation1">
    <input message="dns:messageOperation1"/>
-   <output message="dns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
-   <fault message="dns:InvalidInputException" name="InvalidInputException"/>
-   <fault message="dns:LimandeException" name="LimandeException"/>
+   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+   <fault message="tns:InvalidInputException" name="InvalidInputException"/>
+   <fault message="tns:LimandeException" name="LimandeException"/>
   </operation>
   <operation name="testOperation2">
-   <output message="dns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
   </operation>
+
  </portType>
- <binding name="TestBinding" type="tns:TestPort">
-  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
-  <operation name="testOperation1">
-   <soap:operation soapAction="soapActionForTestOperation1"/>
-   <input>
-    <soap:body use="literal"/>
-   </input>
-   <output>
-    <soap:body use="literal"/>
-   </output>
-   <fault name="InvalidInputException">
-    <soap:fault name="InvalidInputException" use="literal"/>
-   </fault>
-   <fault name="LimandeException">
-    <soap:fault name="LimandeException" use="literal"/>
-   </fault>
-  </operation>
-  <operation name="testOperation2">
-   <soap:operation style="rpc"/>
-  </operation>
- </binding>
- <service name="TestService">
-  <port binding="tns:TestBinding" name="TestServicePort">
-   <soap:address location="http://example.com/TestService"/>
-  </port>
- </service>
 </definitions>

@@ -2,6 +2,7 @@ package soapdust;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * The main data structure used by soap-dust.
@@ -78,7 +79,23 @@ public class ComposedValue {
 	
 	@Override
 	public String toString() {
-		return children.toString();
+	    
+	    StringBuilder result = new StringBuilder();
+	    result.append("{");
+	    Set<Entry<String,Object>> entrySet = children.entrySet();
+	    String separator = "";
+	    for (Entry<String, Object> entry : entrySet) {
+	        result.append(separator);
+            result.append("\"");
+            result.append(entry.getKey().replaceAll("\\\\", "\\\\").replaceAll("\"", "\\\""));
+            result.append("\": \"");
+            result.append(entry.getValue().toString());
+            result.append("\"");
+            separator = ", ";
+        }
+	    result.append("}");
+	    
+		return result.toString();
 	}
 	
 //	@Override

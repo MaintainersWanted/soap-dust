@@ -23,8 +23,8 @@ public class XSD {
 		return schemas.get(targetNameSpace);
 	}
 	
-	public Schema newSchema(String targetNameSpace) {
-		Schema schema = new Schema(this, targetNameSpace);
+	public Schema newSchema(String targetNameSpace, boolean qualified) {
+		Schema schema = new Schema(this, targetNameSpace, qualified);
 		schemas.put(targetNameSpace, schema);
 		return schema;
 	}

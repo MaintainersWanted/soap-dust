@@ -7,12 +7,14 @@ public class Type implements TypeContainer {
 
 	public final String namespace;
 	public final String name;
+	public boolean qualified; //FIXME by default in the spec it should be unqualified
 	
 	private final LinkedHashMap<String, Type> types = new LinkedHashMap<String, Type>();
 
-	public Type(String ns, String name) {
+	public Type(String ns, String name, boolean qualified) {
 		this.namespace = ns;
 		this.name = name;
+		this.qualified = qualified;
 	}
 	
 	public Collection<Type> getTypes() {

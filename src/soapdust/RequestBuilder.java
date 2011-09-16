@@ -1,5 +1,8 @@
 package soapdust;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,9 +43,9 @@ class RequestBuilder {
 	
 	private Element createOperationElement(String operationName, Document document) {
 
-		Element envelope = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
-		Element header = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Header");
-		Element body = document.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+		Element envelope = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
+		Element header = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Header");
+		Element body = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
 		document.appendChild(envelope);
 		envelope.appendChild(header);
@@ -51,14 +54,14 @@ class RequestBuilder {
 		Operation operation = serviceDescription.findOperation(operationName);
 		switch (operation.style) {
 		case Operation.STYLE_RPC:
-			Element operationElement = document.createElementNS(operation.definition.nameSpace, operationName);
+			Element operationElement = createElement(document, operation.definition.nameSpace, operationName);
 			body.appendChild(operationElement);
 			return operationElement;
 		case Operation.STYLE_DOCUMENT:
 		default:
 			return body;
 		}
-	}			
+	}
 
 	private void addParameters(Document document, Element operationElement,
 			Operation operation, ComposedValue parameters) {
@@ -70,17 +73,19 @@ class RequestBuilder {
 			switch(operation.style) {
 			case Operation.STYLE_DOCUMENT:
 				part = message.getPartByTypeName(childKey);
+				if (part == null) throw new IllegalArgumentException("unkown message part of type " + childKey + ". Know part types are: " + message.getPartsTypes());
 				Type type = part.type;
 				partNamespace = type.namespace;
 				break;
 			case Operation.STYLE_RPC:
 			default:
 				part = message.getPart(childKey);
-				partNamespace = part.namespace(); //FIXME is it possible that we do not find any part here ? If so -> NPE
+                if (part == null) throw new IllegalArgumentException("unkown message part " + childKey + ". Know parts: " + message.getPartsMap().keySet());
+				partNamespace = part.namespace();
 				break;
 			}
-			Element param = document.createElementNS(partNamespace, childKey);
-			operationElement.appendChild(param);
+			Element param = createElement(document, partNamespace, childKey);
+            operationElement.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
 			if (childValue instanceof String) {
@@ -103,9 +108,22 @@ class RequestBuilder {
 	private void addParameters(Document document, Element parent, Type parentType,
 			ComposedValue parameters) {
 		for (String childKey : parameters.getChildrenKeys()) {
-			Type type = parentType.getType(childKey);
-			Element param = document.createElementNS(type.namespace, childKey);
-			parent.appendChild(param);
+		    final String typeNamespace;
+		    Type type = null;
+		    if (parentType == null) {
+		        //Try to tolerate unsupported xsd :(
+		        typeNamespace = parent.getNamespaceURI();
+		    } else {
+		        type = parentType.getType(childKey);
+		        if (type == null) {
+		            //Try to tolerate unsupported xsd :(
+		            typeNamespace = parent.getNamespaceURI();
+		        } else {
+		            typeNamespace = type.qualified ? type.namespace : ""; 
+		        }
+		    }
+		    Element param = createElement(document, typeNamespace, childKey); 
+            parent.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
 			if (childValue instanceof String) {
@@ -125,4 +143,19 @@ class RequestBuilder {
 		}
 		
 	}
+
+	private Map<String, String> nsMap = new HashMap<String, String>();
+	{
+		nsMap.put("", ""); //no namespace -> no prefix
+	}
+	private int nsIndex = 0;
+	private Element createElement(Document document, String nsUri, String tagName) {
+		String nsPrefix = nsMap.get(nsUri);
+		if (nsPrefix == null) {
+			nsPrefix = "sdns" + (nsIndex++) + ":";
+			nsMap.put(nsUri, nsPrefix);
+		}
+		return document.createElementNS(nsUri, nsPrefix + tagName);
+//		return document.createElementNS(nsUri, tagName);
+	}			
 }
