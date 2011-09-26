@@ -98,16 +98,16 @@ public class ComposedValue {
 		return result.toString();
 	}
 	
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (obj instanceof ComposedValue) {
-//			ComposedValue other = (ComposedValue) obj;
-//			return this.children.equals(other.children);
-//		} else {
-//			return false;
-//		}
-//	}
-//	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ComposedValue) {
+			ComposedValue other = (ComposedValue) obj;
+			return this.children.equals(other.children);
+		} else {
+			return false;
+		}
+	}
+
 //	@Override
 //	public int hashCode() {
 //		return this.children.hashCode();

@@ -15,9 +15,18 @@ public class FaultResponseException extends Exception {
 	 */
 	public int responseCode;
 
-	public FaultResponseException(String message, ComposedValue fault, int responseCode) {
-		super(message);
+	public FaultResponseException(ComposedValue fault, int responseCode) {
+		super(faultMessage(fault));
 		this.fault = fault;
 		this.responseCode = responseCode;
+	}
+
+	public FaultResponseException(ComposedValue fault) {
+		this(fault, 500);
+	}
+
+	private static String faultMessage(ComposedValue fault) {
+		String message = fault.getChildrenKeys().contains("faultstring") ? fault.getStringValue("faultstring") : null;
+		return message;
 	}
 }

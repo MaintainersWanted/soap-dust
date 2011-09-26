@@ -1,56 +1,112 @@
 package soapdust.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
+import soapdust.Client;
 import soapdust.ComposedValue;
+import soapdust.FaultResponseException;
+import soapdust.MalformedResponseException;
+import soapdust.MalformedWsdlException;
+import soapdust.urlhandler.servlet.Handler;
 
 public class ServletTest extends TestCase {
 	private static final String REGISTERED_ACTION = "registered";
 	private static final String UNREGISTERED_ACTION = "unregistered";
-	
-	private Servlet servlet;
-	private StoreHistoryHandler handler;
-	private MockHttpServletRequest request;
-	private MockHttpServletResponse response;
 
+	private StoreHistoryHandler handler;
+	private Client client;
+
+	//FIXME in case of a malformed request, a MalformedResponseException is thrown ;{
+	
 	@Override
 	protected void setUp() throws Exception {
-		servlet = new Servlet();
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
+		Handler.clearRegister();
 
 		handler = new StoreHistoryHandler();
-		servlet.register(REGISTERED_ACTION, handler);
-	}
-	
-	public void testDoPostDelegateToHandlerDependingOnSoapActionHeader() throws ServletException, IOException {
-		servlet.doPost(request.addHeader("SOAPAction", REGISTERED_ACTION), null);
+
+		Handler.register("soapdust", new Servlet("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION, handler));
 		
-		assertFalse(handler.history.isEmpty());
-	}
-	
-	public void testDoPostDoesNotDelegateIfNoHandlerForAction() throws ServletException, IOException {
-		servlet.doPost(request.addHeader("SOAPAction", UNREGISTERED_ACTION), null);
+		client = new Client();
+		client.setEndPoint("servlet:reg:soapdust/");
+		client.setWsdlUrl("file:test/soapdust/server/test.wsdl");
 		
-		assertTrue(handler.history.isEmpty());
-	}
-	
-	public void testDoPostStatus500WhenNoHandlerForAction() throws ServletException, IOException {
-		servlet.doPost(new MockHttpServletRequest().addHeader("SOAPAction", UNREGISTERED_ACTION), null);
-		
-		assertEquals(500, response.status);
 	}
 
+	public void testDelegatesToHandlerDependingOnSoapActionHeader() throws ServletException, IOException, FaultResponseException, MalformedResponseException {
+		client.call(REGISTERED_ACTION);
+
+		assertFalse(handler.history.isEmpty());
+	}
+
+	public void testDoesNotDelegateIfNoHandlerForAction() throws ServletException, IOException, MalformedResponseException {
+		try {
+			client.call(UNREGISTERED_ACTION);
+		} catch (FaultResponseException e) {
+			//OK
+		}
+
+		assertTrue(handler.history.isEmpty());
+	}
+
+	public void testSendsSoapFaultWhenNoHandlerForAction() throws ServletException, IOException, MalformedWsdlException, MalformedResponseException {
+		//TODO check soap spec to return the exact fault in this case
+		try {
+			client.call(UNREGISTERED_ACTION);
+			fail();
+		} catch (FaultResponseException e) {
+			assertEquals("Unsupported operation: " + UNREGISTERED_ACTION, e.fault.getStringValue("faultstring"));
+		}
+	}
+	
+	public void testTransmitSoapParametersToHandler() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+		ComposedValue params = new ComposedValue()
+		.put("messageParameter1", new ComposedValue()
+		  .put("messageParameter", new ComposedValue()
+		    .put("sender", "toto")
+		    .put("MSISDN", "0607080900")
+		    .put("IDOffre", "12043")
+		    .put("doscli", new ComposedValue()
+		      .put("subParameter1", "1")
+		      .put("subParameter2", "2")
+		      .put("subParameter3", "3")
+		      .put("subParameter4", new ComposedValue()
+		        .put("message", "hello")
+		        .put("untyped", "what ?")))));
+
+		client.call(REGISTERED_ACTION, params);
+		
+		ComposedValue expectedParameters = new ComposedValue().put("registered", params);
+		assertEquals(expectedParameters.toString(), handler.history.get(0).params.toString());
+		assertEquals(expectedParameters, handler.history.get(0).params);
+	}
+	
+	public void testSendsHandlerResponseToSoapClient() throws FaultResponseException, IOException, MalformedResponseException {
+        ComposedValue expectedResponse = new ComposedValue()
+          .put("sender", "sender")
+          .put("MSISDN", "30123456789")
+          .put("IDOffre", "12043")
+          .put("doscli", new ComposedValue()
+          	.put("subParameter1", "1")
+          	.put("subParameter2", "2")
+          	.put("subParameter3", "3")
+          	.put("subParameter4", new ComposedValue()
+          		.put("message", "coucou")));
+
+		ComposedValue response = client.call(REGISTERED_ACTION);
+		
+		assertEquals(expectedResponse, response);
+	}
+	
+	//---
 }
 
 class StoreHistoryHandler implements SoapDustHandler {
@@ -59,7 +115,16 @@ class StoreHistoryHandler implements SoapDustHandler {
 	@Override
 	public ComposedValue handle(String action, ComposedValue params) {
 		history.add(new Call(action, params));
-		return null;
+		return new ComposedValue()
+		.put("sender", "sender")
+		.put("MSISDN", "30123456789")
+		.put("IDOffre", "12043")
+		.put("doscli", new ComposedValue()
+			.put("subParameter1", "1")
+			.put("subParameter2", "2")
+			.put("subParameter3", "3")
+			.put("subParameter4", new ComposedValue()
+				.put("message", "coucou")));
 	}
 }
 

@@ -186,7 +186,7 @@ public class Client {
 		HttpURLConnection connection = initHttpConnection(this.endPointUrl);
 		addSoapAction(connection, operation);
 		try {
-			Document request = new RequestBuilder(serviceDescription).build(operation, parameters);
+			Document request = new SoapMessageBuilder(serviceDescription).build(operation, parameters);
 			sendRequest(request, connection);
 			return readResponse(connection);
 		} finally {
@@ -295,14 +295,14 @@ public class Client {
 			int responseCode = connection.getResponseCode();
 			if (responseCode != 200 && responseCode != -1) {
 				InTrace inTrace = new InTrace(connection.getErrorStream());
-				throw new ResponseParser().parseFault(inTrace.in, responseCode, inTrace.trace);
+				throw new SoapMessageParser().parseFault(inTrace.in, responseCode, inTrace.trace);
 			} else {
 				throw e;
 			}
 		}
 		handleResponseCode(connection);
 		InTrace inTrace = new InTrace(inputStream);
-		return new ResponseParser().parse(inTrace.in, inTrace.trace);
+		return new SoapMessageParser().parse(inTrace.in, inTrace.trace);
 	}
 
 	private void handleResponseCode(HttpURLConnection connection) throws IOException,

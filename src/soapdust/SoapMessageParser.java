@@ -21,8 +21,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-class ResponseParser {
+public class SoapMessageParser {
 
+	public ComposedValue parse(InputStream inputStream) throws IOException, MalformedResponseException {
+		return parse(inputStream, null);
+	}
+	
 	ComposedValue parse(InputStream inputStream, byte[] trace) throws IOException, MalformedResponseException {
 		try {
 			Node soapBody = soapNode(inputStream, "/" + SOAPENV + ":Envelope/" + SOAPENV + ":Body");
@@ -37,11 +41,9 @@ class ResponseParser {
 	FaultResponseException parseFault(InputStream inputStream, int responseCode, byte[] trace) throws MalformedResponseException, IOException {
 		try {
 			Node fault = soapNode(inputStream, SOAPENV + ":Envelope/" + SOAPENV + ":Body/" + SOAPENV + ":Fault");
-
+			if (fault == null) throw new MalformedResponseException("Server responded 500 but did not indicate any fault: ", responseCode, trace);
 			ComposedValue result = (ComposedValue) parse(fault);
-			String message = result.getChildrenKeys().contains("faultstring") ? result.getStringValue("faultstring") : null;
-
-			return new FaultResponseException(message, result, responseCode);
+			return new FaultResponseException(result, responseCode);
 		} catch (SAXException e) {
 			throw new MalformedResponseException("Server returned a malformed response: " + e, responseCode, trace);
 		}

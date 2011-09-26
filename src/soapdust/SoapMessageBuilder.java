@@ -18,15 +18,15 @@ import soapdust.wsdl.Part;
 import soapdust.wsdl.Type;
 import soapdust.wsdl.WebServiceDescription;
 
-class RequestBuilder {
+public class SoapMessageBuilder {
 
 	private final WebServiceDescription serviceDescription;
 
-	RequestBuilder(WebServiceDescription serviceDescription) {
+	public SoapMessageBuilder(WebServiceDescription serviceDescription) {
 		this.serviceDescription = serviceDescription;
 	}
 	
-	Document build(String operationName, ComposedValue parameters) {
+	public Document build(String operationName, ComposedValue parameters) {
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 

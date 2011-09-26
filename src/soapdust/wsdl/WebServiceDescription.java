@@ -18,7 +18,7 @@ public class WebServiceDescription {
 			Operation operation = definition.operations.get(operationName);
 			if (operation != null) return operation;
 		}
-		return null;
+		throw new UnsupportedOperationException("operation not found in service description (check Client.explain()): " + operationName);
 	}
 	
 	public Schema getSchema(String targetNameSpace) {
