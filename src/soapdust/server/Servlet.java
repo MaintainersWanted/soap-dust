@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import soapdust.ComposedValue;
 import soapdust.FaultResponseException;
 import soapdust.MalformedResponseException;
+import soapdust.SoapMessageBuilder;
 import soapdust.SoapMessageParser;
 import soapdust.wsdl.WebServiceDescription;
 import soapdust.wsdl.WsdlParser;
@@ -54,38 +55,47 @@ public class Servlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
-		Document soapResponse;
 		try {
-			soapResponse = newDocument();
-		} catch (ParserConfigurationException e) {
-			throw new RuntimeException(e);
-		}
-		Element body = createSoapBody(soapResponse);
-		try {
-			handler.handle(action, params);
-		} catch (FaultResponseException e) {
-			resp.setStatus(500);
-
-			Element fault = soapResponse.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Fault");
-			Element faultCode = soapResponse.createElement("faultcode");
-			Element faultString = soapResponse.createElement("faultstring");
-			body.appendChild(fault);
-			fault.appendChild(faultCode);
-			fault.appendChild(faultString);
-			faultCode.appendChild(soapResponse.createTextNode(e.fault.getStringValue("faultcode")));
-			faultString.appendChild(soapResponse.createTextNode(e.fault.getStringValue("faultstring")));
-
-		}
-		try {
-			sendSoapResponse(resp, soapResponse);
+			try {
+				ComposedValue result = handler.handle(action, params);
+//				Document soapResponse = new SoapMessageBuilder(serviceDescription).buildRequest(action, result);
+//				sendSoapResponse(resp, soapResponse);
+				Document document = newDocument();
+				createSoapBody(document);
+				sendSoapResponse(resp, document);
+			} catch (FaultResponseException e) {
+				sendFault(resp, e);
+				return;
+			}
 		} catch(TransformerException e2) {
 			throw new RuntimeException("Unexpected exception while sending soap response to client: " + e2, e2);
 		}
 	}
 
+	private void sendFault(HttpServletResponse resp, FaultResponseException e) 
+	throws IOException, TransformerConfigurationException, 
+	TransformerFactoryConfigurationError, TransformerException {
+	
+		resp.setStatus(500);
+
+		Document soapResponse;
+		soapResponse = newDocument();
+		Element body = createSoapBody(soapResponse);
+		Element fault = soapResponse.createElementNS("http://schemas.xmlsoap.org/soap/envelope/", "Fault");
+		Element faultCode = soapResponse.createElement("faultcode");
+		Element faultString = soapResponse.createElement("faultstring");
+		body.appendChild(fault);
+		fault.appendChild(faultCode);
+		fault.appendChild(faultString);
+		faultCode.appendChild(soapResponse.createTextNode(e.fault.getStringValue("faultcode")));
+		faultString.appendChild(soapResponse.createTextNode(e.fault.getStringValue("faultstring")));
+		sendSoapResponse(resp, soapResponse);
+		return;
+	}
+
 	private void sendSoapResponse(HttpServletResponse resp, Document document)
-			throws IOException, TransformerConfigurationException,
-			TransformerFactoryConfigurationError, TransformerException {
+	throws IOException, TransformerConfigurationException,
+	TransformerFactoryConfigurationError, TransformerException {
 		OutputStream out = resp.getOutputStream();
 		try {
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -96,12 +106,16 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	private Document newDocument() throws ParserConfigurationException {
-		Document document;
-		DocumentBuilder documentBuilder;
-		documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		document = documentBuilder.newDocument();
-		return document;
+	private Document newDocument() {
+		try {
+			Document document;
+			DocumentBuilder documentBuilder;
+			documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			document = documentBuilder.newDocument();
+			return document;
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public Servlet register(String operation, SoapDustHandler handler) {

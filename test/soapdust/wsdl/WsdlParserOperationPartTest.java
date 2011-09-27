@@ -66,6 +66,14 @@ public class WsdlParserOperationPartTest extends TestCase {
 				(result.getDefinition("definitionNS").operations.get("testOperation1").input));
 	}
 	
+	public void testAssociateOutputWithOperation() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/with-operations.wsdl")).parse();
+		
+		assertEquals(result.getDefinition("definitionNS").getMessage("messageOperation1Output"), 
+				(result.getDefinition("definitionNS").operations.get("testOperation1").output));
+	}
+	
 	//TODO handle WSDL import and include (wsdl, not xsd)
 	//TODO handle documentation so that it can be dumped by Client.explain()
 }

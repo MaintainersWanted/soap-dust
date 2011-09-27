@@ -26,7 +26,22 @@ public class SoapMessageBuilder {
 		this.serviceDescription = serviceDescription;
 	}
 	
-	public Document build(String operationName, ComposedValue parameters) {
+	public Document buildRequest(String operationName, ComposedValue parameters) {
+		try {
+			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+
+			Document document = documentBuilder.newDocument();
+
+			Element operationElement = createOperationElement(operationName, document);
+			Operation operation = serviceDescription.findOperation(operationName);
+			addParameters(document, operationElement, operation, parameters);
+			return document;
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException("Unexpected exception while preparing soap request: " + e, e);
+		}
+	}
+	
+	public Document buildResponse(String operationName, ComposedValue parameters) {
 		try {
 			DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 

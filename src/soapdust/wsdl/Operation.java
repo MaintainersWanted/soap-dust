@@ -8,6 +8,7 @@ public class Operation {
 	public int style;
 	public String soapAction;
 	public Message input;
+	public Message output;
 	public String name;
 	public final Definition definition;
 	

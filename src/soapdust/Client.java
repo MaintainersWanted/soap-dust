@@ -186,7 +186,7 @@ public class Client {
 		HttpURLConnection connection = initHttpConnection(this.endPointUrl);
 		addSoapAction(connection, operation);
 		try {
-			Document request = new SoapMessageBuilder(serviceDescription).build(operation, parameters);
+			Document request = new SoapMessageBuilder(serviceDescription).buildRequest(operation, parameters);
 			sendRequest(request, connection);
 			return readResponse(connection);
 		} finally {

@@ -41,15 +41,17 @@
  <message name="message1">
   <part name="messageParameter1" element="tns:messageParameter"/>
  </message>
+ <message name="response1">
+  <part name="messageResponse1" element="tns:messageParameter"/>
+ </message>
  <portType name="TestPort">
   <operation name="registered">
    <input message="dns:message1"/>
-   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
+   <output message="dns:response1"/>
    <fault message="tns:InvalidInputException" name="InvalidInputException"/>
    <fault message="tns:LimandeException" name="LimandeException"/>
   </operation>
   <operation name="unregistered">
-   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
   </operation>
 
  </portType>

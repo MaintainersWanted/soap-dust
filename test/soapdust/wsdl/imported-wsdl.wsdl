@@ -44,12 +44,10 @@
  <portType name="TestPort">
   <operation name="testOperation1">
    <input message="dns:messageOperation1"/>
-   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
    <fault message="tns:InvalidInputException" name="InvalidInputException"/>
    <fault message="tns:LimandeException" name="LimandeException"/>
   </operation>
   <operation name="testOperation2">
-   <output message="tns:LimandeSouscriptionOffre_doSouscriptionOffreResponse"/>
   </operation>
 
  </portType>

@@ -71,14 +71,8 @@ public class WsdlParser {
 			for (Node operationNode: children(portNode, WSDL_NS , "operation")) {
 				String operationName = attribute(operationNode, "name");
 				Operation operation = definition.newOperation(operationName);
-				List<Node> inputNodes = children(operationNode, WSDL_NS , "input");
-				if (inputNodes.size() == 1) {
-					Node inputNode = inputNodes.get(0); //there is an input node
-					String[] messageDescription = 
-						typeDescription(attribute(inputNode, "message"), definition.nameSpace, inputNode);
-					operation.input = 
-						description.getDefinition(messageDescription[0]).getMessage(messageDescription[1]);
-				}
+				operation.input = operationMessage(description, definition, operationNode, "input");
+				operation.output = operationMessage(description, definition, operationNode, "output");
 			}
 		}
 		
@@ -102,6 +96,19 @@ public class WsdlParser {
 				}				
 			}
 		}
+	}
+
+	private Message operationMessage(WebServiceDescription description,
+			Definition definition, Node operationNode, String nature) 
+	throws SAXParseException {
+		List<Node> nodes = children(operationNode, WSDL_NS , nature);
+		if (nodes.size() == 1) {
+			Node node = nodes.get(0); //there is an output node
+			String[] messageDescription = 
+				typeDescription(attribute(node, "message"), definition.nameSpace, node);
+			return description.getDefinition(messageDescription[0]).getMessage(messageDescription[1]);
+		}
+		return null;
 	}
 
 	private void parseMessages(WebServiceDescription description,
