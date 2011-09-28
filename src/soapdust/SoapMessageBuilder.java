@@ -47,9 +47,9 @@ public class SoapMessageBuilder {
 
 			Document document = documentBuilder.newDocument();
 
-			Element operationElement = createOperationElement(operationName, document);
+			Element operationElement = createSoapBody(document);
 			Operation operation = serviceDescription.findOperation(operationName);
-			addParameters(document, operationElement, operation, parameters);
+			addParameters(document, operationElement, operation, parameters, operation.output);
 			return document;
 		} catch (ParserConfigurationException e) {
 			throw new RuntimeException("Unexpected exception while preparing soap request: " + e, e);
@@ -58,13 +58,7 @@ public class SoapMessageBuilder {
 	
 	private Element createOperationElement(String operationName, Document document) {
 
-		Element envelope = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
-		Element header = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Header");
-		Element body = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Body");
-
-		document.appendChild(envelope);
-		envelope.appendChild(header);
-		envelope.appendChild(body);
+		Element body = createSoapBody(document);
 
 		Operation operation = serviceDescription.findOperation(operationName);
 		switch (operation.style) {
@@ -78,10 +72,26 @@ public class SoapMessageBuilder {
 		}
 	}
 
+	private Element createSoapBody(Document document) {
+		Element envelope = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Envelope");
+		Element header = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Header");
+		Element body = createElement(document, "http://schemas.xmlsoap.org/soap/envelope/", "Body");
+
+		document.appendChild(envelope);
+		envelope.appendChild(header);
+		envelope.appendChild(body);
+		return body;
+	}
+
 	private void addParameters(Document document, Element operationElement,
 			Operation operation, ComposedValue parameters) {
 		Message message = operation.input;
 		
+		addParameters(document, operationElement, operation, parameters, message);
+	}
+
+	private void addParameters(Document document, Element operationElement,
+			Operation operation, ComposedValue parameters, Message message) {
 		for (String childKey : parameters.getChildrenKeys()) {
 			Part part;
 			String partNamespace;

@@ -24,6 +24,7 @@ public class ServletTest extends TestCase {
 
 	private StoreHistoryHandler handler;
 	private Client client;
+	private Servlet servlet;
 
 	//FIXME in case of a malformed request, a MalformedResponseException is thrown ;{
 	
@@ -33,7 +34,8 @@ public class ServletTest extends TestCase {
 
 		handler = new StoreHistoryHandler();
 
-		Handler.register("soapdust", new Servlet("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION, handler));
+		servlet = new Servlet("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION, handler);
+		Handler.register("soapdust", servlet);
 		
 		client = new Client();
 		client.setEndPoint("servlet:reg:soapdust/");
@@ -89,24 +91,29 @@ public class ServletTest extends TestCase {
 		assertEquals(expectedParameters, handler.history.get(0).params);
 	}
 	
-//	public void testSendsHandlerResponseToSoapClient() throws FaultResponseException, IOException, MalformedResponseException {
-//        ComposedValue expectedResponse = new ComposedValue()
-//		.put("messageResponse1", new ComposedValue()
-//		  .put("messageParameter", new ComposedValue()
-//            .put("sender", "sender")
-//            .put("MSISDN", "30123456789")
-//            .put("IDOffre", "12043")
-//            .put("doscli", new ComposedValue()
-//                .put("subParameter1", "1")
-//                .put("subParameter2", "2")
-//                .put("subParameter3", "3")
-//                .put("subParameter4", new ComposedValue()
-//            	.put("message", "coucou")))));
-//
-//		ComposedValue response = client.call(REGISTERED_ACTION);
-//		
-//		assertEquals(expectedResponse, response);
-//	}
+	public void testSendsHandlerResponseToSoapClient() throws FaultResponseException, IOException, MalformedResponseException {
+        ComposedValue expectedResponse = new ComposedValue()
+		.put("messageResponse1", new ComposedValue()
+            .put("sender", "sender")
+            .put("MSISDN", "30123456789")
+            .put("IDOffre", "12043")
+            .put("doscli", new ComposedValue()
+                .put("subParameter1", "1")
+                .put("subParameter2", "2")
+                .put("subParameter3", "3")
+                .put("subParameter4", new ComposedValue()
+            	.put("message", "coucou"))));
+        servlet.register(REGISTERED_ACTION, new ReturnResponseHandler());
+
+		ComposedValue response = client.call(REGISTERED_ACTION);
+		
+		assertEquals(expectedResponse.toString(), response.toString());
+		assertEquals(expectedResponse, response);
+	}
+	
+	public void testReturnSoapFaultToClient() {
+		//TODO
+	}
 	
 	//---
 }
@@ -117,16 +124,31 @@ class StoreHistoryHandler implements SoapDustHandler {
 	@Override
 	public ComposedValue handle(String action, ComposedValue params) {
 		history.add(new Call(action, params));
+		return null;
+	}
+}
+
+class ReturnResponseHandler implements SoapDustHandler {
+	@Override
+	public ComposedValue handle(String action, ComposedValue params) {
 		return new ComposedValue()
-		.put("sender", "sender")
-		.put("MSISDN", "30123456789")
-		.put("IDOffre", "12043")
-		.put("doscli", new ComposedValue()
-			.put("subParameter1", "1")
-			.put("subParameter2", "2")
-			.put("subParameter3", "3")
-			.put("subParameter4", new ComposedValue()
-				.put("message", "coucou")));
+		.put("messageResponse1", new ComposedValue()
+			.put("sender", "sender")
+			.put("MSISDN", "30123456789")
+			.put("IDOffre", "12043")
+			.put("doscli", new ComposedValue()
+				.put("subParameter1", "1")
+				.put("subParameter2", "2")
+				.put("subParameter3", "3")
+				.put("subParameter4", new ComposedValue()
+					.put("message", "coucou"))));
+	}
+}
+
+class ThrowsFaultExceptionHandler implements SoapDustHandler {
+	@Override
+	public ComposedValue handle(String action, ComposedValue params) throws FaultResponseException {
+		throw new FaultResponseException(new ComposedValue());//TODO
 	}
 }
 

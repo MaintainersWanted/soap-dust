@@ -58,11 +58,8 @@ public class Servlet extends HttpServlet {
 		try {
 			try {
 				ComposedValue result = handler.handle(action, params);
-//				Document soapResponse = new SoapMessageBuilder(serviceDescription).buildRequest(action, result);
-//				sendSoapResponse(resp, soapResponse);
-				Document document = newDocument();
-				createSoapBody(document);
-				sendSoapResponse(resp, document);
+				Document soapResponse = new SoapMessageBuilder(serviceDescription).buildResponse(action, result == null ? new ComposedValue() : result);
+				sendSoapResponse(resp, soapResponse);
 			} catch (FaultResponseException e) {
 				sendFault(resp, e);
 				return;
