@@ -1,10 +1,6 @@
 package soapdust.server;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +30,7 @@ public class ServletTest extends TestCase {
 
 		handler = new StoreHistoryHandler();
 
-		servlet = new Servlet("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION, handler);
+		servlet = new Servlet().setWsdl("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION, handler);
 		Handler.register("soapdust", servlet);
 		
 		client = new Client();

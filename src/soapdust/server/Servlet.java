@@ -37,11 +37,18 @@ import soapdust.wsdl.WsdlParser;
 public class Servlet extends HttpServlet {
 	private Map<String, SoapDustHandler> handlers = new HashMap<String, SoapDustHandler>();
 	private WebServiceDescription serviceDescription;
+    private boolean wsdlSet;
 
-	public Servlet(String wsdlUrl) throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
-		serviceDescription = new WsdlParser(new URL(wsdlUrl)).parse();
+	public Servlet setWsdl(String wsdlUrl) throws MalformedURLException, SAXException, IOException {
+	    try {
+            serviceDescription = new WsdlParser(new URL(wsdlUrl)).parse();
+            wsdlSet = true;
+            return this;
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException("unexpected exception while parsing wsdl: " + e, e);
+        }
 	}
-
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -116,6 +123,7 @@ public class Servlet extends HttpServlet {
 	}
 
 	public Servlet register(String operation, SoapDustHandler handler) {
+	    if (! wsdlSet) throw new IllegalStateException("you must set wsdl before registering handlers");
 		handlers.put(operation, handler);
 		return this;
 	}
