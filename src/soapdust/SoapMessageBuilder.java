@@ -85,6 +85,11 @@ public class SoapMessageBuilder {
 
 	private void addParameters(Document document, Element operationElement,
 			Operation operation, ComposedValue parameters) {
+		
+		if(operation.isDocumentWrapped()) {
+			parameters = new ComposedValue().put(operation.name, parameters);
+		}
+		
 		Message message = operation.input;
 		
 		addParameters(document, operationElement, operation, parameters, message);

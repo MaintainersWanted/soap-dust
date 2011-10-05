@@ -50,4 +50,8 @@ public class Message {
 	public String namespace() {
 		return definition.nameSpace;
 	}
+
+	public int getPartNumber() {
+		return parts.size();
+	}
 }

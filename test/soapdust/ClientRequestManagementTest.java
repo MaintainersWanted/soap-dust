@@ -8,6 +8,19 @@ import soapdust.urlhandler.test.Handler;
 public class ClientRequestManagementTest extends TestCase {
 
 	//FIXME distinguish between literal and encoded...
+	//TODO help developper by trying to guess if it is a document-wrapped wsdl or not
+	//     document-wrapped : the parameters are enclosed in an object named after the operation's name (close to rpc style)
+	//     document (not wrapped) : the parameters are directly contained inside the body of the request.
+	//
+	// how to guess ?
+	//
+	// if style is rpc, it is definitely not wrapped
+	// if style is document and input message contains more than ONE parameter, it is definitely not wrapped.
+	// if style is document and 
+	//    1. input message contains only ONE parameter we might guess this "parameter" is just a wrapper.
+	//    2. and parameter is named after the operation's name.
+	//    3. and the same soapAction is shared among several operations
+	// then we might guess it is document-wrapped ???
 	
     public void testBuildXmlSoapJiraRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
         Client client = new Client();
@@ -235,11 +248,9 @@ public class ClientRequestManagementTest extends TestCase {
         client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 
         client.call("myMethod", new ComposedValue().
-        		put("myMethod",
-        				new ComposedValue().
-        				put("x", "5").
-        				put("y", "5.0")));
-        
+        		put("x", "5").
+        		put("y", "5.0"));
+
         String expected = 
         	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
         	"<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
@@ -286,7 +297,7 @@ public class ClientRequestManagementTest extends TestCase {
         client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
 
         client.call("myMethod", new ComposedValue().
-                put("myMethod",
+                put("myMethodParams",
                         new ComposedValue().
                         put("x", "5").
                         put("y", "5.0")));
@@ -296,16 +307,13 @@ public class ClientRequestManagementTest extends TestCase {
             "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
             "<sdns0:Header/>" +
             "<sdns0:Body>" +
-              "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+              "<sdns1:myMethodParams xmlns:sdns1=\"definitionNS\">" +
                 "<x>5</x>" +
                 "<y>5.0</y>" +
-              "</sdns1:myMethod>" +
+              "</sdns1:myMethodParams>" +
             "</sdns0:Body>" +
             "</sdns0:Envelope>";
         
         assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
     }
-    
-
-
 }

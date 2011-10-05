@@ -10,6 +10,9 @@ import junit.framework.TestCase;
 
 import org.xml.sax.SAXException;
 
+import soapdust.Client;
+import soapdust.MalformedWsdlException;
+
 public class WsdlParserOperationPartTest extends TestCase {
 	
 	public void testAssociateOperationsWithDefinition() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
@@ -72,6 +75,34 @@ public class WsdlParserOperationPartTest extends TestCase {
 		
 		assertEquals(result.getDefinition("definitionNS").getMessage("messageOperation1Output"), 
 				(result.getDefinition("definitionNS").operations.get("testOperation1").output));
+	}
+	
+	public void testDetectDocumentWrappedOperations() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/document-wrapped.wsdl")).parse();
+		
+		assertTrue(result.getDefinition("definitionNS").operations.get("myMethod").isDocumentWrapped());
+	}
+	
+	public void testRpcStyleIsNotDocumentWrapped() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/rpc-style.wsdl")).parse();
+		
+		assertFalse(result.getDefinition("definitionNS").operations.get("myMethod").isDocumentWrapped());
+	}
+	
+	public void testDocumentStyleWithSeveralParametersIsNotDocumentWrapped() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/document-style-with-several-parameters.wsdl")).parse();
+		
+		assertFalse(result.getDefinition("definitionNS").operations.get("myMethod").isDocumentWrapped());
+	}
+	
+	public void testDocumentStyleWithSingleParametersNotNamedAfterOperationNameIsNotDocumentWrapped() throws MalformedURLException, SAXException, IOException, ParserConfigurationException {
+		WebServiceDescription result = 
+			new WsdlParser(new URL("file:test/soapdust/wsdl/document-style-with-single-parameter-not-named-after-operation-name.wsdl")).parse();
+		
+		assertFalse(result.getDefinition("definitionNS").operations.get("myMethod").isDocumentWrapped());
 	}
 	
 	//TODO handle WSDL import and include (wsdl, not xsd)

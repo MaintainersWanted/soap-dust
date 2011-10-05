@@ -256,11 +256,17 @@ public class Client {
 			Operation operation) throws IOException {
 		Message input = operation.input;
 		if (input == null) return;
-		
+
 		switch(operation.style) {
 		case Operation.STYLE_DOCUMENT:
 			for (Part part : input.getParts()) {
-				printType(bout, indentation, part.type);
+				if (operation.isDocumentWrapped()) {
+					for (Type subType: part.type.getTypes()) {
+						printType(bout, indentation, subType);
+					}
+				} else {
+					printType(bout, indentation, part.type);
+				}
 			}
 			break;
 		case Operation.STYLE_RPC:

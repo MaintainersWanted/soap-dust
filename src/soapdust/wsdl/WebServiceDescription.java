@@ -6,6 +6,14 @@ import java.util.Map;
 
 public class WebServiceDescription {
 
+//	TODO Detect document-wrapped wsdl:
+//	Extracted from ExamplesWSDL.html
+//	  * The input message has a single part.
+//    * The part is an element.
+//    * The element has the same name as the operation.
+//    * The element's complex type has no attributes.
+
+	
 	public XSD xsd = new XSD();
 	private Map<String, Definition> definitions = new HashMap<String, Definition>();
 

@@ -60,7 +60,7 @@
  <binding name="TestBinding" type="dns:TestPort">
   <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
   <operation name="registered">
-   <soap:operation soapAction="registered"/>
+   <soap:operation soapAction="registeredaction"/>
    <input>
     <soap:body use="literal"/>
    </input>

@@ -46,6 +46,35 @@ public class ClientTest extends TestCase {
 				"\t" + "yElement"  + LINE_SEPARATOR,
 				result.toString());
 	}
+
+	public void testExplainDocumentWrappedWsdl() throws IOException, MalformedWsdlException {
+		StringWriter result = new StringWriter();
+		Client client = new Client();
+		client.setWsdlUrl("file:test/soapdust/wsdl/document-wrapped.wsdl");
+
+		client.explain(result);
+		
+		assertEquals(
+				"myMethod"  + LINE_SEPARATOR +
+				"\t" + "x"  + LINE_SEPARATOR +
+				"\t" + "y"  + LINE_SEPARATOR,
+				result.toString());
+	}
+	
+	public void testExplainNotDocumentWrappedWsdl() throws IOException, MalformedWsdlException {
+		StringWriter result = new StringWriter();
+		Client client = new Client();
+		client.setWsdlUrl("file:test/soapdust/wsdl/document-style-with-single-parameter-not-named-after-operation-name.wsdl");
+
+		client.explain(result);
+		
+		assertEquals(
+				"myMethod"              + LINE_SEPARATOR +
+				"\t" + "myMethodParams" + LINE_SEPARATOR +
+				"\t" + "\t" + "x"       + LINE_SEPARATOR +
+				"\t" + "\t" + "y"       + LINE_SEPARATOR,
+				result.toString());
+	}
 	
 	public void testSetWsdlUsesCache() throws IOException, MalformedWsdlException {
 		String longToParseWsdl = "file:test/soapdust/jira.wsdl";

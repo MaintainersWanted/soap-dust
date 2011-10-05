@@ -6,28 +6,23 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
  <types>
-  <xs:schema targetNamespace="definitionNS" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified">
-   <xs:element name="myMethodParams">
-    <xs:complexType>
-     <xs:sequence>
-      <xs:element name="x" type="xsd:int"/>
-      <xs:element name="y" type="xsd:float"/>
-     </xs:sequence>
-    </xs:complexType>
-   </xs:element>
-   <xs:element name="myMethodResponse">
-    <xs:complexType/>
-   </xs:element>
-  </xs:schema>
+   <xs:schema targetNamespace="definitionNS" 
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+       <xs:element name="myMethod">
+         <xs:complexType>
+           <xs:sequence>
+	     <xs:element name="x" type="xsd:int"/>
+	     <xs:element name="y" type="xsd:float"/>
+           </xs:sequence>
+         </xs:complexType>
+       </xs:element>
+   </xs:schema>
  </types>
 
  <message name="myMethodRequest">
-     <part name="parameters" element="myMethodParams"/>
+     <part name="parameters" element="myMethod"/>
  </message>
- <message name="empty">
-     <part name="parameters" element="myMethodResponse"/>
- </message>
-
+ <message name="empty"/>
  
  <portType name="PT">
      <operation name="myMethod">
@@ -37,8 +32,9 @@
  </portType>
 
  <binding name="TestBinding" type="PT">
-  <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
   <operation name="myMethod">
+   <soap:operation soapAction=""/>
    <input>
     <soap:body use="literal"/>
    </input>

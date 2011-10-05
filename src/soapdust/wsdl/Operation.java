@@ -28,4 +28,17 @@ public class Operation {
 		if ("rpc".equals(style)) return STYLE_RPC;
 		return defaultStyle;
 	}
+
+	public boolean isDocumentWrapped() {
+//      * The input message has a single part.
+//	    * The part is an element.
+//	    * The element has the same name as the operation.
+//	    * The element's complex type has no attributes.
+		boolean documentStyle = style == STYLE_DOCUMENT;
+		boolean onlyOneParameter = input.getPartNumber() == 1;
+		boolean parameterNamedAfterOperationName = input.getPartByTypeName(name) != null;
+		return documentStyle
+		&& onlyOneParameter
+		&& parameterNamedAfterOperationName;
+	}
 }
