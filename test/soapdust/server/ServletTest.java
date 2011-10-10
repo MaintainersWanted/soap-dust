@@ -16,7 +16,10 @@ import soapdust.urlhandler.servlet.Handler;
 
 public class ServletTest extends TestCase {
 	private static final String REGISTERED_ACTION = "registered";
-	private static final String REGISTERED_ACTION_SOAP_ACTION = "registeredaction";
+	private static final String RPC_OPERATION = "rpcoperation";
+	private static final String DOCUMENT_OPERATION = "documentoperation";
+	private static final String DOCUMENT_WRAPPED_OPERATION = "messageParameter";
+	private static final String DOCUMENT_WRAPPED_OPERATION_2 = "messageSubSubParameter";
 	private static final String UNREGISTERED_ACTION = "unregistered";
 
 	private StoreHistoryHandler handler;
@@ -45,7 +48,9 @@ public class ServletTest extends TestCase {
 
 		handler = new StoreHistoryHandler();
 
-		servlet = new Servlet().setWsdl("file:test/soapdust/server/test.wsdl").register(REGISTERED_ACTION_SOAP_ACTION, handler);
+		servlet = new Servlet().setWsdl("file:test/soapdust/server/test.wsdl");
+		servlet.register(REGISTERED_ACTION, handler);
+		
 		Handler.register("soapdust", servlet);
 		
 		client = new Client();
@@ -54,13 +59,32 @@ public class ServletTest extends TestCase {
 		
 	}
 
-	public void tesDelegatesToHandlerDependingOnSoapActionHeader() throws ServletException, IOException, FaultResponseException, MalformedResponseException {
-		client.call(REGISTERED_ACTION);
+	public void testDelegatesToHandlerForRpcStyle() throws ServletException, IOException, FaultResponseException, MalformedResponseException {
+		servlet.register(RPC_OPERATION, handler);
+		
+		client.call(RPC_OPERATION);
 
 		assertFalse(handler.history.isEmpty());
 	}
+	
+	public void testDelegatesToHandlerForDocumentStyle() throws ServletException, IOException, FaultResponseException, MalformedResponseException {
+		servlet.register(DOCUMENT_OPERATION, handler);
+		
+		client.call(DOCUMENT_OPERATION);
 
-	public void tesDoesNotDelegateIfNoHandlerForAction() throws ServletException, IOException, MalformedResponseException {
+		assertFalse(handler.history.isEmpty());
+	}
+	
+	public void testDelegatesToCorrectHandlerForDocumentWrappedStyle() throws ServletException, IOException, FaultResponseException, MalformedResponseException {
+		servlet.register(DOCUMENT_WRAPPED_OPERATION, handler);
+		servlet.register(DOCUMENT_WRAPPED_OPERATION_2, new ThrowsFaultExceptionHandler()); //bad handler
+		
+		client.call(DOCUMENT_WRAPPED_OPERATION);
+
+		assertFalse(handler.history.isEmpty());
+	}
+	
+	public void testDoesNotDelegateIfNoHandlerForAction() throws ServletException, IOException, MalformedResponseException {
 		try {
 			client.call(UNREGISTERED_ACTION);
 		} catch (FaultResponseException e) {
@@ -70,7 +94,7 @@ public class ServletTest extends TestCase {
 		assertTrue(handler.history.isEmpty());
 	}
 
-	public void tesSendsSoapFaultWhenNoHandlerForAction() throws ServletException, IOException, MalformedWsdlException, MalformedResponseException {
+	public void testSendsSoapFaultWhenNoHandlerForAction() throws ServletException, IOException, MalformedWsdlException, MalformedResponseException {
 		//TODO check soap spec to return the exact fault in this case
 		try {
 			client.call(UNREGISTERED_ACTION);
@@ -80,7 +104,7 @@ public class ServletTest extends TestCase {
 		}
 	}
 	
-	public void tesTransmitSoapParametersToHandler() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+	public void testTransmitSoapParametersToHandler() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
 		ComposedValue params = new ComposedValue()
 		.put("messageParameter1", new ComposedValue()
 		  .put("messageParameter", new ComposedValue()
@@ -101,7 +125,7 @@ public class ServletTest extends TestCase {
 		assertEquals(expectedParameters, handler.history.get(0).params);
 	}
 	
-	public void tesSendsHandlerResponseToSoapClient() throws FaultResponseException, IOException, MalformedResponseException {
+	public void testSendsHandlerResponseToSoapClient() throws FaultResponseException, IOException, MalformedResponseException {
         ComposedValue expectedResponse = new ComposedValue()
 		.put("messageResponse1", new ComposedValue()
             .put("sender", "sender")
@@ -113,7 +137,7 @@ public class ServletTest extends TestCase {
                 .put("subParameter3", "3")
                 .put("subParameter4", new ComposedValue()
             	.put("message", "coucou"))));
-        servlet.register(REGISTERED_ACTION_SOAP_ACTION, new ReturnResponseHandler());
+        servlet.register(REGISTERED_ACTION, new ReturnResponseHandler());
 
 		ComposedValue response = client.call(REGISTERED_ACTION);
 		

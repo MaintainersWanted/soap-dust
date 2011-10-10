@@ -41,7 +41,10 @@
  <message name="message1">
   <part name="messageParameter1" element="tns:messageParameter"/>
  </message>
- <message name="response1">
+ <message name="message2">
+  <part name="messageParameter2" element="tns:messageSubSubParameter"/>
+ </message>
+  <message name="response1">
   <part name="messageResponse1" element="tns:messageParameter"/>
  </message>
  <message name="fault1">
@@ -53,6 +56,27 @@
    <output message="dns:response1"/>
    <fault message="dns:messageFault1" name="messageFault1"/>
   </operation>
+  <operation name="rpcoperation">
+   <input message="dns:message1"/>
+   <output message="dns:response1"/>
+   <fault message="dns:messageFault1" name="messageFault1"/>
+  </operation>
+  <operation name="documentoperation">
+   <input message="dns:message1"/>
+   <output message="dns:response1"/>
+   <fault message="dns:messageFault1" name="messageFault1"/>
+  </operation>
+  <operation name="messageParameter">
+   <input message="dns:message1"/>
+   <output message="dns:response1"/>
+   <fault message="dns:messageFault1" name="messageFault1"/>
+  </operation>
+  <operation name="messageSubSubParameter">
+   <input message="dns:message2"/>
+   <output message="dns:response1"/>
+   <fault message="dns:messageFault1" name="messageFault1"/>
+  </operation>
+ 
   <operation name="unregistered">
   </operation>
 
@@ -74,6 +98,70 @@
     <soap:fault name="LimandeException" use="literal"/>
    </fault>
   </operation>
+  <operation name="rpcoperation">
+   <soap:operation style="rpc" soapAction="rpcoperationaction"/>
+   <input>
+    <soap:body use="literal"/>
+   </input>
+   <output>
+    <soap:body use="literal"/>
+   </output>
+   <fault name="InvalidInputException">
+    <soap:fault name="InvalidInputException" use="literal"/>
+   </fault>
+   <fault name="LimandeException">
+    <soap:fault name="LimandeException" use="literal"/>
+   </fault>
+  </operation>
+  <operation name="documentoperation">
+   <soap:operation style="document" soapAction="documentoperationaction"/>
+   <input>
+    <soap:body use="literal"/>
+   </input>
+   <output>
+    <soap:body use="literal"/>
+   </output>
+   <fault name="InvalidInputException">
+    <soap:fault name="InvalidInputException" use="literal"/>
+   </fault>
+   <fault name="LimandeException">
+    <soap:fault name="LimandeException" use="literal"/>
+   </fault>
+  </operation>
+  <operation name="messageParameter">
+   <soap:operation style="document" soapAction=""/>
+   <input>
+    <soap:body use="literal"/>
+   </input>
+   <output>
+    <soap:body use="literal"/>
+   </output>
+   <fault name="InvalidInputException">
+    <soap:fault name="InvalidInputException" use="literal"/>
+   </fault>
+   <fault name="LimandeException">
+    <soap:fault name="LimandeException" use="literal"/>
+   </fault>
+  </operation>
+  <operation name="messageSubSubParameter">
+   <soap:operation style="document" soapAction=""/>
+   <input>
+    <soap:body use="literal"/>
+   </input>
+   <output>
+    <soap:body use="literal"/>
+   </output>
+   <fault name="InvalidInputException">
+    <soap:fault name="InvalidInputException" use="literal"/>
+   </fault>
+   <fault name="LimandeException">
+    <soap:fault name="LimandeException" use="literal"/>
+   </fault>
+  </operation>
+
+
+
+
   <operation name="unregistered" >
    <soap:operation style="document" soapAction="unregistered"/>
   </operation>

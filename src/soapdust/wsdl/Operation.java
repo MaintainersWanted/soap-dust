@@ -35,8 +35,8 @@ public class Operation {
 //	    * The element has the same name as the operation.
 //	    * The element's complex type has no attributes.
 		boolean documentStyle = style == STYLE_DOCUMENT;
-		boolean onlyOneParameter = input.getPartNumber() == 1;
-		boolean parameterNamedAfterOperationName = input.getPartByTypeName(name) != null;
+		boolean onlyOneParameter = input != null && input.getPartNumber() == 1;
+		boolean parameterNamedAfterOperationName = input != null && input.getPartByTypeName(name) != null;
 		return documentStyle
 		&& onlyOneParameter
 		&& parameterNamedAfterOperationName;

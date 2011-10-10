@@ -5,7 +5,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,11 +34,11 @@ import soapdust.FaultResponseException;
 import soapdust.MalformedResponseException;
 import soapdust.SoapMessageBuilder;
 import soapdust.SoapMessageParser;
+import soapdust.wsdl.Operation;
 import soapdust.wsdl.WebServiceDescription;
 import soapdust.wsdl.WsdlParser;
 
 public class Servlet extends HttpServlet {
-	private Map<String, SoapDustHandler> handlers = new HashMap<String, SoapDustHandler>();
 	private WebServiceDescription serviceDescription;
     private boolean wsdlSet;
 
@@ -53,8 +56,6 @@ public class Servlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		String action = req.getHeader("SOAPAction");
-		SoapDustHandler handler = handlers.get(action);
-		handler = handler == null ? new DefaultHandler() : handler;
 		ComposedValue params;
 		try {
 			params = new SoapMessageParser().parse(req.getInputStream());
@@ -62,10 +63,14 @@ public class Servlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		}
+		OperationHandler operationHandler = selectOperationHandler(action, params);
 		try {
 			try {
-				ComposedValue result = handler.handle(action, params);
-				Document soapResponse = new SoapMessageBuilder(serviceDescription).buildResponse(action, result == null ? new ComposedValue() : result);
+				Operation operation = operationHandler.operation;
+				SoapDustHandler handler = operationHandler.handler;
+				String operationName = operation.name;
+				ComposedValue result = handler.handle(operationName, params);
+				Document soapResponse = new SoapMessageBuilder(serviceDescription).buildResponse(operationName, result == null ? new ComposedValue() : result);
 				sendSoapResponse(resp, soapResponse);
 			} catch (FaultResponseException e) {
 				sendFault(resp, e);
@@ -75,6 +80,7 @@ public class Servlet extends HttpServlet {
 			throw new RuntimeException("Unexpected exception while sending soap response to client: " + e2, e2);
 		}
 	}
+
 
 	private void sendFault(HttpServletResponse resp, FaultResponseException e) 
 	throws IOException, TransformerConfigurationException, 
@@ -122,10 +128,46 @@ public class Servlet extends HttpServlet {
 		}
 	}
 
-	public Servlet register(String operation, SoapDustHandler handler) {
-	    if (! wsdlSet) throw new IllegalStateException("you must set wsdl before registering handlers");
-		handlers.put(operation, handler);
+	private Map<String, Map<String, OperationHandler>> handlers = new HashMap<String, Map<String, OperationHandler>>();
+	public Servlet register(String operationName, final SoapDustHandler handler) {
+		if (! wsdlSet) throw new IllegalStateException("you must set wsdl before registering handlers");
+		final Operation operation = serviceDescription.findOperation(operationName);
+		if (operation.isDocumentWrapped()) {
+			Map<String, OperationHandler> map = handlers.get(operation.soapAction);
+			if (map == null) {
+				map = new HashMap<String, Servlet.OperationHandler>();
+				handlers.put(operation.soapAction, map);
+			}
+			map.put(operation.name, new OperationHandler(operation, handler));
+		} else {
+			handlers.put(operation.soapAction, new HashMap<String, Servlet.OperationHandler>(){
+				{put("", new OperationHandler(operation, handler));}
+			});
+		}
 		return this;
+	}
+	
+	private OperationHandler selectOperationHandler(String action, ComposedValue params) {
+		Map<String, OperationHandler> map = handlers.get(action);
+		if (map != null) {
+			Iterator<Entry<String, OperationHandler>> iterator = map.entrySet().iterator();
+			Entry<String, OperationHandler> next = iterator.next();
+			if (! iterator.hasNext()) {
+				return next.getValue();
+			} else {
+				return map.get(params.getChildrenKeys().iterator().next());
+			}
+		} 
+		return new OperationHandler(new Operation(null, action), new DefaultHandler());
+	}
+
+	private class OperationHandler {
+		Operation operation;
+		SoapDustHandler handler;
+		OperationHandler(Operation operation, SoapDustHandler handler) {
+			this.operation = operation;
+			this.handler = handler;
+		}
 	}
 
 	//---
