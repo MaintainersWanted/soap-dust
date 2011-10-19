@@ -3,6 +3,8 @@ package soapdust;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import soapdust.urlhandler.test.Handler;
+
 import junit.framework.TestCase;
 
 public class ClientTest extends TestCase {
@@ -86,4 +88,31 @@ public class ClientTest extends TestCase {
 		
 		assertTrue(duration < 100);
 	}
+	
+    public void testTolerateUnkownSubParameters() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+        Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/with-subtype.wsdl");
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        client.call("myMethod", new ComposedValue().
+                put("myMethodParams",
+                        new ComposedValue().put("param", new ComposedValue().
+                        put("x", "5").
+                        put("z", "5.0"))));
+        // does not fail
+    }
+
+    public void testTolerateUnkownSubParametersOfUnknownSubParameters() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+        Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/with-subtype.wsdl");
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        client.call("myMethod", new ComposedValue().
+                put("myMethodParams",
+                        new ComposedValue().put("param", new ComposedValue().
+                        put("x", "5").
+                        put("z", new ComposedValue().put("value", "5.0")))));
+        // does not fail
+    }
+
 }

@@ -147,7 +147,7 @@ public class SoapMessageBuilder {
 		        type = parentType.getType(childKey);
 		        if (type == null) {
 		            //Try to tolerate unsupported xsd :(
-		            typeNamespace = parent.getNamespaceURI();
+		            typeNamespace = parentType.namespace;
 		        } else {
 		            typeNamespace = type.qualified ? type.namespace : ""; 
 		        }
