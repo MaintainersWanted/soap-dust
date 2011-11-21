@@ -1,4 +1,4 @@
-package soapdust.urlhandler.dust;
+package soapdust.urlhandler.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

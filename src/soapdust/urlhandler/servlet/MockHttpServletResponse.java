@@ -88,9 +88,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 	}
 
 	@Override
-	public void setContentType(String arg0) {
-		throw new UnsupportedOperationException();
-
+	public void setContentType(String contentType) {
+		//TODO
 	}
 
 	@Override

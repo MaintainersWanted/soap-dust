@@ -1,6 +1,13 @@
 package soapdust.server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +22,10 @@ import soapdust.MalformedWsdlException;
 import soapdust.urlhandler.servlet.Handler;
 
 public class ServletTest extends TestCase {
+	private static final String WSDL_URL = "file:test/soapdust/server/test.wsdl";
 	private static final String REGISTERED_ACTION = "registered";
 	private static final String RPC_OPERATION = "rpcoperation";
+	private static final String RPC_OPERATION_ACTION = "rpcoperationaction";
 	private static final String DOCUMENT_OPERATION = "documentoperation";
 	private static final String DOCUMENT_WRAPPED_OPERATION = "messageParameter";
 	private static final String DOCUMENT_WRAPPED_OPERATION_2 = "messageSubSubParameter";
@@ -28,34 +37,20 @@ public class ServletTest extends TestCase {
 
 	//FIXME in case of a malformed request, a MalformedResponseException is thrown ;{
 	
-	//TODO find a way to guess the action called.
-	//     if it is a rpc style operation: use the enclosing xml node name (since soapAction is sometimes shared...)
-	//     if it is a document style operation:
-	//         if is not wrapped: use soapAction header
-	//         if it is wrapped: use wrapping node name
-	
-//	Detect document-wrapped wsdl:
-//	Extracted from ExamplesWSDL.html
-//	  * The input message has a single part.
-//    * The part is an element.
-//    * The element has the same name as the operation.
-//    * The element's complex type has no attributes.
-
-	
 	@Override
 	protected void setUp() throws Exception {
 		Handler.clearRegister();
 
 		handler = new StoreHistoryHandler();
 
-		servlet = new Servlet().setWsdl("file:test/soapdust/server/test.wsdl");
+		servlet = new Servlet().setWsdl(WSDL_URL);
 		servlet.register(REGISTERED_ACTION, handler);
 		
 		Handler.register("soapdust", servlet);
 		
 		client = new Client();
 		client.setEndPoint("servlet:reg:soapdust/");
-		client.setWsdlUrl("file:test/soapdust/server/test.wsdl");
+		client.setWsdlUrl(WSDL_URL);
 		
 	}
 
@@ -144,12 +139,56 @@ public class ServletTest extends TestCase {
 		assertEquals(expectedResponse.toString(), response.toString());
 		assertEquals(expectedResponse, response);
 	}
+
+	public void testTolerateSoapActionInGuillemets() throws IOException {
+		servlet.register(RPC_OPERATION, handler);
+
+		HttpURLConnection connection = (HttpURLConnection) new URL("servlet:reg:soapdust/").openConnection();
+		
+		connection.setRequestMethod("POST");
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.addRequestProperty("SOAPAction", "\"" + RPC_OPERATION_ACTION + "\"");
+		
+		String request = 
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+        "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+        "<sdns0:Header/>" +
+        "<sdns0:Body>" +
+        "</sdns0:Body>" +
+        "</sdns0:Envelope>";
+
+		OutputStream out = connection.getOutputStream();
+		out.write(request.getBytes("US-ASCII"));
+		out.flush();
+		
+		assertEquals(200, connection.getResponseCode());
+	}
 	
+	public void testDoGetReturnsWsdl() throws MalformedURLException, IOException {
+		InputStream expected = new URL(WSDL_URL).openStream();
+		
+		InputStream result = new URL("servlet:reg:soapdust/").openStream();
+		
+		assertStreamContentEquals(expected, result);
+	}
+	
+
 	public void testReturnSoapFaultToClient() {
 		//TODO
 	}
 	
 	//---
+
+	private void assertStreamContentEquals(InputStream expected,
+			InputStream result) throws IOException {
+		
+		for(int expectedByte = expected.read();; expectedByte = expected.read()) {
+			assertEquals(expectedByte, result.read());
+			if (expectedByte == -1) return;
+		}
+		
+	}
 }
 
 class StoreHistoryHandler implements SoapDustHandler {

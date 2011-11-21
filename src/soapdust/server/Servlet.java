@@ -1,6 +1,8 @@
 package soapdust.server;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,10 +43,12 @@ import soapdust.wsdl.WsdlParser;
 public class Servlet extends HttpServlet {
 	private WebServiceDescription serviceDescription;
     private boolean wsdlSet;
+	private URL wsdlUrl;
 
 	public Servlet setWsdl(String wsdlUrl) throws MalformedURLException, SAXException, IOException {
 	    try {
-            serviceDescription = new WsdlParser(new URL(wsdlUrl)).parse();
+            this.wsdlUrl = new URL(wsdlUrl);
+			serviceDescription = new WsdlParser(this.wsdlUrl).parse();
             wsdlSet = true;
             return this;
         } catch (ParserConfigurationException e) {
@@ -52,10 +56,29 @@ public class Servlet extends HttpServlet {
         }
 	}
 	
+	@Override	
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		 resp.setContentType("text/xml");
+         OutputStream out = resp.getOutputStream();
+         InputStream in = wsdlUrl.openStream();
+         try {
+        	 
+        	 byte[] buffer = new byte[1024];
+        	 for(int read = in.read(buffer); read != -1; read = in.read(buffer)) {
+        		 out.write(buffer, 0, read);
+        	 }
+        	 out.flush();
+         } finally {
+        	 in.close();
+         }
+	}
+	
+	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		String action = req.getHeader("SOAPAction");
+		String action = req.getHeader("SOAPAction").replace("\"", "");
 		ComposedValue params;
 		try {
 			params = new SoapMessageParser().parse(req.getInputStream());
