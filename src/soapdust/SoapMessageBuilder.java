@@ -1,6 +1,7 @@
 package soapdust;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -118,7 +119,10 @@ public class SoapMessageBuilder {
             operationElement.appendChild(param);
 			
 			Object childValue = parameters.getValue(childKey);
-			if (childValue instanceof String) {
+			if (childValue == null) {
+				//empty node
+				//FIXME this is crappy code ;/
+			} else if (childValue instanceof String) {
 				Text value = document.createTextNode((String) childValue);
 				param.appendChild(value);
 			} else if (childValue instanceof ComposedValue) {
@@ -138,6 +142,15 @@ public class SoapMessageBuilder {
 	private void addParameters(Document document, Element parent, Type parentType,
 			ComposedValue parameters) {
 		for (String childKey : parameters.getChildrenKeys()) {
+			//FIXME
+			Value childValue2 = parameters.getValue2(childKey);
+			if (childValue2 instanceof ListValue) {
+				for (Value element : (List<Value>) (childValue2.rawValue())) {
+					addParameters(document, parent, parentType,
+							new ComposedValue().put(childKey, element.rawValue()));
+				}
+				return;
+			}
 		    final String typeNamespace;
 		    Type type = null;
 		    if (parentType == null) {
@@ -155,7 +168,7 @@ public class SoapMessageBuilder {
 		    Element param = createElement(document, typeNamespace, childKey); 
             parent.appendChild(param);
 			
-			Object childValue = parameters.getValue(childKey);
+            Object childValue = parameters.getValue(childKey);
 			if (childValue instanceof String) {
 				Text value = document.createTextNode((String) childValue);
 				param.appendChild(value);

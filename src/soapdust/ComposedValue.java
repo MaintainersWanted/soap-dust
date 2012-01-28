@@ -1,8 +1,10 @@
 package soapdust;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * The main data structure used by soap-dust.
@@ -14,53 +16,86 @@ import java.util.Map.Entry;
  * have to use its String representation. That is, for instance 200
  * for the int 200.
  */
-public class ComposedValue {
+public class ComposedValue extends Value {
 
 	//TODO would'nt it be cool if this class implemented map and if element could be found with path string ?
 
-	private HashMap<String, Object> children = new LinkedHashMap<String, Object>(); //ensure parameters are kept in addition order.
+	private HashMap<String, Value> children = new LinkedHashMap<String, Value>(); //ensure parameters are kept in addition order.
     public String type;
 
 	public ComposedValue getComposedValue(String key) {
-		Object value = getNonNullValue(key);
-		if (value instanceof ComposedValue) {
-			ComposedValue composedValue = (ComposedValue) value;
-			return composedValue.children.isEmpty() ? null : composedValue; //empty map is null
-		} else {
-			throw new ClassCastException("key is not of type ComposedValue but of type String. Use getStringValue(" + key + ") instead.");
-		}
+		return (ComposedValue) getValue(key, ComposedValue.class);
 	}
 
 	public String getStringValue(String key) {
-		Object value = getNonNullValue(key);
-		if (value instanceof String) {
-			return (String) value;
-		} else {
-			ComposedValue composedValue = (ComposedValue) value;
-			if (composedValue.children.isEmpty()) {
-				return null; //empty map is null
-			} else {
-				throw new ClassCastException("key is not of type String but of type ComposedValue. Use getComposedValue(" + key + ") instead.");
-			}
-		}
+		Value value = getValue(key, StringValue.class);
+		return value == null ? null : value.toString();
 	}
 
-	public Object getValue(String key) {
-		return getNonNullValue(key);
+	public Value getValue(String key, Class<? extends Value> type) {
+
+		Value value = children.get(key);
+
+		if (value == null) {
+			StringBuilder msg = new StringBuilder();
+			msg.append("unknown key: ");
+			msg.append(key);
+			msg.append(" known keys are: ");
+			for (String knownKey : children.keySet()) {
+				msg.append(knownKey);
+				msg.append(" ");
+			}
+			throw new IllegalArgumentException(msg.toString());
+		}
+
+		if (value.isNil()) return null;
+
+		if (! type.isAssignableFrom(value.getClass())) {
+			String expectedType = type.getSimpleName();
+			String actualType = value.getClass().getSimpleName();
+			throw new ClassCastException(key + " is not of type " + expectedType
+					+ " but of type " + actualType + ". " 
+					+ "Use get" + actualType + "(\"" + key + "\") instead.");
+		}
+
+		return value;
 	}
 	
-	public ComposedValue put(String child, Object value) {
-		if ((value instanceof String) || (value instanceof ComposedValue)) {
-			if (children.get(child) == null) {
-				children.put(child, value);
-			} else {
-				//TODO this sucks !!! Find a better way to represent object with several children having the same name.
-				int i = 1;
-				for(; children.get(child + i) != null; i++);
-				children.put(child + i, value);
-			}
+	public Object getValue(String key) {
+		//FIXME this method should return Value in the future
+		Value value = getValue(key, Value.class);
+		return value == null ? null : value.rawValue();
+	}
+
+	public Value getValue2(String key) {
+		return getValue(key, Value.class);
+	}
+
+	public ComposedValue putValue(String key, Value value) {
+		Value child = children.get(key);
+		if(child != null) {
+			value = new ListValue().append(child).append(value);
+		}
+		children.put(key, value);
+		return this;
+	}			
+
+	/**
+	 * Add an element to this ComposedValue with key key and value value.
+	 * 
+	 * If key refers to a list, call this method several times with the 
+	 * same key and each value you want to add to the list.
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public ComposedValue put(String key, Object value) {
+		if ((value instanceof String) 
+				|| (value instanceof Value)) {
+			if (value instanceof String) this.putValue(key, new StringValue((String) value));
+			if (value instanceof Value) this.putValue(key, (Value) value);
 		} else {
-			String message = "While adding child \"" + child + "\": " 
+			String message = "While adding child \"" + key + "\": " 
 			+ "Only String and ComposedValue are allowed in ComposedValue, not: " ;
 			if (value == null) {
 				throw new IllegalArgumentException(message + null);
@@ -82,9 +117,9 @@ public class ComposedValue {
 	    
 	    StringBuilder result = new StringBuilder();
 	    result.append("{");
-	    Set<Entry<String,Object>> entrySet = children.entrySet();
+	    Set<Entry<String,Value>> entrySet = children.entrySet();
 	    String separator = "";
-	    for (Entry<String, Object> entry : entrySet) {
+	    for (Entry<String, Value> entry : entrySet) {
 	        result.append(separator);
             result.append("\"");
             result.append(entry.getKey().replaceAll("\\\\", "\\\\").replaceAll("\"", "\\\""));
@@ -113,20 +148,85 @@ public class ComposedValue {
 //		return this.children.hashCode();
 //	}
 	
-	private Object getNonNullValue(String key) {
-		Object value = children.get(key);
-		if (value == null) {
-			StringBuilder msg = new StringBuilder();
-			msg.append("unknown key: ");
-			msg.append(key);
-			msg.append(" known keys are: ");
-			for (String knownKey : children.keySet()) {
-				msg.append(knownKey);
-				msg.append(" ");
-			}
-			throw new IllegalArgumentException(msg.toString());
-		} else {
-			return value;
-		}
+	@Override
+	public boolean isNil() {
+		return children.isEmpty();
 	}
+
+	@Override
+	public Object rawValue() {
+		return this;
+	}
+}
+
+class StringValue extends Value {
+	String value;
+	
+	public StringValue(String value) {
+		this.value = value;
+	}
+	
+	@Override
+	public String toString() {
+		return value;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof StringValue) {
+			StringValue other = (StringValue) obj;
+			return value.equals(other.value);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return value.hashCode();
+	}
+
+	@Override
+	public boolean isNil() {
+		return false;
+	}
+
+	@Override
+	public Object rawValue() {
+		return value;
+	}
+}
+
+class ListValue extends Value {
+
+	List<Value> value = new ArrayList<Value>();
+	
+	@Override
+	public boolean isNil() {
+		return value.isEmpty();
+	}
+
+	public ListValue append(Value value) {
+		if (value instanceof ListValue) {
+			this.value.addAll(((ListValue) value).value);
+		} else {
+			this.value.add(value);
+		}
+		return this;
+	}
+
+	@Override
+	public Object rawValue() {
+		//FIXME directly implement List instead ?
+		return value;
+	}
+	
+	@Override
+	public String toString() {
+		return value.toString();
+	}
+}
+
+abstract class Value {
+	public abstract boolean isNil();
+	public abstract Object rawValue();//FIXME transform code so that this method becomes useless
 }

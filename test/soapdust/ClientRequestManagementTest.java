@@ -218,7 +218,98 @@ public class ClientRequestManagementTest extends TestCase {
     	// Nobody follows this style. It is not WS-I compliant. So let's move on.
     	// See http://www.ibm.com/developerworks/webservices/library/ws-whichwsdl/
     }
-    
+
+    public void testBuildRequestWithStringArrayParameter() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+    	Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/document-literal-wrapped.wsdl"); //TODO use wsdl with maxOccur=unbouded
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        ComposedValue params = new ComposedValue();
+        params.put("x", "1");
+        params.put("x", "2");
+        params.put("x", "3");
+        client.call("myMethod", params);
+        
+        String expected = 
+            	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+                  "<sdns0:Header/>" +
+                  "<sdns0:Body>" +
+                    "<sdns1:myMethod xmlns:sdns1=\"definitionNS\">" +
+                      "<sdns1:x>1</sdns1:x>" +
+                      "<sdns1:x>2</sdns1:x>" +
+                      "<sdns1:x>3</sdns1:x>" +
+                    "</sdns1:myMethod>" +
+                  "</sdns0:Body>" +
+                "</sdns0:Envelope>";
+        
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
+    }
+
+    public void testBuildRequestWithComposedValueArrayParameter() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+    	Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/with-qualified-subtype.wsdl"); //TODO use wsdl with maxOccur=unbouded
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        ComposedValue params = new ComposedValue();
+        params.put("param", new ComposedValue().put("x", "1").put("y", "2"));
+        params.put("param", new ComposedValue().put("x", "8").put("y", "9"));
+        client.call("myMethod", new ComposedValue()
+          .put("myMethodParams", params));
+        
+        String expected = 
+            	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+                  "<sdns0:Header/>" +
+                  "<sdns0:Body>" +
+                  "<sdns1:myMethodParams xmlns:sdns1=\"definitionNS\">" +
+                  "<sdns1:param>" +
+                    "<sdns1:x>1</sdns1:x>" +
+                    "<sdns1:y>2</sdns1:y>" +
+                  "</sdns1:param>" +
+                  "<sdns1:param>" +
+                    "<sdns1:x>8</sdns1:x>" +
+                    "<sdns1:y>9</sdns1:y>" +
+                  "</sdns1:param>" +
+              "</sdns1:myMethodParams>" +
+                  "</sdns0:Body>" +
+                "</sdns0:Envelope>";
+        
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
+    }
+
+    public void testBuildRequestWithListValueOfComposedValueParameter() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
+    	Client client = new Client();
+        client.setWsdlUrl("file:test/soapdust/with-qualified-subtype.wsdl"); //TODO use wsdl with maxOccur=unbouded
+        client.setEndPoint("test:file:test/soapdust/response-with-href.xml");//TODO add a response.xml file for general purpose queries
+
+        ListValue params = new ListValue();
+        params.append(new ComposedValue().put("x", "1").put("y", "2"));
+        params.append(new ComposedValue().put("x", "8").put("y", "9"));
+        client.call("myMethod", new ComposedValue()
+          .put("myMethodParams", new ComposedValue().put("param", params)));
+        
+        String expected = 
+            	"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" +
+                "<sdns0:Envelope xmlns:sdns0=\"http://schemas.xmlsoap.org/soap/envelope/\">" +
+                  "<sdns0:Header/>" +
+                  "<sdns0:Body>" +
+                  "<sdns1:myMethodParams xmlns:sdns1=\"definitionNS\">" +
+                  "<sdns1:param>" +
+                    "<sdns1:x>1</sdns1:x>" +
+                    "<sdns1:y>2</sdns1:y>" +
+                  "</sdns1:param>" +
+                  "<sdns1:param>" +
+                    "<sdns1:x>8</sdns1:x>" +
+                    "<sdns1:y>9</sdns1:y>" +
+                  "</sdns1:param>" +
+              "</sdns1:myMethodParams>" +
+                  "</sdns0:Body>" +
+                "</sdns0:Envelope>";
+        
+        assertEquals(expected, Handler.lastSaved("test:file:test/soapdust/response-with-href.xml").toString());
+    }
+
     public void testBuildDocumentLiteralRequest() throws IOException, MalformedWsdlException, FaultResponseException, MalformedResponseException {
     	Client client = new Client();
         client.setWsdlUrl("file:test/soapdust/document-literal.wsdl");

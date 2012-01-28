@@ -3,8 +3,6 @@ package soapdust;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import soapdust.urlhandler.test.Handler;
-
 import junit.framework.TestCase;
 
 public class ClientTest extends TestCase {
