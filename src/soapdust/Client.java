@@ -236,6 +236,32 @@ public class Client {
 
 	}
 
+	/**
+	 * Override this method if you want to encapsulate the outputstream
+	 * of your client instance.
+	 * For instance you may log every xml request your client sends to server.
+	 * 
+	 * Avoid using this method if you don't know what you are doing.
+	 * 
+	 * @param target the outputstream to encapsulate
+	 */
+	protected OutputStream encapsulate(OutputStream target) {
+		return target;
+	}
+	
+	/**
+	 * Override this method if you want to encapsulate the inputstream
+	 * of your client instance.
+	 * For instance you may log every xml response your client receives from server.
+	 * 
+	 * Avoid using this method if you don't know what you are doing.
+	 * 
+	 * @param target the outputstream to encapsulate
+	 */
+	protected InputStream encapsulate(InputStream source) {
+		return source;
+	}
+
 	//---
 	
 	private void addSoapAction(HttpURLConnection connection, String operationName) {
@@ -301,14 +327,14 @@ public class Client {
 			int responseCode = connection.getResponseCode();
 			if (responseCode != 200 && responseCode != -1) {
 				InTrace inTrace = new InTrace(connection.getErrorStream());
-				throw new SoapMessageParser().parseFault(inTrace.in, responseCode, inTrace.trace);
+				throw new SoapMessageParser().parseFault(encapsulate(inTrace.in), responseCode, inTrace.trace);
 			} else {
 				throw e;
 			}
 		}
 		handleResponseCode(connection);
 		InTrace inTrace = new InTrace(inputStream);
-		return new SoapMessageParser().parse(inTrace.in, inTrace.trace);
+		return new SoapMessageParser().parse(encapsulate(inTrace.in), inTrace.trace);
 	}
 
 	private void handleResponseCode(HttpURLConnection connection) throws IOException,
@@ -327,7 +353,7 @@ public class Client {
 
 	private void sendRequest(Document message, HttpURLConnection connection)
 	throws IOException {
-		OutputStream out = connection.getOutputStream();
+		OutputStream out = encapsulate(connection.getOutputStream());
 		try {
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
 			transformer.transform(new DOMSource(message), new StreamResult(out));
