@@ -1,7 +1,5 @@
 #!/bin/bash
 
-svn up >/dev/null || exit $?
-
 if [ ! -z "$(svn st)" ]
 then
   echo "You have local modifications you need to check in svn before proceeding" >&2
