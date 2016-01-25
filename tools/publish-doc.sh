@@ -2,6 +2,12 @@
 
 cd $(dirname $0)/..
 
+if [ $(git status --porcelain | wc -l) -ne 0 ]
+then
+  echo "You have local modifications you need to check in svn before proceeding" >&2
+  exit 1
+fi
+
 branch=$(git branch  | grep '^*' | cut -d' ' -f2)
 
 ant doc
