@@ -1,13 +1,19 @@
 #!/bin/bash
 
-if [ ! -z "$(svn st)" ]
+cd $(dirname $0)/..
+
+if [ $(git status --porcelain | wc -l) -ne 0 ]
 then
   echo "You have local modifications you need to check in svn before proceeding" >&2
   exit 1
 fi
 
-DELIVERABLE=$(LANG=C svn info . | grep URL | sed -e 's:.*/\(.*\)/\(.*\):\1-\2:')
+DELIVERABLE=soap-dust
 
-REVISION=$(LANG=C svn info . | grep Revision | cut -d' ' -f2)
+BRANCH=$(git branch  | grep '^*' | cut -d' ' -f2)
 
-echo $DELIVERABLE.$REVISION
+REVISION=$(($(git tag | grep "^$branch" | sed -e 's:.*\.::' | sort -n | tail -n1)+1))
+
+git tag $BRANCH.$REVISION
+
+echo $DELIVERABLE.$BRANCH.$REVISION
