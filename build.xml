@@ -11,7 +11,7 @@
   <property name="lib.dir" value="${basedir}/lib"/>
   <property name="resources.dir" value="${basedir}/resources"/>
   <property name="jar.file" value="${build.dir}/soap-dust.jar"/>
-  <property name="api.dir" value="${basedir}/../../www/htdocs/api"/>
+  <property name="api.dir" value="${build.dir}/api"/>
 
   <target name="release"
           description="Build a versioned library jar file. Check that you do not have unchecked local modifications before proceeding.">
@@ -38,7 +38,7 @@
     <delete dir="${build.dir}"/>
   </target>
 
-  <target name="doc" description="generate javadoc">
+  <target name="doc" description="generate javadoc" depends="prepare">
     <delete dir="${api.dir}"/>
     <javadoc sourcepath="${src.main.dir}"
              destdir="${api.dir}" />
@@ -81,6 +81,7 @@
 
   <target name="prepare">
     <mkdir dir="${build.dir}"/>
+    <mkdir dir="${api.dir}"/>
     <mkdir dir="${report.test.dir}"/>
     <mkdir dir="${classes.test.dir}"/>
     <mkdir dir="${classes.main.dir}"/>
