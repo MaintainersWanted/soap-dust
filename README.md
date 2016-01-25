@@ -8,6 +8,8 @@ soap-dust fits within a single jar file.
 
 soap-dust works on Android.
 
+You can find more details in [soap-dust Javadoc](http://pgrange.github.io/soap-dust/api/).
+
 ## How to query a remote SOAP server with soap-dust?
 
 Just create a new soap-dust client. Then initialize it with the appropriate wsdl and endpoint urls. Finally, call its *call* method with the name of the remote operation you want to call and the corresponding parameters:
