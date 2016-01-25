@@ -4,7 +4,11 @@
   <property name="ant-release-support" value="${basedir}/tools/ant-release-support.sh"/>
   <property name="build.dir" value="${basedir}/target"/>
   <property name="classes.main.dir" value="${build.dir}/classes"/>
+  <property name="classes.test.dir" value="${build.dir}/test"/>
+  <property name="report.test.dir" value="${build.dir}/test-report"/>
   <property name="src.main.dir" value="${basedir}/src"/>
+  <property name="src.test.dir" value="${basedir}/test"/>
+  <property name="lib.dir" value="${basedir}/lib"/>
   <property name="jar.file" value="${build.dir}/soap-dust.jar"/>
   <property name="api.dir" value="${basedir}/../../www/htdocs/api"/>
 
@@ -41,6 +45,31 @@
 
   <!-- -->
 
+  <target name="test" depends="compile-test">
+    <junit printsummary="yes" fork="yes" haltonfailure="yes">
+      <classpath>
+        <pathelement location="${lib.dir}/junit-3.8.2.jar"/>
+        <pathelement location="${classes.main.dir}"/>
+        <pathelement location="${classes.test.dir}"/>
+      </classpath>
+      <formatter type="plain"/>
+      <batchtest todir="${report.test.dir}" fork="yes">
+        <fileset dir="${src.test.dir}">
+          <include name="**/*Test*.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="compile-test" depends="compile">
+    <javac srcdir="${src.test.dir}"
+           destdir="${classes.test.dir}"
+           classpath="${classes.main.dir}:${lib.dir}/junit-3.8.2.jar"
+           fork="true"
+           source="1.5"
+           target="1.5"/>
+  </target>
+
   <target name="compile" depends="prepare">
     <javac srcdir="${src.main.dir}"
            destdir="${classes.main.dir}"
@@ -51,6 +80,8 @@
 
   <target name="prepare">
     <mkdir dir="${build.dir}"/>
+    <mkdir dir="${report.test.dir}"/>
+    <mkdir dir="${classes.test.dir}"/>
     <mkdir dir="${classes.main.dir}"/>
   </target>
 
