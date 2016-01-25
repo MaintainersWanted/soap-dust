@@ -1,0 +1,5 @@
+soapdust
+soapdust.server
+soapdust.urlhandler.servlet
+soapdust.urlhandler.test
+soapdust.wsdl
