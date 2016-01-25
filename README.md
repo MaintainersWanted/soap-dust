@@ -1,6 +1,6 @@
 # soap-dust until SOAP is deprecated
 
-soap-dust is a SOAP client API for Java developers that need one, until SOAP is deprecated.
+soap-dust is a SOAP client/server API for Java developers who need one, until SOAP is deprecated.
 
 soap-dust does not require neither perform any code generation.
 
@@ -8,7 +8,7 @@ soap-dust fits within a single jar file.
 
 soap-dust works on Android.
 
-## How to query a remote soap server with soap-dust?
+## How to query a remote SOAP server with soap-dust?
 
 Just create a new soap-dust client. Then initialize it with the appropriate wsdl and endpoint urls. Finally, call its *call* method with the name of the remote operation you want to call and the corresponding parameters:
 
@@ -26,7 +26,7 @@ By the way, good news: this code won't work anymore since Jira deprecated its SO
     
 ## How do I know what the remote web-service understands?
 
-If you do not read wsdl fluently, you can find hope in the explain method.
+If you do not read wsdl fluently, the *explain* method might help you.
 
 Just create a new soap-dust client. Initialize it with the appropriate wsdl url and call its *explain* method:
 
@@ -60,7 +60,9 @@ A *test* url will simulate an http url. When you create this url, you set the fi
 
 For instance querying the following url will result in a *500* HTTP response. The data received will be extracted from the file *test/response.xml*:
 
+```
 test:status:500;file:test/response.xml
+```
   
 You can also get the data sent to such an url at the end of your test. See *soapdust.urlhandler.test.Handler* for more information.
 
@@ -68,7 +70,7 @@ You can also get the data sent to such an url at the end of your test. See *soap
 
 As surprising as it might seem, soap-dust does not handle arrays very nicely for now :( 
 
-To pass an array as a parameter to a soap method, you will have to either encapsulate each of your array elements inside a separate *ComposedValue* with fake names or put each element of your array in the *ComposedValue*.
+To pass an array as a parameter to a SOAP method, you will have to either encapsulate each of your array elements inside a separate *ComposedValue* with fake names or put each element of your array in the *ComposedValue*.
 
 For instance if the method *m* takes a parameter *p* of type array (of strings), then one can make a call like this :
 
@@ -146,9 +148,9 @@ public class QueryJiraWithSoapdust {
 }
 ```
 
-### Second: download the last version of SOAP-dust
+### Second: download the latest version of SOAP-dust
 
-Check the last release of soap-dust and download it.
+Check the latest release of soap-dust and download it.
 
 ### Third: Compile your client
 
