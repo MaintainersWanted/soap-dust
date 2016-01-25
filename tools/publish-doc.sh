@@ -8,6 +8,7 @@ ant doc
 
 git checkout gh-pages
 git pull origin gh-pages
+rm -rf "api/$branch"
 cp -r target/api "api/$branch"
 
 ls api | grep -v index.html \
