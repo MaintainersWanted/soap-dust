@@ -12,7 +12,7 @@ DELIVERABLE=soap-dust
 
 BRANCH=$(git branch  | grep '^*' | cut -d' ' -f2)
 
-REVISION=$(($(git tag | grep "^$branch" | sed -e 's:.*\.::' | sort -n | tail -n1)+1))
+REVISION=$(($(git tag | grep "^$BRANCH" | sed -e 's:.*\.::' | sort -n | tail -n1)+1))
 
 git tag $BRANCH.$REVISION
 
