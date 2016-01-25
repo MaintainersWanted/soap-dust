@@ -8,12 +8,13 @@ import java.util.Set;
 
 /**
  * The main data structure used by soap-dust.
- * 
- * A ComposedValue is a tree composed of other ComposedValue or of String.
- * 
- * For soap-dust, every data is either a String or a ComposedValue.
+ * <p> 
+ * A {@link ComposedValue} is a tree composed of other {@link ComposedValue} or of {@link String}.
+ * <p>
+ * For soap-dust, every data is either a {@link String} or a {@link ComposedValue}.
+ * <p>
  * For instance if you need to send an int to a remote server, you
- * have to use its String representation. That is, for instance 200
+ * have to use its {@link String} representation. That is, for instance 200
  * for the int 200.
  */
 public class ComposedValue extends Value {
@@ -81,13 +82,11 @@ public class ComposedValue extends Value {
 	}			
 
 	/**
-	 * Add an element to this ComposedValue with key key and value value.
-	 * 
+	 * Add an element to this {@link ComposedValue} with key key and value value.
+	 * <p>
 	 * If key refers to a list, call this method several times with the 
 	 * same key and each value you want to add to the list.
-	 * @param key
-	 * @param value
-	 * @return
+	 * @return this {@link ComposedValue} to continue adding things to it.
 	 */
 	public ComposedValue put(String key, Object value) {
 		if ((value instanceof String) 

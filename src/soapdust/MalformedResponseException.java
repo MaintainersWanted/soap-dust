@@ -14,9 +14,9 @@ public class MalformedResponseException extends Exception {
 	
 	/**
 	 * The invalid soap data sent by the server. This field may be null.
+         * Active trace mode if you want to ensure this field is NEVER null.
 	 * 
-	 * @see Client.activeTraceMode() if you want to ensure this field
-	 * is NEVER null.
+	 * @see Client#activeTraceMode(boolean)
 	 */
 	public byte[] response;
 

@@ -33,7 +33,7 @@ import soapdust.wsdl.WebServiceDescription;
 import soapdust.wsdl.WsdlParser;
 
 /**
- * Instances of this class allow to query a remote soap server.
+ * Instances of this class can query a remote soap server.
  */
 public class Client {
 
@@ -55,28 +55,28 @@ public class Client {
 	/**
 	 * Sets a wsdl url for this client. It is the url this client 
 	 * will use to get the wsdl describing the remote soap service.
-	 * 
+	 * <p>
 	 * You must set this url before being able to call remote service
 	 * or get explanation about remote service.
-	 * 
+	 * <p>
 	 * Getting wdsl and analysing them is an expensive operation.
 	 * For this reason, a cache of service descriptions is shared
 	 * among all Client instances. The key in this cache is the
 	 * wsdl url.
-	 * 
+	 * <p>
 	 * This method will try to get the service description from the
 	 * cache first, using the wsdl url as key. Then, only if no 
 	 * service description can be found, will it get the wsdl from 
 	 * the url and analyse it to store service description in the 
 	 * cache. 
-	 * 
+	 * <p>
 	 * This cache mechanism is thread safe.
-	 * 
+	 * <p>
 	 * The cache uses a WeakHashMap so that its entries will be 
 	 * automatically dropped from memory if not used or memory needed.
 	 * 
-	 * @see explain
-	 * @see call
+	 * @see #explain(Writer)
+	 * @see #call(String)
 	 * 
 	 * @see WeakHashMap
 	 * 
@@ -94,8 +94,8 @@ public class Client {
 	}	
 	
 	/**
-	 * Set the url of the remote service to query.
-	 * 
+	 * Sets the url of the remote service to query.
+	 * <p>
 	 * You must set this url before trying to call any method.
 	 * 
 	 * @param url of the end point of the remote service.
@@ -107,12 +107,14 @@ public class Client {
 
 	/**
 	 * Displays a description of the remote soap service from its wsdl.
+         * <p>
 	 * You must set a wsdl url before being able to call this method.
+         * <p>
 	 * The description is written in out.
 	 * You are responsible to close out.
-	 * 
+	 * <p>
 	 * Ex:
-	 * <code> client.explain(System.out); </code>
+	 * {@code client.explain(System.out); }
 	 * 
 	 * @param out the Writer to print description to.
 	 * @throws IOException
@@ -135,9 +137,7 @@ public class Client {
 	}
 
 	/**
-	 * @see explain(Writer)
-	 * @param out
-	 * @throws IOException
+	 * @see #explain(Writer)
 	 */
 	public void explain(OutputStream out) throws IOException {
 		explain(new OutputStreamWriter(out));
@@ -145,17 +145,16 @@ public class Client {
 
 	/**
 	 * Calls a remote operation without parameters.
-	 * 
+	 * <p>
 	 * The operation is identified by the given operation parameter.
 	 * 
-	 * @see explain to have information about the remote service available operations.
+	 * @see #explain(Writer) Client.explain(Writer) for remote service available operations.
 	 * 
-	 * @param operation the remote operation to call
-	 * @return the response of the remote server in a ComposedValue
-	 * @throws FaultResponseException if the remote server returns a SOAP fault
-	 * @throws IOException in case of problem during communication with remote server
-	 * @throws MalformedResponseException if the remote server returns a malformed, 
-	 * non-soap response.
+	 * @param operation the remote operation to call.
+	 * @return The response of the remote server in a {@link ComposedValue}.
+	 * @throws FaultResponseException if the remote server returns a SOAP fault.
+	 * @throws IOException in case of problem during communication with remote server.
+	 * @throws MalformedResponseException if the remote server returns a malformed, non-soap response.
 	 */
 	public ComposedValue call(String operation) throws FaultResponseException, IOException, MalformedResponseException  {
 		return call(operation, new ComposedValue());
@@ -163,21 +162,19 @@ public class Client {
 
 	/**
 	 * Calls a remote operation.
-	 * 
+	 * <p>
 	 * The operation is identified by the given operation parameter.
-	 *
+	 * <p>
 	 * Parameters to use for the operation are specified in the given parameters.
 	 * 
-	 * @see explain to have information about the remote service available operations
-	 * and expected parameters.
+	 * @see #explain(Writer) Client.explain(Writer) for remote service available operations.
 	 * 
-	 * @param operation the remote operation to call
-	 * @param parameters the parameters to transmit
-	 * @return the response of the remote server in a ComposedValue
-	 * @throws FaultResponseException if the remote server returns a SOAP fault
-	 * @throws IOException in case of problem during communication with remote server
-	 * @throws MalformedResponseException if the remote server returns a malformed, 
-	 * non-soap response.
+	 * @param operation the remote operation to call.
+	 * @param parameters the parameters to transmit.
+	 * @return The response of the remote server in a {@link ComposedValue}.
+	 * @throws FaultResponseException if the remote server returns a SOAP fault.
+	 * @throws IOException in case of problem during communication with remote server.
+	 * @throws MalformedResponseException if the remote server returns a malformed, non-soap response.
 	 */
 	public ComposedValue call(String operation, ComposedValue parameters) throws FaultResponseException, IOException, MalformedResponseException {
 		if (! this.wsdlSet)     throw new IllegalStateException("you must set a wsdl url before trying to call a remote method...");
@@ -196,7 +193,6 @@ public class Client {
 
 	/**
 	 * Set a user name for BASIC-AUTH authentication.
-	 * @param userName
 	 */
 	public void setUsername(String userName) {
 		this.userName = userName;
@@ -204,23 +200,21 @@ public class Client {
 
 	/**
 	 * Set a password for BASIC-AUTH authentication.
-	 * @param password
 	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
 	/**
-	 * Avoid using this method. Prefer setWsdlUrl() instead.
-	 * 
+	 * Avoid using this method. Prefer {@link setWsdlUrl(String)} instead.
+	 * <p>
 	 * This method is only usefull if you want to override a service description
 	 * previously stored in cache for the given wsdlUrl.
 	 * 
-	 * @see setWsdlUrl
+	 * @see #setWsdlUrl(String)
 	 * 
-	 * @param wsdlUrl
 	 * @throws IOException
-	 * @throws MalformedWsdlException
+         * @throws MalformedWsdlException if the remote server returns a malformed wsdl.
 	 */
 	public void setWsdlUrlOverrideCache(String wsdlUrl) throws IOException, MalformedWsdlException {
 		parseWsdl(new URL(wsdlUrl));
@@ -228,9 +222,10 @@ public class Client {
 	}
 
 	/**
-	 * Override this method if you want to customize the http connection.
+	 * Override this method if you need to customize the http connection.
+         * <p>
 	 * For instance you may set a connect or read timeout.
-	 * @param connection the HttpURLConnection to customize
+	 * @param connection the HttpURLConnection to customize.
 	 */
 	protected void customizeHttpConnectionBeforeCall(HttpURLConnection connection) {
 
@@ -239,24 +234,28 @@ public class Client {
 	/**
 	 * Override this method if you want to encapsulate the outputstream
 	 * of your client instance.
+         * <p>
 	 * For instance you may log every xml request your client sends to server.
-	 * 
+         * <p>
 	 * Avoid using this method if you don't know what you are doing.
 	 * 
-	 * @param target the outputstream to encapsulate
+	 * @param target the outputstream to encapsulate.
+         * @see #encapsulate(InputStream)
 	 */
 	protected OutputStream encapsulate(OutputStream target) {
 		return target;
 	}
 	
 	/**
-	 * Override this method if you want to encapsulate the inputstream
+	 * Override this method if you need to encapsulate the inputstream
 	 * of your client instance.
+         * <p>
 	 * For instance you may log every xml response your client receives from server.
-	 * 
+	 * <p> 
 	 * Avoid using this method if you don't know what you are doing.
 	 * 
-	 * @param target the outputstream to encapsulate
+	 * @param source the {@link InputStream} to encapsulate
+         * @see #encapsulate(OutputStream)
 	 */
 	protected InputStream encapsulate(InputStream source) {
 		return source;
@@ -410,18 +409,18 @@ public class Client {
 	/**
 	 * Avoid using this method if you are not interested in the
 	 * result. This may have performance penalty.
-	 * 
-	 * Change the trace mode status for all Client instances. 
+	 * <p>
+	 * Changes the trace mode status for all Client instances. 
 	 * The trace mode defaults to false.
-	 * 
-	 * When trace mode is activated, every MalformedResponseException
-	 * thrown by a Client will contain the data (as a byte array)
+	 * <p>
+	 * When trace mode is activated, every {@link MalformedResponseException}
+	 * thrown by a {@link Client} will contain the data (as a byte array)
 	 * received from the remote server.
-	 * 
-	 * This may have a performance penalty since it implies that all
+	 * <p>
+	 * This will have a performance penalty since it implies that all
 	 * the data sent by the server be saved before trying to parse it.
 	 * 
-	 * @param active
+	 * @param active if true, trace mode is activated. Defaults to false.
 	 */
 	public static synchronized void activeTraceMode(boolean active) {
 		traceMode = active;

@@ -24,30 +24,31 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 /**
  * This class handles test: urls. The jvm is automatically initialized
  * so that this class is used to resolve test: urls.
- * 
+ * <p> 
  * test: urls allows you to test an application that access to a
  * http server by pointing your application to a test: url instead
  * of a http: url.
- * 
+ * <p>
  * With a test: url, you can specify the http status code you want the
  * http request to return and also a file which content will be
  * returned as the http response content or error content.
- * 
+ * <p>
  * test: may be of the form :
- * 
- * test:status:500 => requesting this url will result in a 500 http status
- * 
- * test:file:test/response.xml => requesting this url will return the content of the given file
- * 
- * test:status:500;file:test/response.xml
- * 
+ * <p>
+ * {@code test:status:500} => requesting this url will result in a 500 http status
+ * <p>
+ * {@code test:file:test/response.xml} => requesting this url will return the content of the given file
+ * <p>
+ * {@code test:status:500;file:test/response.xml}
+ * <p>
  * status: is optionnal and defaults to 200
+ * <p>
  * file: if optionnal and defaults to empty file
- *
+ * <p>
  * One can consult the data written "to" a test: url by accessing the public
- * HashTable saved in this class. Data is indexed by url.
- * 
- * See HandlerTest.java for examples of using this class.
+ * {@link HashTable} saved in this class. Data is indexed by url.
+ * <p>
+ * See {@link HandlerTest} for examples of how to use this class.
  *
  */
 public class Handler extends URLStreamHandler {
